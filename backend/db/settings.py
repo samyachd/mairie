@@ -4,6 +4,20 @@ from dotenv import load_dotenv
 
 load_dotenv()
 
+
+load_dotenv(override=True)  # important
+
+print("DB_USER:", os.getenv("DB_USER"))
+print("DB_HOST:", os.getenv("DB_HOST"))
+print("DB_PORT:", os.getenv("DB_PORT"))
+print("DB_NAME:", os.getenv("DB_NAME"))
+
+db_pass = os.getenv("DB_PASS")
+print("DB_PASS:", db_pass)
+print("DB_PASS present?", db_pass is not None)
+print("DB_PASS length:", len(db_pass) if db_pass else None)
+print("DB_PASS startswith:", db_pass[:2] if db_pass else None)  # 2 chars max
+
 class Settings:
     DB_USER = os.environ["DB_USER"]
     DB_PASS = os.environ["DB_PASS"]

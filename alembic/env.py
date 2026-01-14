@@ -4,6 +4,20 @@ from alembic import context
 from backend.db.db import Base
 from backend.db import models
 from backend.db.settings import settings
+import os
+
+print("ALEMBIC DATABASE URL =", settings.DATABASE_URL)
+print("ALEMBIC DATABASE URL (str) =", str(settings.DATABASE_URL))
+
+
+print("DB_USER =", os.getenv("DB_USER"))
+print("DB_HOST =", os.getenv("DB_HOST"))
+print("DB_PORT =", os.getenv("DB_PORT"))
+print("DB_NAME =", os.getenv("DB_NAME"))
+print("DB_PASS =", os.getenv("DB_PASS"))
+print("DB_PASS present?", bool(os.getenv("DB_PASS")))
+print("DB_PASS length:", len(os.getenv("DB_PASS") or ""))
+
 
 # this is the Alembic Config object, which provides
 # access to the values within the .ini file in use.
