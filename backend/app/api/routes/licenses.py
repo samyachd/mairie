@@ -1,8 +1,8 @@
 from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.orm import Session
-from app.schemas.licenses import LicenseCreate, LicenseRead, LicenseUpdate
-from app.db.session import get_db
-from app.db.models import OfficeLicenses
+from backend.app.schemas.licenses import LicenseCreate, LicenseRead, LicenseUpdate
+from backend.app.db.session import get_db
+from backend.app.db.models import OfficeLicenses
 
 router = APIRouter()
 
@@ -21,7 +21,7 @@ def read_licenses(skip: int = 0, limit: int = 100, db: Session = Depends(get_db)
 
 @router.get("/{license_id}", response_model=LicenseRead)
 def read_license(license_id: int, db: Session = Depends(get_db)):
-    db_license = db.query(LicenseRead).filter(LicenseRead.id == license_id).first()
+    db_license = db.query(OfficeLicenses).filter(OfficeLicenses.id == license_id).first()
     return db_license
 
 @router.delete("/{license_id}")

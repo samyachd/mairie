@@ -1,8 +1,9 @@
 from __future__ import annotations
-from sqlalchemy import String, Integer, ForeignKey, DateTime, Date, Boolean, func
+from typing import Optional
+from sqlalchemy import CheckConstraint, String, Integer, ForeignKey, DateTime, Date, Boolean, UniqueConstraint, func
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 import datetime as dt
-from .db import Base
+from backend.app.db.db import Base
 
 class User(Base):
     __tablename__ = "users"
@@ -52,7 +53,7 @@ class Ordinateurs(Base):
     created_at: Mapped["DateTime"] = mapped_column(DateTime(timezone=True), server_default=func.now())
 
     user: Mapped[User | None] = relationship(back_populates="ordinateurs", passive_deletes=True)
-    ecran: Mapped[list["Ecrans"]] = relationship(back_populates="ordinateurs", passive_deletes=True)
+    ecran: Mapped[list["Ecrans"]] = relationship(back_populates="ordinateur", passive_deletes=True)
     office_license: Mapped[OfficeLicenses | None] = relationship(back_populates="ordinateurs", passive_deletes=True)
 
 class Ecrans(Base):
@@ -71,6 +72,14 @@ class Ecrans(Base):
     created_at: Mapped["DateTime"] = mapped_column(DateTime(timezone=True), server_default=func.now())
 
     ordinateur_id: Mapped[int | None] = mapped_column(ForeignKey("ordinateurs.id", ondelete="SET NULL"), nullable=True, index=True)
+    slot: Mapped[int | None] = mapped_column(Integer, nullable=True)
+
+    ordinateur: Mapped[Optional["Ordinateurs"]] = relationship(back_populates="ecran")
+
+    __table_args__ = (
+        UniqueConstraint("ordinateur_id", "slot", name="uq_ecran_slot_per_pc"),
+        CheckConstraint("slot IS NULL OR (slot BETWEEN 1 AND 5)", name="ck_slot_1_5"),
+    )
 
 class OfficeLicenses(Base):
     __tablename__ = "office_licenses"

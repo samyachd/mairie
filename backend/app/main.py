@@ -1,5 +1,5 @@
 from fastapi import FastAPI
-from backend.app.core.config import settings
+from backend.app.core.settings import settings
 from backend.app.api.routes import users, ordinateurs, licenses, ecrans
 
 app = FastAPI(
@@ -7,6 +7,10 @@ app = FastAPI(
     version=settings.VERSION,
     debug=settings.DEBUG,
 )
+
+@app.get("/")
+def root():
+    return {"status": "ok", "message": "API Inventaire"}
 
 app.include_router(users.router, prefix="/users", tags=["users"])
 app.include_router(ordinateurs.router, prefix="/ordinateurs", tags=["ordinateurs"])

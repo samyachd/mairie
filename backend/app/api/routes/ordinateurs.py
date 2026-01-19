@@ -1,8 +1,8 @@
 from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.orm import Session
-from app.schemas.ordinateurs import PCCreate, PCRead, PCUpdate
-from app.db.session import get_db
-from app.db.models import Ordinateurs
+from backend.app.schemas.ordinateurs import PCCreate, PCRead, PCUpdate
+from backend.app.db.session import get_db
+from backend.app.db.models import Ordinateurs
 
 router = APIRouter()
 
@@ -21,7 +21,7 @@ def read_pcs(skip: int = 0, limit: int = 100, db: Session = Depends(get_db)):
 
 @router.get("/{pc_id}", response_model=PCRead)
 def read_pc(pc_id: int, db: Session = Depends(get_db)):
-    db_pc = db.query(PCRead).filter(PCRead.id == pc_id).first()
+    db_pc = db.query(Ordinateurs).filter(Ordinateurs.id == pc_id).first()
     return db_pc
 
 @router.delete("/{pc_id}")

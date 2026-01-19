@@ -1,14 +1,14 @@
 from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.orm import Session
-from app.schemas.users import  UserCreate, UserRead, UserUpdate
-from app.db.session import get_db
-from app.db.models import Users
+from backend.app.schemas.users import  UserCreate, UserRead, UserUpdate
+from backend.app.db.session import get_db
+from backend.app.db.models import User
 
 router = APIRouter()
 
 @router.post("/", response_model=UserRead, status_code=status.HTTP_201_CREATED)
 def create_user(user: UserCreate, db: Session = Depends(get_db)):
-    db_user = Users(**user.model_dump(exclude_unset=True))
+    db_user = User(**user.model_dump(exclude_unset=True))
     db.add(db_user)
     db.commit()
     db.refresh(db_user)
@@ -16,17 +16,17 @@ def create_user(user: UserCreate, db: Session = Depends(get_db)):
 
 @router.get("/", response_model=list[UserRead])
 def read_users(skip: int = 0, limit: int = 100, db: Session = Depends(get_db)):
-    users = db.query(Users).offset(skip).limit(limit).all()
+    users = db.query(User).offset(skip).limit(limit).all()
     return users
 
 @router.get("/{user_id}", response_model=UserRead)
 def read_user(user_id: int, db: Session = Depends(get_db)):
-    db_user = db.query(UserRead).filter(UserRead.id == user_id).first()
+    db_user = db.query(User).filter(User.id == user_id).first()
     return db_user
 
 @router.delete("/{user_id}")
 def delete_user(user_id: int, db: Session = Depends(get_db)):
-    db_user = db.query(Users).filter(Users.id == user_id).first()
+    db_user = db.query(User).filter(User.id == user_id).first()
     if not db_user:
         raise HTTPException(status_code=404, detail="User not found")
     db.delete(db_user)
@@ -35,7 +35,7 @@ def delete_user(user_id: int, db: Session = Depends(get_db)):
 
 @router.put("/{user_id}", response_model=UserRead)
 def update_user(user_id: int, user: UserUpdate, db: Session = Depends(get_db)):
-    db_user = db.query(Users).filter(Users.id == user_id).first()
+    db_user = db.query(User).filter(User.id == user_id).first()
     if not db_user:
         raise HTTPException(status_code=404, detail="User not found")
 
