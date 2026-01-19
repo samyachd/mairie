@@ -1,0 +1,48 @@
+from fastapi import APIRouter, Depends, HTTPException, status
+from sqlalchemy.orm import Session
+from app.schemas.ecrans import EcranCreate, EcranRead, EcranUpdate
+from app.db.session import get_db
+from app.db.models import Ecrans
+
+router = APIRouter()
+
+@router.post("/", response_model=EcranRead, status_code=status.HTTP_201_CREATED)
+def create_ecran(ecran: EcranCreate, db: Session = Depends(get_db)):
+    db_ecran = Ecrans(**ecran.model_dump(exclude_unset=True))
+    db.add(db_ecran)
+    db.commit()
+    db.refresh(db_ecran)
+    return db_ecran
+
+@router.get("/", response_model=list[EcranRead])
+def read_ecrans(skip: int = 0, limit: int = 100, db: Session = Depends(get_db)):
+    ecrans = db.query(Ecrans).offset(skip).limit(limit).all()
+    return ecrans
+
+@router.get("/{ecran_id}", response_model=EcranRead)
+def read_ecran(ecran_id: int, db: Session = Depends(get_db)):
+    db_ecran = db.query(Ecrans).filter(Ecrans.id == ecran_id).first()
+    return db_ecran
+
+@router.delete("/{ecran_id}")
+def delete_ecran(ecran_id: int, db: Session = Depends(get_db)):
+    db_ecran = db.query(Ecrans).filter(Ecrans.id == ecran_id).first()
+    if not db_ecran:
+        raise HTTPException(status_code=404, detail="Ecran not found")
+    db.delete(db_ecran)
+    db.commit()
+    return None
+
+@router.put("/{ecran_id}", response_model=EcranRead)
+def update_ecran(ecran_id: int, ecran: EcranUpdate, db: Session = Depends(get_db)):
+    db_ecran = db.query(Ecrans).filter(Ecrans.id == ecran_id).first()
+    if not db_ecran:
+        raise HTTPException(status_code=404, detail="Ecran not found")
+
+    data = ecran.model_dump(exclude_unset=True)
+    for key, value in data.items():
+        setattr(db_ecran, key, value)
+
+    db.commit()
+    db.refresh(db_ecran)
+    return db_ecran
