@@ -2,16 +2,10 @@ from __future__ import annotations
 from alembic import context
 from sqlalchemy import create_engine
 from sqlalchemy.pool import NullPool
-from backend.db.db import Base
-import backend.db.models
-from backend.db.settings import settings
+from backend.app.db.db import Base
+import backend.app.db.models
+from backend.app.core.settings import settings
 from logging.config import fileConfig
-import os
-import hashlib
-
-from dotenv import load_dotenv, find_dotenv
-load_dotenv(find_dotenv(usecwd=True), override=True)  # <-- AVANT settings
-
 
 config = context.config
 

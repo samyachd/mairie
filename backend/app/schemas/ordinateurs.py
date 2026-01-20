@@ -1,4 +1,4 @@
-from pydantic import BaseModel, IPvAnyAddress, ConfigDict
+from pydantic import BaseModel, ConfigDict
 from datetime import datetime, date
 
 class PCBase(BaseModel):
@@ -15,7 +15,7 @@ class PCBase(BaseModel):
     ram: str | None = None
     tag_chargeur: str | None = None
     numero_bc: str | None = None
-    ip_address: IPvAnyAddress | None = None
+    ip_address: str| None = None
     mac_ethernet: str | None = None
     mac_wifi: str | None = None
     watt: int | None = None
