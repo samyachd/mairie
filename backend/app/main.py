@@ -1,11 +1,20 @@
 from fastapi import FastAPI
 from backend.app.core.settings import settings
 from backend.app.api.routes import users, ordinateurs, licenses, ecrans
+from fastapi.middleware.cors import CORSMiddleware
 
 app = FastAPI(
     title=settings.APP_NAME,
     version=settings.VERSION,
     debug=settings.DEBUG,
+)
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["http://localhost:3000","https://mon-site-react.com"],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
 )
 
 @app.get("/")

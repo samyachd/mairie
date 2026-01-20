@@ -24,7 +24,6 @@ dependencies = [
     "pydantic>=2.12.5",
     "pypdf>=6.5.0",
     "pytest>=9.0.2",
-    "react>=4.3.0",
     "requests>=2.32.5",
     "ruff>=0.14.11",
     "sqlalchemy>=2.0",
