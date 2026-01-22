@@ -3,7 +3,7 @@ from typing import Optional
 from sqlalchemy import CheckConstraint, String, Integer, ForeignKey, DateTime, Date, Boolean, UniqueConstraint, func
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 import datetime as dt
-from backend.db.db import Base
+from db.db import Base
 
 class User(Base):
     __tablename__ = "users"

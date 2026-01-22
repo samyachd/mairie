@@ -1,0 +1,29 @@
+{
+  "folders": [
+    {
+      "name": "Backend",
+      "path": "backend"
+    },
+    {
+      "name": "Frontend",
+      "path": "frontend"
+    },
+    {
+      "name": "Root",
+      "path": "."
+    }
+  ],
+  "settings": {
+    // Pointe vers backend/.venv (PAS racine/.venv)
+    "python.defaultInterpreterPath": "${workspaceFolder:Backend}/.venv/bin/python",
+    
+    "python.terminal.activateEnvironment": false,
+    "python.terminal.activateEnvInCurrentTerminal": false,
+    
+    "python.analysis.extraPaths": [
+      "${workspaceFolder:Backend}"
+    ],
+    
+    "ruff.pythonPath": "/home/sachard/mairie/backend/.venv/bin/python"
+  }
+}

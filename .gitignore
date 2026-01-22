@@ -1,36 +1,193 @@
-# Python-generated files
-__pycache__/
-*.py[oc]
-build/
-dist/
-wheels/
-*.egg-info
+# ============================================
+# PYTHON
+# ============================================
 
-/data
-/.env
-/notebooks
-
-
-# Virtual environments
-.venv
-/frontend/node_modules
+# Environnements virtuels
+.venv/
+venv/
+ENV/
 env/
-/.vscode
+.virtualenv/
 
+# Bytecode Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
 
+# Distribution / packaging
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+*.egg-info/
+.installed.cfg
+*.egg
 
-#cache
-__pypackages__/
-.pytest_cache/
-.mypy_cache/
-.coverage
+# PyInstaller
+*.manifest
+*.spec
+
+# Tests et couverture
 htmlcov/
 .tox/
 .nox/
+.coverage
 .coverage.*
 .cache
 nosetests.xml
 coverage.xml
 *.cover
-*.logs
-pip-log.txt
+.hypothesis/
+.pytest_cache/
+
+# Jupyter Notebook
+.ipynb_checkpoints
+*.ipynb
+
+# MyPy
+.mypy_cache/
+.dmypy.json
+dmypy.json
+
+# Pyre type checker
+.pyre/
+
+# pyenv
+.python-version
+
+# ============================================
+# NODE.JS / JAVASCRIPT
+# ============================================
+
+# Dépendances
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+package-lock.json  # Optionnel, certains préfèrent le garder
+
+# Production build
+/build
+/dist
+
+# ============================================
+# BASES DE DONNÉES
+# ============================================
+
+# SQLite
+*.db
+*.sqlite
+*.sqlite3
+
+# PostgreSQL
+*.dump
+
+# Fichiers de données sensibles
+*.csv
+*.xlsx
+data/
+files_test/
+*.log
+
+# ============================================
+# ENVIRONNEMENT & SECRETS
+# ============================================
+
+# Variables d'environnement
+.env
+.env.local
+.env.*.local
+*.env
+
+# MAIS garde le template
+!.env.example
+
+# ============================================
+# ÉDITEURS & IDE
+# ============================================
+
+# VS Code (optionnel - enlève si tu veux partager les settings)
+# .vscode/
+
+# PyCharm
+.idea/
+
+# Sublime Text
+*.sublime-project
+*.sublime-workspace
+
+# Vim
+*.swp
+*.swo
+*~
+
+# Emacs
+*~
+\#*\#
+.\#*
+
+# ============================================
+# SYSTÈME D'EXPLOITATION
+# ============================================
+
+# macOS
+.DS_Store
+.AppleDouble
+.LSOverride
+._*
+
+# Windows
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+$RECYCLE.BIN/
+
+# Linux
+*~
+
+# ============================================
+# ALEMBIC (migrations)
+# ============================================
+
+# Ignore les migrations générées automatiquement (optionnel)
+# backend/alembic/versions/*.py
+# !backend/alembic/versions/__init__.py
+
+# ============================================
+# AUTRES
+# ============================================
+
+# Fichiers temporaires
+*.tmp
+*.temp
+*.bak
+*.swp
+
+# Logs
+logs/
+*.log
+
+# Cache
+.cache/
+.parcel-cache/
+
+# Documentation générée
+site/
+_build/
+
+# Fichiers de test locaux
+test_*.txt
+debug_*
+
+# Lock files uv (optionnel - certains préfèrent le garder)
+# uv.lock
