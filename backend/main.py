@@ -1,6 +1,6 @@
 from fastapi import FastAPI
-from backend.app.core.settings import settings
-from backend.app.api.routes import users, ordinateurs, licenses, ecrans
+from backend.core.settings import settings
+from backend.api.routes import users, ordinateurs, licenses, ecrans
 from fastapi.middleware.cors import CORSMiddleware
 
 app = FastAPI(

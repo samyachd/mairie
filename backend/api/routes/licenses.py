@@ -1,8 +1,8 @@
 from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.orm import Session
-from backend.app.schemas.licenses import LicenseCreate, LicenseRead, LicenseUpdate
-from backend.app.db.session import get_db
-from backend.app.db.models import OfficeLicenses
+from backend.schemas.licenses import LicenseCreate, LicenseRead, LicenseUpdate
+from backend.db.session import get_db
+from backend.db.models import OfficeLicenses
 
 router = APIRouter()
 

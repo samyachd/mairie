@@ -13,4 +13,24 @@ wheels/
 
 # Virtual environments
 .venv
-/node_modules
+/frontend/node_modules
+env/
+/.vscode
+
+
+
+#cache
+__pypackages__/
+.pytest_cache/
+.mypy_cache/
+.coverage
+htmlcov/
+.tox/
+.nox/
+.coverage.*
+.cache
+nosetests.xml
+coverage.xml
+*.cover
+*.logs
+pip-log.txt

@@ -2,9 +2,9 @@ from __future__ import annotations
 from alembic import context
 from sqlalchemy import create_engine
 from sqlalchemy.pool import NullPool
-from backend.app.db.db import Base
-import backend.app.db.models
-from backend.app.core.settings import settings
+from backend.db.db import Base
+import backend.db.models
+from backend.core.settings import settings
 from logging.config import fileConfig
 
 config = context.config

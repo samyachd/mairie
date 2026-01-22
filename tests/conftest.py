@@ -4,8 +4,8 @@ from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 from sqlalchemy.pool import StaticPool
 
-from backend.app.db.db import Base, get_db
-from backend.app.main import app
+from backend.db.db import Base, get_db
+from backend.main import app
 
 
 @pytest.fixture(scope="session")

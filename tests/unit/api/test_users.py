@@ -1,6 +1,6 @@
 import pytest
 
-from backend.app.db.models import User
+from backend.db.models import User
 
 
 class TestUsersRouter:

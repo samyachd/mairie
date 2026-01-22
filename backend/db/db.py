@@ -1,6 +1,6 @@
 from sqlalchemy import create_engine
 from sqlalchemy.orm import DeclarativeBase
-from backend.app.core.settings import settings
+from backend.core.settings import settings
 
 DATABASE_URL = settings.DATABASE_URL
 # Pour SQLite: "sqlite:///./app.db" (et ajouter connect_args plus bas)

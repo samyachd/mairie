@@ -1,11 +1,10 @@
 import logging
 from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.orm import Session
-
-from backend.app.core.constants import PAGINATION_LIMIT_DEFAULT, PAGINATION_SKIP_DEFAULT
-from backend.app.db.models import User
-from backend.app.db.session import get_db
-from backend.app.schemas.users import UserCreate, UserRead, UserUpdate
+from backend.core.constants import PAGINATION_LIMIT_DEFAULT, PAGINATION_SKIP_DEFAULT
+from backend.db.models import User
+from backend.db.session import get_db
+from backend.schemas.users import UserCreate, UserRead, UserUpdate
 
 logger = logging.getLogger(__name__)
 
