@@ -4,8 +4,8 @@ from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 from sqlalchemy.pool import StaticPool
 
-from backend.app.main import app
 from backend.app.db.db import Base, get_db
+from backend.app.main import app
 
 
 @pytest.fixture(scope="session")
@@ -25,9 +25,9 @@ def db_session(db_engine):
     connection = db_engine.connect()
     transaction = connection.begin()
     session = sessionmaker(autocommit=False, autoflush=False, bind=connection)()
-    
+
     yield session
-    
+
     session.close()
     transaction.rollback()
     connection.close()
@@ -37,10 +37,10 @@ def db_session(db_engine):
 def client(db_session):
     def override_get_db():
         return db_session
-    
+
     app.dependency_overrides[get_db] = override_get_db
-    
+
     with TestClient(app) as test_client:
         yield test_client
-    
+
     app.dependency_overrides.clear()

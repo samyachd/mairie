@@ -1,10 +1,11 @@
 from pydantic_settings import BaseSettings
 from sqlalchemy.engine import URL
 
+
 class Settings(BaseSettings):
     APP_NAME: str = "Inventaire"
     VERSION: str = "0.1.0"
-    DEBUG: bool = True
+    DEBUG: bool = False
 
     DB_USER: str
     DB_PASS: str
@@ -26,5 +27,6 @@ class Settings(BaseSettings):
     class Config:
         env_file = ".env"
         extra = "ignore"
+
 
 settings = Settings()
