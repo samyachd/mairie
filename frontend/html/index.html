@@ -3,14 +3,18 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Mairie Application</title>
+    <title>Inventaire</title>
     <link rel="stylesheet" href="styles.css">
 </head>
 <body>
-    <header>
-        <h1>Welcome to the Mairie Application</h1>
-    </header>
-    <main>
+    <main class="container">
+        <h1>Gestion d'inventaire</h1>
+
+        <section class="card">
+            <h2>Recherche</h2>
+            <input id="searchInput" type="search" placeholder="Rechercher par nom..."/>
+        </section>
+        
         <p>This is the main interface for managing municipal resources.</p>
         <button id="loadDataBtn">Load Data</button>
         <div id="dataContainer"></div>
