@@ -1,8 +1,8 @@
 from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.orm import Session
-from backend.schemas.ecrans import EcranCreate, EcranRead, EcranUpdate
-from backend.db.session import get_db
-from backend.db.models import Ecrans
+from schemas.ecrans import EcranCreate, EcranRead, EcranUpdate
+from db.session import get_db
+from db.models import Ecrans
 
 router = APIRouter()
 

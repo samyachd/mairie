@@ -1,28 +1,76 @@
 import logging
 from fastapi import APIRouter, Depends, HTTPException, status
+from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
 from sqlalchemy.orm import Session
-from backend.core.constants import PAGINATION_LIMIT_DEFAULT, PAGINATION_SKIP_DEFAULT
-from backend.db.models import User
-from backend.db.session import get_db
-from backend.schemas.users import UserCreate, UserRead, UserUpdate
+from core.constants import PAGINATION_LIMIT_DEFAULT, PAGINATION_SKIP_DEFAULT
+from core.security import (hacher_mot_de_passe,
+                           valider_force_mot_de_passe,
+                           verifier_mot_de_passe,
+                           creer_access_token,
+                           verifier_token)
+from db.models import User
+from db.session import get_db
+from schemas.users import UserCreate, UserRead, UserUpdate, UserLogin
 
 logger = logging.getLogger(__name__)
 
 router = APIRouter()
 
 
-@router.post("/", response_model=UserRead, status_code=status.HTTP_201_CREATED)
-def create_user(user: UserCreate, db: Session = Depends(get_db)):
+@router.post("/inscription", response_model=UserRead, status_code=status.HTTP_201_CREATED)
+def inscription(user: UserCreate, db: Session = Depends(get_db)):
+    # On vérifier si l'email est déjà enregistré dans la DB
+    utilisateur_existant = db.query(User).filter(
+        User.email == user.email
+    ).first()
+    if utilisateur_existant:
+        raise HTTPException(status_code=400, detail="Email déjà utilisé")
+    
+    # On force la validation du mot de passe
+    est_valide, erreurs = valider_force_mot_de_passe(user.mot_de_passe)
+    if not est_valide:
+        raise HTTPException(status_code=400, detail={"erreurs": erreurs})
+    
+    mot_de_passe_hache = hacher_mot_de_passe(user.mot_de_passe)
+    
     try:
-        db_user = User(**user.model_dump(exclude_unset=True))
+        db_user = User(
+        email=user.email,
+        nom=user.name,
+        mot_de_passe_hache=mot_de_passe_hache
+    )
         db.add(db_user)
         db.commit()
         db.refresh(db_user)
         logger.info(f"User created: {db_user.id}")
-        return db_user
+        return {"message": "Compte créé avec succès", "id": db_user.id}
     except Exception as e:
         logger.error(f"Error creating user: {str(e)}")
         raise HTTPException(status_code=400, detail="Error creating user")
+    
+# Route de connexion
+@router.post("/connexion")
+def connexion(user: UserLogin, db: Session = Depends(get_db)):
+    # 1. Trouver l'utilisateur
+    utilisateur = db.query(User).filter(
+        User.email == user.email
+    ).first()
+    
+    if not utilisateur:
+        raise HTTPException(status_code=401, detail="Email ou mot de passe incorrect")
+    
+    # 2. Vérifier le mot de passe
+    if not verifier_mot_de_passe(user.mot_de_passe, utilisateur.mot_de_passe_hache):
+        raise HTTPException(status_code=401, detail="Email ou mot de passe incorrect")
+
+    # 3. Créer le JWT token
+    access_token = creer_access_token(data={"sub": utilisateur.email})
+    
+    # 4. Retourner le token
+    return {
+        "access_token": access_token,
+        "token_type": "bearer"
+    }, {"message": "Connexion réussie", "utilisateur_id": utilisateur.id}
 
 
 @router.get("/", response_model=list[UserRead])
@@ -34,7 +82,6 @@ def read_users(
     users = db.query(User).offset(skip).limit(limit).all()
     logger.debug(f"Retrieved {len(users)} users")
     return users
-
 
 @router.get("/{user_id}", response_model=UserRead)
 def read_user(user_id: int, db: Session = Depends(get_db)):

@@ -9,14 +9,18 @@ app = FastAPI(
     debug=settings.DEBUG,
 )
 
+origins = [
+    "https://castelnau-le-lez-inventaire.com",  # Ton site en production
+    "http://localhost:3000",  # Pour le développement local
+]
+
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["http://localhost:3000","https://mon-site-react.com"],
-    allow_credentials=True,
-    allow_methods=["*"],
-    allow_headers=["*"],
+    allow_origins=origins,  # Domaines autorisés
+    allow_credentials=True,  # Permet les cookies
+    allow_methods=["GET", "POST", "PUT", "DELETE"],  # Méthodes HTTP autorisées
+    allow_headers=["*"],  # Headers autorisés
 )
-
 @app.get("/")
 def root():
     return {"status": "ok", "message": "API Inventaire"}
