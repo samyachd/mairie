@@ -1,6 +1,8 @@
 from pydantic_settings import BaseSettings
 from sqlalchemy.engine import URL
+from dotenv import load_dotenv
 
+load_dotenv()
 
 class Settings(BaseSettings):
     APP_NAME: str = "Inventaire"

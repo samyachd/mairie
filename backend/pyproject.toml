@@ -33,4 +33,5 @@ dependencies = [
     "sqlalchemy>=2.0",
     "types-passlib>=1.7.7.20250602",
     "types-python-jose>=3.5.0.20250531",
+    "httpx>=0.28.1",
 ]
