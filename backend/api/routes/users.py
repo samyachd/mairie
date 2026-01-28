@@ -3,6 +3,7 @@ from fastapi import APIRouter, Depends, HTTPException, status
 from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
 from sqlalchemy.orm import Session
 from core.constants import PAGINATION_LIMIT_DEFAULT, PAGINATION_SKIP_DEFAULT
+from core.dependencies import get_current_user
 from core.security import (hacher_mot_de_passe,
                            valider_force_mot_de_passe,
                            verifier_mot_de_passe,
@@ -14,7 +15,7 @@ from schemas.users import UserCreate, UserRead, UserUpdate, UserLogin
 
 logger = logging.getLogger(__name__)
 
-router = APIRouter()
+router = APIRouter(dependencies=[Depends(get_current_user)])
 
 
 @router.post("/inscription", response_model=UserRead, status_code=status.HTTP_201_CREATED)
@@ -48,31 +49,6 @@ def inscription(user: UserCreate, db: Session = Depends(get_db)):
         logger.error(f"Error creating user: {str(e)}")
         raise HTTPException(status_code=400, detail="Error creating user")
     
-# Route de connexion
-@router.post("/connexion")
-def connexion(user: UserLogin, db: Session = Depends(get_db)):
-    # 1. Trouver l'utilisateur
-    utilisateur = db.query(User).filter(
-        User.email == user.email
-    ).first()
-    
-    if not utilisateur:
-        raise HTTPException(status_code=401, detail="Email ou mot de passe incorrect")
-    
-    # 2. Vérifier le mot de passe
-    if not verifier_mot_de_passe(user.mot_de_passe, utilisateur.mot_de_passe_hache):
-        raise HTTPException(status_code=401, detail="Email ou mot de passe incorrect")
-
-    # 3. Créer le JWT token
-    access_token = creer_access_token(data={"sub": utilisateur.email})
-    
-    # 4. Retourner le token
-    return {
-        "access_token": access_token,
-        "token_type": "bearer"
-    }, {"message": "Connexion réussie", "utilisateur_id": utilisateur.id}
-
-
 @router.get("/", response_model=list[UserRead])
 def read_users(
     skip: int = PAGINATION_SKIP_DEFAULT,

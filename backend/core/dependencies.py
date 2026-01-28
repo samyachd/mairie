@@ -8,7 +8,7 @@ from core.security import verifier_token
 
 security = HTTPBearer()
 
-def obtenir_utilisateur_actuel(
+def get_current_user(
     credentials: HTTPAuthorizationCredentials = Depends(security),
     db: Session = Depends(get_db)
 ):

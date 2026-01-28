@@ -1,10 +1,11 @@
 from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.orm import Session
+from core.dependencies import get_current_user
 from schemas.ecrans import EcranCreate, EcranRead, EcranUpdate
 from db.session import get_db
 from db.models import Ecrans
 
-router = APIRouter()
+router = APIRouter(dependencies=[Depends(get_current_user)])
 
 @router.post("/", response_model=EcranRead, status_code=status.HTTP_201_CREATED)
 def create_ecran(ecran: EcranCreate, db: Session = Depends(get_db)):
