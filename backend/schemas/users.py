@@ -6,7 +6,10 @@ class UserBase(BaseModel):
     name: str
     email: EmailStr
 
-class UserCreate(UserBase):
+class UserCreate(BaseModel):
+    model_config = ConfigDict(from_attributes=True)
+    name: str
+    email: EmailStr
     mot_de_passe: str
 
 class UserUpdate(BaseModel):
@@ -15,16 +18,7 @@ class UserUpdate(BaseModel):
     email: EmailStr | None = None
     mot_de_passe: str | None = None
 
-class UserLogin(BaseModel):
+class UserRead(BaseModel):
     model_config = ConfigDict(from_attributes=True)
-    email: EmailStr
-    mot_de_passe: str
-
-class UserRead(UserBase):
     id: int
     created_at: datetime | None = None
-
-class TokenResponse(BaseModel):
-    model_config = ConfigDict(from_attributes=True)
-    access_token: str
-    token_type: str

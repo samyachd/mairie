@@ -5,13 +5,10 @@ from sqlalchemy.orm import Session
 from core.constants import PAGINATION_LIMIT_DEFAULT, PAGINATION_SKIP_DEFAULT
 from core.dependencies import get_current_user
 from core.security import (hacher_mot_de_passe,
-                           valider_force_mot_de_passe,
-                           verifier_mot_de_passe,
-                           creer_access_token,
-                           verifier_token)
+                           valider_force_mot_de_passe,)
 from db.models import User
 from db.session import get_db
-from schemas.users import UserCreate, UserRead, UserUpdate, UserLogin
+from schemas.users import UserCreate, UserRead, UserUpdate
 
 logger = logging.getLogger(__name__)
 

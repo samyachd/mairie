@@ -1,16 +1,8 @@
-from pydantic import BaseModel, ConfigDict
-from datetime import datetime, date
+from schemas.base_equipment import BaseEquipment
+from datetime import datetime
 
-class EcranBase(BaseModel):
-    model_config = ConfigDict(from_attributes=True)
-    tag: str | None = None
-    achat: date | None = None
-    fin_garantie: date | None = None
-    numero_bc: str | None = None
+class EcranBase(BaseEquipment):
     taille: str | None = None
-    marque: str | None = None
-    modele: str | None = None
-    fournisseur: str | None = None
 
 class EcranCreate(EcranBase):
     tag: str
