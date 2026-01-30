@@ -1,7 +1,7 @@
 from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.orm import Session
 from core.dependencies import get_current_user
-from schemas.ecrans import EcranCreate, EcranRead, EcranUpdate
+from schemas.ecrans_schemas import EcranCreate, EcranRead, EcranUpdate
 from db.session import get_db
 from db.models import Ecrans
 

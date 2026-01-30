@@ -2,7 +2,6 @@ import logging
 from fastapi import APIRouter, Depends, HTTPException, status
 from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
 from sqlalchemy.orm import Session
-from core.constants import PAGINATION_LIMIT_DEFAULT, PAGINATION_SKIP_DEFAULT
 from core.dependencies import get_current_user
 from core.security import (hacher_mot_de_passe,
                            valider_force_mot_de_passe,

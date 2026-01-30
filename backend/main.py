@@ -1,6 +1,6 @@
 from fastapi import FastAPI
 from core.settings import settings
-from api.routes import users, ordinateurs, licenses, ecrans
+from api.routes import ordinateurs_routes, users, licenses, ecrans
 from fastapi.middleware.cors import CORSMiddleware
 
 app = FastAPI(
@@ -26,6 +26,6 @@ def root():
     return {"status": "ok", "message": "API Inventaire"}
 
 app.include_router(users.router, prefix="/users", tags=["users"])
-app.include_router(ordinateurs.router, prefix="/ordinateurs", tags=["ordinateurs"])
+app.include_router(ordinateurs_routes.router, prefix="/ordinateurs", tags=["ordinateurs"])
 app.include_router(licenses.router, prefix="/licenses", tags=["licenses"])
 app.include_router(ecrans.router, prefix="/ecrans", tags=["ecrans"])

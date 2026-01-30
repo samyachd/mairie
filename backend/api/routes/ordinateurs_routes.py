@@ -2,7 +2,7 @@ from fastapi import APIRouter, Depends, HTTPException, status
 from core.dependencies import get_current_user
 from sqlalchemy.orm import Session
 from sqlalchemy.exc import IntegrityError
-from schemas.ordinateurs import PCCreate, PCRead, PCUpdate
+from schemas.ordinateurs_schemas import PCCreate, PCRead, PCUpdate
 from db.session import get_db
 from db.models import Ordinateurs
 
