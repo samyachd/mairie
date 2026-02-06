@@ -86,8 +86,8 @@ jobs:
         with:
           push: true
           tags: |
-            ton-username/inventaire-api:latest
-            ton-username/inventaire-api:${{ github.sha }}
+            samyachd/inventaire-api:latest
+            samyachd/inventaire-api:${{ github.sha }}
             # ↑ on tag aussi avec le SHA du commit
             #   comme ça on peut revenir à une version précise
             #   exemple : ton-username/inventaire-api:a1b2c3d

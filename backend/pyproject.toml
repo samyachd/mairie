@@ -34,4 +34,6 @@ dependencies = [
     "types-passlib>=1.7.7.20250602",
     "types-python-jose>=3.5.0.20250531",
     "httpx>=0.28.1",
+    "ipywidgets>=8.1.8",
+    "pymupdf>=1.26.7",
 ]
