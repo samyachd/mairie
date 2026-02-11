@@ -4,7 +4,8 @@ from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 from sqlalchemy.pool import StaticPool
 
-from backend.db.db import Base, get_db
+from backend.db.db import Base
+from backend.db.session import get_db
 from backend.main import app
 
 
@@ -36,7 +37,7 @@ def db_session(db_engine):
 @pytest.fixture
 def client(db_session):
     def override_get_db():
-        return db_session
+        yield db_session
 
     app.dependency_overrides[get_db] = override_get_db
 
