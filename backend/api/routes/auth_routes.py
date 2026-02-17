@@ -19,22 +19,19 @@ router = APIRouter(prefix="/auth", tags=["Authentication"])
 # Route de connexion
 @router.post("/connexion")
 def connexion(user: UserLogin, db: Session = Depends(get_db)):
-    # 1. Trouver l'utilisateur
+    
     utilisateur = db.query(User).filter(
         User.email == user.email
     ).first()
     
     if not utilisateur:
         raise HTTPException(status_code=401, detail="Email ou mot de passe incorrect")
-    
-    # 2. Vérifier le mot de passe
+
     if not verifier_mot_de_passe(user.mot_de_passe, utilisateur.mot_de_passe_hache):
         raise HTTPException(status_code=401, detail="Email ou mot de passe incorrect")
 
-    # 3. Créer le JWT token
     access_token = creer_access_token(data={"sub": utilisateur.email})
-    
-    # 4. Retourner le token
+
     return {
         "access_token": access_token,
         "token_type": "bearer"
@@ -42,11 +39,7 @@ def connexion(user: UserLogin, db: Session = Depends(get_db)):
 
 @router.post("/logout")
 def logout(current_user: User = Depends(get_current_user)):
-    """
-    Déconnexion (côté client uniquement)
-    Le client doit supprimer le token de son stockage local
-    """
-    # Optionnel : logger la déconnexion
+
     print(f"Utilisateur {current_user.email} déconnecté")
     
     return {"message": "Déconnecté avec succès. Supprimez le token côté client."}

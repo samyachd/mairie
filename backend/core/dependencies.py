@@ -16,10 +16,8 @@ def get_current_user(
     Récupère l'utilisateur à partir du JWT token
     Utilisable avec Depends() dans les routes protégées
     """
-    # Récupérer le token
     token = credentials.credentials
     
-    # Vérifier le token
     email = verifier_token(token)
     
     if email is None:

@@ -17,14 +17,13 @@ router = APIRouter(dependencies=[Depends(get_current_user)])
 
 @router.post("/inscription", response_model=UserRead, status_code=status.HTTP_201_CREATED)
 def inscription(user: UserCreate, db: Session = Depends(get_db)):
-    # On vérifier si l'email est déjà enregistré dans la DB
+    
     utilisateur_existant = db.query(User).filter(
         User.email == user.email
     ).first()
     if utilisateur_existant:
         raise HTTPException(status_code=400, detail="Email déjà utilisé")
     
-    # On force la validation du mot de passe
     est_valide, erreurs = valider_force_mot_de_passe(user.mot_de_passe)
     if not est_valide:
         raise HTTPException(status_code=400, detail={"erreurs": erreurs})
