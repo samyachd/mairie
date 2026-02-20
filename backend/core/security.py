@@ -69,4 +69,8 @@ def verifier_token(token: str) -> Optional[str]:
     
     except JWTError:
         return None
+    
+def verifier_role(role: str) -> str:
+    """
+    Récupères le role du user dans le login"""
 

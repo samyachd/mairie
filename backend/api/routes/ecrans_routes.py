@@ -1,14 +1,14 @@
 from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.orm import Session
-from core.dependencies import get_current_user
+from core.dependencies import require_role
 from schemas.ecrans_schemas import EcranCreate, EcranRead, EcranUpdate
 from db.session import get_db
 from db.models import Ecrans
 
-router = APIRouter(dependencies=[Depends(get_current_user)])
+router = APIRouter()
 
 @router.post("/", response_model=EcranRead, status_code=status.HTTP_201_CREATED)
-def create_ecran(ecran: EcranCreate, db: Session = Depends(get_db)):
+def create_ecran(ecran: EcranCreate, db: Session = Depends(require_role("user","admin"))):
     db_ecran = Ecrans(**ecran.model_dump(exclude_unset=True))
     db.add(db_ecran)
     db.commit()
@@ -16,17 +16,17 @@ def create_ecran(ecran: EcranCreate, db: Session = Depends(get_db)):
     return db_ecran
 
 @router.get("/", response_model=list[EcranRead])
-def read_ecrans(skip: int = 0, limit: int = 100, db: Session = Depends(get_db)):
+def read_ecrans(skip: int = 0, limit: int = 100, db: Session = Depends(require_role("user","admin","read"))):
     ecrans = db.query(Ecrans).offset(skip).limit(limit).all()
     return ecrans
 
 @router.get("/{ecran_id}", response_model=EcranRead)
-def read_ecran(ecran_id: int, db: Session = Depends(get_db)):
+def read_ecran(ecran_id: int, db: Session = Depends(require_role("user","admin"))):
     db_ecran = db.query(Ecrans).filter(Ecrans.id == ecran_id).first()
     return db_ecran
 
 @router.delete("/{ecran_id}")
-def delete_ecran(ecran_id: int, db: Session = Depends(get_db)):
+def delete_ecran(ecran_id: int, db: Session = Depends(require_role("user","admin"))):
     db_ecran = db.query(Ecrans).filter(Ecrans.id == ecran_id).first()
     if not db_ecran:
         raise HTTPException(status_code=404, detail="Ecran not found")
@@ -35,7 +35,7 @@ def delete_ecran(ecran_id: int, db: Session = Depends(get_db)):
     return None
 
 @router.put("/{ecran_id}", response_model=EcranRead)
-def update_ecran(ecran_id: int, ecran: EcranUpdate, db: Session = Depends(get_db)):
+def update_ecran(ecran_id: int, ecran: EcranUpdate, db: Session = Depends(require_role("user","admin"))):
     db_ecran = db.query(Ecrans).filter(Ecrans.id == ecran_id).first()
     if not db_ecran:
         raise HTTPException(status_code=404, detail="Ecran not found")

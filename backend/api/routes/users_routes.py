@@ -3,7 +3,7 @@ from fastapi import APIRouter, Depends, HTTPException, status
 from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
 from sqlalchemy.orm import Session
 from core.constants import PAGINATION_LIMIT_DEFAULT, PAGINATION_SKIP_DEFAULT
-from core.dependencies import get_current_user
+from core.dependencies import get_current_user, require_role
 from core.security import (hacher_mot_de_passe,
                            valider_force_mot_de_passe,)
 from db.models import User
@@ -16,7 +16,7 @@ router = APIRouter(dependencies=[Depends(get_current_user)])
 
 
 @router.post("/inscription", response_model=UserRead, status_code=status.HTTP_201_CREATED)
-def inscription(user: UserCreate, db: Session = Depends(get_db)):
+def inscription(user: UserCreate, db: Session = Depends(require_role("admin"))):
     
     utilisateur_existant = db.query(User).filter(
         User.email == user.email
@@ -49,14 +49,14 @@ def inscription(user: UserCreate, db: Session = Depends(get_db)):
 def read_users(
     skip: int = PAGINATION_SKIP_DEFAULT,
     limit: int = PAGINATION_LIMIT_DEFAULT,
-    db: Session = Depends(get_db),
+    db: Session = Depends(require_role("user","admin","read")),
 ):
     users = db.query(User).offset(skip).limit(limit).all()
     logger.debug(f"Retrieved {len(users)} users")
     return users
 
 @router.get("/{user_id}", response_model=UserRead)
-def read_user(user_id: int, db: Session = Depends(get_db)):
+def read_user(user_id: int, db: Session = Depends(require_role("user","admin","read"))):
     db_user = db.query(User).filter(User.id == user_id).first()
     if not db_user:
         logger.warning(f"User not found: {user_id}")
@@ -65,7 +65,7 @@ def read_user(user_id: int, db: Session = Depends(get_db)):
 
 
 @router.delete("/{user_id}")
-def delete_user(user_id: int, db: Session = Depends(get_db)):
+def delete_user(user_id: int, db: Session = Depends(require_role("user","admin"))):
     db_user = db.query(User).filter(User.id == user_id).first()
     if not db_user:
         logger.warning(f"Delete user not found: {user_id}")
@@ -77,7 +77,7 @@ def delete_user(user_id: int, db: Session = Depends(get_db)):
 
 
 @router.put("/{user_id}", response_model=UserRead)
-def update_user(user_id: int, user: UserUpdate, db: Session = Depends(get_db)):
+def update_user(user_id: int, user: UserUpdate, db: Session = Depends(require_role("user","admin"))):
     db_user = db.query(User).filter(User.id == user_id).first()
     if not db_user:
         logger.warning(f"Update user not found: {user_id}")

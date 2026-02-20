@@ -1,9 +1,15 @@
 from __future__ import annotations
 from typing import Optional
-from sqlalchemy import CheckConstraint, String, Integer, ForeignKey, DateTime, Date, Boolean, UniqueConstraint, func
+from enum import Enum as PyEnum
+from sqlalchemy import CheckConstraint, String, Integer, ForeignKey, DateTime, Date, Boolean, UniqueConstraint, func, Enum
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 import datetime as dt
 from db.db import Base
+
+class RoleEnum(str, PyEnum):
+    admin = "admin"
+    user = "user"
+    read = "read"
 
 class User(Base):
     __tablename__ = "users"
@@ -12,6 +18,7 @@ class User(Base):
     name: Mapped[str] = mapped_column(String(255), nullable=False)
     email: Mapped[str | None] = mapped_column(String(255), unique=True, index=True, nullable=True)
     mot_de_passe_hash: Mapped[str] = mapped_column(String(500), nullable=False)
+    role : Mapped[str] = mapped_column(Enum(RoleEnum), default=RoleEnum.read, nullable=False)
     created_at: Mapped["DateTime"] = mapped_column(DateTime(timezone=True), server_default=func.now())
 
 class BaseEquipement(Base):

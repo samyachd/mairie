@@ -8,10 +8,7 @@ from core.security import verifier_token
 
 security = HTTPBearer()
 
-def get_current_user(
-    credentials: HTTPAuthorizationCredentials = Depends(security),
-    db: Session = Depends(get_db)
-):
+def get_current_user(credentials: HTTPAuthorizationCredentials = Depends(security),db: Session = Depends(get_db)):
     """
     Récupère l'utilisateur à partir du JWT token
     Utilisable avec Depends() dans les routes protégées
@@ -37,3 +34,14 @@ def get_current_user(
         )
     
     return utilisateur
+
+def require_role(*roles: str):
+    """Factory : crée une dépendance qui vérifie le rôle"""
+    def dependency(current_user = Depends(get_current_user)):
+        if current_user["role"] not in roles:
+            raise HTTPException(
+                status_code=403,
+                detail=f"Accès refusé. Rôles requis : {roles}"
+            )
+        return current_user
+    return dependency

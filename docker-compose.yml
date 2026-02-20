@@ -1,0 +1,28 @@
+services:
+  db:
+    image: postgres:15
+    environment:
+      POSTGRES_DB: db_inventaire
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: tonmotdepasse
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+
+  backend:
+    build: ./backend
+    ports:
+      - "8000:8000"
+    environment:
+      DATABASE_URL: postgresql://postgres:tonmotdepasse@db:5432/db_inventaire
+    depends_on:
+      - db  # attend que la base soit prête
+
+  frontend:
+    build: ./frontend
+    ports:
+      - "3000:3000"
+    depends_on:
+      - backend
+
+volumes:
+  postgres_data:

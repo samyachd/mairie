@@ -1,11 +1,5 @@
 from pydantic import BaseModel, EmailStr, ConfigDict
 
-class LoginRequest(BaseModel):
-    """Données envoyées lors du login"""
-    model_config = ConfigDict(from_attributes=True)
-    email: EmailStr
-    password: str
-
 class Token(BaseModel):
     """Réponse contenant le token"""
     model_config = ConfigDict(from_attributes=True)
