@@ -1,4 +1,4 @@
-import logging
+from core.logger import logger
 from fastapi import APIRouter, Depends, HTTPException, status
 from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
 from sqlalchemy.orm import Session
@@ -9,8 +9,6 @@ from core.security import (hacher_mot_de_passe,
 from db.models import User
 from db.session import get_db
 from schemas.users import UserCreate, UserRead, UserUpdate
-
-logger = logging.getLogger(__name__)
 
 router = APIRouter(dependencies=[Depends(get_current_user)])
 

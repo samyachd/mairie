@@ -2,6 +2,9 @@
 # PYTHON
 # ============================================
 
+# Notebooks
+notebooks/
+
 # Environnements virtuels
 .venv/
 venv/

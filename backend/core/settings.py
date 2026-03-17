@@ -1,19 +1,21 @@
 from pydantic_settings import BaseSettings
 from sqlalchemy.engine import URL
-from dotenv import load_dotenv
-
-load_dotenv()
 
 class Settings(BaseSettings):
     APP_NAME: str = "Inventaire"
     VERSION: str = "0.1.0"
     DEBUG: bool = False
+    TESTING: bool = False
 
     DB_USER: str
     DB_PASS: str
-    DB_HOST: str = "127.0.0.1"
+    DB_HOST: str = "db"
     DB_PORT: int = 5432
     DB_NAME: str
+
+    SECRET_KEY: str
+    ALGORITHM: str = "HS256"
+    ACCESS_TOKEN_EXPIRE: int = 30
 
     @property
     def DATABASE_URL(self) -> URL:

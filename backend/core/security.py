@@ -2,21 +2,15 @@ from passlib.context import CryptContext
 from datetime import datetime, timedelta, timezone
 from jose import JWTError, jwt
 from typing import Optional
-from dotenv import load_dotenv
-import os
-
-load_dotenv()  # Charger les variables d'environnement depuis le fichier .env
+from core.settings import settings
 
 # Configuration du contexte de hachage des mots de passe
 
 # IMPORTANT : Change cette clé en production !
 # Génère-la avec : openssl rand -hex 32
 
-SECRET_KEY = os.getenv("JWT_KEY")
-if SECRET_KEY is None:
+if settings.SECRET_KEY is None:
     raise ValueError("JWT_KEY n'est pas définie dans les variables d'environnement")
-ALGORITHM = "HS256"
-ACCESS_TOKEN_EXPIRE_MINUTES = 30
 
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 
@@ -50,17 +44,17 @@ def creer_access_token(data: dict, expires_delta: Optional[timedelta] = None):
     if expires_delta:
         expire = datetime.now(timezone.utc) + expires_delta
     else:
-        expire = datetime.now(timezone.utc) + timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)
+        expire = datetime.now(timezone.utc) + timedelta(minutes=settings.ACCESS_TOKEN_EXPIRE)
 
     to_encode.update({"exp": expire})
     
-    encoded_jwt = jwt.encode(to_encode, SECRET_KEY, algorithm=ALGORITHM)
+    encoded_jwt = jwt.encode(to_encode, settings.SECRET_KEY, algorithm=settings.ALGORITHM)
     return encoded_jwt
 
 
 def verifier_token(token: str) -> Optional[str]:
     try:
-        payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
+        payload = jwt.decode(token, settings.SECRET_KEY, algorithms=[settings.ALGORITHM])
         email: str = payload.get("sub")
 
         if email is None:
