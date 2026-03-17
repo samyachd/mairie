@@ -1,9 +1,4 @@
-# =============================================================
-# Dockerfile — Inventaire IT API
-# =============================================================
-# On part d'une image Python 3.12 "slim" (plus petite = image
-# plus legere à télécharger et à shipper)
-# =============================================================
+
 FROM python:3.12-slim
 
 # -------------------------------------------------------------
@@ -12,25 +7,13 @@ FROM python:3.12-slim
 # -------------------------------------------------------------
 RUN groupadd -r appuser && useradd -r -g appuser appuser
 
-# -------------------------------------------------------------
-# On définit le répertoire de travail dans le conteneur.
-# Tout ce qu'on fait après se passe ici.
-# -------------------------------------------------------------
+
 WORKDIR /app
 
-# -------------------------------------------------------------
-# On copie requirements.txt EN PREMIER, avant le reste du code.
-# Pourquoi ? Parce que Docker "cache" chaque étape.
-# Si on copie le code d'abord, à chaque changement de code
-# Docker reinstalle TOUTES les dépendances — même si elles
-# n'ont pas changé. Comme ça on évite ça.
-# -------------------------------------------------------------
+
 COPY requirements.txt .
 
-# -------------------------------------------------------------
-# On installe les dépendances Python.
-# --no-cache-dir : pas de cache pip dans l'image (plus petite)
-# -------------------------------------------------------------
+
 RUN pip install --no-cache-dir -r requirements.txt
 
 # -------------------------------------------------------------

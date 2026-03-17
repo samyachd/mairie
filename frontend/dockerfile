@@ -18,19 +18,10 @@ RUN groupadd -r appuser && useradd -r -g appuser appuser
 # -------------------------------------------------------------
 WORKDIR /app
 
-# -------------------------------------------------------------
-# On copie requirements.txt EN PREMIER, avant le reste du code.
-# Pourquoi ? Parce que Docker "cache" chaque étape.
-# Si on copie le code d'abord, à chaque changement de code
-# Docker reinstalle TOUTES les dépendances — même si elles
-# n'ont pas changé. Comme ça on évite ça.
-# -------------------------------------------------------------
+
 COPY requirements.txt .
 
-# -------------------------------------------------------------
-# On installe les dépendances Python.
-# --no-cache-dir : pas de cache pip dans l'image (plus petite)
-# -------------------------------------------------------------
+
 RUN pip install --no-cache-dir -r requirements.txt
 
 # -------------------------------------------------------------
