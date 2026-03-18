@@ -805,17 +805,6 @@ wheels = [
 ]
 
 [[package]]
-name = "dotenv"
-version = "0.9.9"
-source = { registry = "https://pypi.org/simple" }
-dependencies = [
-    { name = "python-dotenv" },
-]
-wheels = [
-    { url = "https://files.pythonhosted.org/packages/b2/b7/545d2c10c1fc15e48653c91efde329a790f2eecfbbf2bd16003b5db2bab0/dotenv-0.9.9-py2.py3-none-any.whl", hash = "sha256:29cf74a087b31dafdb5a446b6d7e11cbce8ed2741540e2339c69fbef92c94ce9", size = 1892, upload-time = "2025-02-19T22:15:01.647Z" },
-]
-
-[[package]]
 name = "ecdsa"
 version = "0.19.1"
 source = { registry = "https://pypi.org/simple" }
@@ -2083,33 +2072,36 @@ dependencies = [
     { name = "alembic" },
     { name = "bcrypt" },
     { name = "docling" },
-    { name = "dotenv" },
     { name = "faiss-cpu" },
     { name = "fastapi", extra = ["standard"] },
-    { name = "httpx" },
-    { name = "ipykernel" },
-    { name = "ipywidgets" },
     { name = "langchain" },
     { name = "langchain-community" },
     { name = "langchain-ollama" },
     { name = "langchain-openai" },
     { name = "mistral" },
-    { name = "mypy" },
     { name = "numpy" },
     { name = "ollama" },
     { name = "pandas" },
     { name = "passlib" },
-    { name = "pre-commit" },
     { name = "psycopg2-binary" },
     { name = "pydantic" },
     { name = "pymupdf" },
     { name = "pypdf" },
-    { name = "pytest" },
-    { name = "pytest-mock" },
     { name = "python-jose", extra = ["cryptography"] },
     { name = "requests" },
-    { name = "ruff" },
     { name = "sqlalchemy" },
+]
+
+[package.dev-dependencies]
+dev = [
+    { name = "httpx" },
+    { name = "ipykernel" },
+    { name = "ipywidgets" },
+    { name = "mypy" },
+    { name = "pre-commit" },
+    { name = "pytest" },
+    { name = "pytest-mock" },
+    { name = "ruff" },
     { name = "types-passlib" },
     { name = "types-python-jose" },
 ]
@@ -2119,33 +2111,36 @@ requires-dist = [
     { name = "alembic", specifier = ">=1.17.2" },
     { name = "bcrypt", specifier = ">=4.0.0" },
     { name = "docling", specifier = ">=2.69.1" },
-    { name = "dotenv", specifier = ">=0.9.9" },
     { name = "faiss-cpu", specifier = ">=1.13.2" },
     { name = "fastapi", extras = ["standard"], specifier = ">=0.128.0" },
-    { name = "httpx", specifier = ">=0.28.1" },
-    { name = "ipykernel", specifier = ">=7.1.0" },
-    { name = "ipywidgets", specifier = ">=8.1.8" },
     { name = "langchain", specifier = ">=1.2.0" },
     { name = "langchain-community", specifier = ">=0.4.1" },
     { name = "langchain-ollama", specifier = ">=1.0.1" },
     { name = "langchain-openai", specifier = ">=1.1.6" },
     { name = "mistral", specifier = ">=21.0.0" },
-    { name = "mypy", specifier = ">=1.19.1" },
     { name = "numpy", specifier = ">=2.4.0" },
     { name = "ollama", specifier = ">=0.6.1" },
     { name = "pandas", specifier = ">=2.3.3" },
     { name = "passlib", specifier = ">=1.7.4" },
-    { name = "pre-commit", specifier = ">=4.5.1" },
     { name = "psycopg2-binary", specifier = ">=2.9.11" },
     { name = "pydantic", specifier = ">=2.12.5" },
     { name = "pymupdf", specifier = ">=1.26.7" },
     { name = "pypdf", specifier = ">=6.5.0" },
-    { name = "pytest", specifier = ">=9.0.2" },
-    { name = "pytest-mock", specifier = ">=3.15.1" },
     { name = "python-jose", extras = ["cryptography"], specifier = ">=3.5.0" },
     { name = "requests", specifier = ">=2.32.5" },
-    { name = "ruff", specifier = ">=0.14.11" },
     { name = "sqlalchemy", specifier = ">=2.0" },
+]
+
+[package.metadata.requires-dev]
+dev = [
+    { name = "httpx", specifier = ">=0.28.1" },
+    { name = "ipykernel", specifier = ">=7.1.0" },
+    { name = "ipywidgets", specifier = ">=8.1.8" },
+    { name = "mypy", specifier = ">=1.19.1" },
+    { name = "pre-commit", specifier = ">=4.5.1" },
+    { name = "pytest", specifier = ">=9.0.2" },
+    { name = "pytest-mock", specifier = ">=3.15.1" },
+    { name = "ruff", specifier = ">=0.14.11" },
     { name = "types-passlib", specifier = ">=1.7.7.20250602" },
     { name = "types-python-jose", specifier = ">=3.5.0.20250531" },
 ]

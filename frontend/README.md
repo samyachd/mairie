@@ -1,5 +1,4 @@
-
-  # Inventory Internal App Design
+# Inventory Internal App Design
 
   This is a code bundle for Inventory Internal App Design. The original project is available at https://www.figma.com/design/RRZYk72CldArInvuBSaSpn/Inventory-Internal-App-Design.
 
