@@ -3,15 +3,12 @@ from fastapi import APIRouter, Depends, HTTPException, status
 from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
 from sqlalchemy.orm import Session
 from core.constants import PAGINATION_LIMIT_DEFAULT, PAGINATION_SKIP_DEFAULT
-from core.dependencies import get_current_user, require_role
-from core.security import (hacher_mot_de_passe,
-                           valider_force_mot_de_passe,)
+from core.dependencies import require_role
+from core.security import (hacher_mot_de_passe,valider_force_mot_de_passe,)
 from db.models import User
-from db.session import get_db
-from schemas.users import UserCreate, UserRead, UserUpdate
+from backend.schemas.user import UserCreate, UserRead, UserUpdate
 
-router = APIRouter(dependencies=[Depends(get_current_user)])
-
+router = APIRouter(dependencies=[Depends(require_role("admin", "user"))], prefix="/users", tags=["users"])
 
 @router.post("/inscription", response_model=UserRead, status_code=status.HTTP_201_CREATED)
 def inscription(user: UserCreate, db: Session = Depends(require_role("admin"))):

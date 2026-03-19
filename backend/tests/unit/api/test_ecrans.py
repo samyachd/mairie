@@ -1,5 +1,5 @@
 import pytest
-from backend.db.models import Ecrans
+from db.models import Ecrans
 
 @pytest.fixture
 def test_ecran(db_session):

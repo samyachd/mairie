@@ -6,9 +6,6 @@ from core.settings import settings
 
 # Configuration du contexte de hachage des mots de passe
 
-# IMPORTANT : Change cette clé en production !
-# Génère-la avec : openssl rand -hex 32
-
 if settings.SECRET_KEY is None:
     raise ValueError("JWT_KEY n'est pas définie dans les variables d'environnement")
 
@@ -52,7 +49,9 @@ def creer_access_token(data: dict, expires_delta: Optional[timedelta] = None):
     return encoded_jwt
 
 
-def verifier_token(token: str) -> Optional[str]:
+def verifier_email(token: str) -> Optional[str]:
+    """Récupères l'email du user dans le login"""
+
     try:
         payload = jwt.decode(token, settings.SECRET_KEY, algorithms=[settings.ALGORITHM])
         email: str = payload.get("sub")
@@ -67,4 +66,13 @@ def verifier_token(token: str) -> Optional[str]:
 def verifier_role(role: str) -> str:
     """
     Récupères le role du user dans le login"""
+    try:
+        payload = jwt.decode(role, settings.SECRET_KEY, algorithms=[settings.ALGORITHM])
+        role: str = payload.get("role")
 
+        if role is None:
+            return None
+        return role
+    
+    except JWTError:
+        return None

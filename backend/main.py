@@ -1,6 +1,7 @@
 from fastapi import FastAPI
+from api.routes import ecrans, ordinateurs
 from core.settings import settings
-from api.routes import ecrans_routes, licenses_routes, ordinateurs_routes, users_routes
+from backend.api.routes import licence, user
 from fastapi.middleware.cors import CORSMiddleware
 from core.logger import setup_logger
 
@@ -28,7 +29,7 @@ app.add_middleware(
 def root():
     return {"status": "ok", "message": "API Inventaire"}
 
-app.include_router(users_routes.router, prefix="/users", tags=["users"])
-app.include_router(ordinateurs_routes.router, prefix="/ordinateurs", tags=["ordinateurs"])
-app.include_router(licenses_routes.router, prefix="/licenses", tags=["licenses"])
-app.include_router(ecrans_routes.router, prefix="/ecrans", tags=["ecrans"])
+app.include_router(user.router, prefix="/users", tags=["users"])
+app.include_router(ordinateurs.router, prefix="/ordinateurs", tags=["ordinateurs"])
+app.include_router(licence.router, prefix="/licenses", tags=["licenses"])
+app.include_router(ecrans.router, prefix="/ecrans", tags=["ecrans"])

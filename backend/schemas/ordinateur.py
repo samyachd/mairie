@@ -1,10 +1,8 @@
-# schemas/ordinateurs.py
 from datetime import date
 from pydantic import BaseModel, Field
-from schemas.base_equipment_schemas import BaseEquipmentCreate, BaseEquipmentUpdate, BaseEquipmentRead
+from schemas.base_equipment import BaseEquipmentCreate, BaseEquipmentUpdate, BaseEquipmentRead
 
-class BaseEquipmentCreate(BaseModel):
-    # ========== OBLIGATOIRES ==========
+class OrdinateurCreate(BaseEquipmentCreate):
     tag: str = Field(..., min_length=1, max_length=50)
     marque: str = Field(..., min_length=1, max_length=255)
     numero_bc: str = Field(..., min_length=1, max_length=50)
@@ -17,10 +15,7 @@ class BaseEquipmentCreate(BaseModel):
     agent: str | None = None
     fin_garantie: date | None = None
 
-
-
-# ============= UPDATE =============
-class PCUpdate(BaseEquipmentUpdate):
+class OrdinateurUpdate(BaseEquipmentUpdate):
     """Mettre à jour un ordinateur (tous les champs optionnels)"""
     
     office_license_id: int | None = None
@@ -37,9 +32,7 @@ class PCUpdate(BaseEquipmentUpdate):
     absolute_dell: bool | None = None
     watt: int | None = Field(None, ge=0)
 
-
-# ============= READ =============
-class PCRead(BaseEquipmentRead):
+class OrdinateurRead(BaseEquipmentRead):
     """Ordinateur complet retourné par l'API"""
     
     office_license_id: int | None = None
@@ -55,20 +48,3 @@ class PCRead(BaseEquipmentRead):
     casque: bool | None = None
     absolute_dell: bool | None = None
     watt: int | None = None
-    
-    # Relations (optionnel)
-    # ecran: list["EcranReadSimple"] = []
-    # office_license: "OfficeLicenseReadSimple" | None = None
-
-
-# ============= Version simplifiée pour les relations =============
-class PCReadSimple(BaseModel):
-    """Version simplifiée d'un ordinateur (pour éviter la récursion)"""
-    
-    model_config = {"from_attributes": True}
-    
-    id: int
-    tag: str | None = None
-    marque: str | None = None
-    nom_reseau: str | None = None
-    agent: str | None = None

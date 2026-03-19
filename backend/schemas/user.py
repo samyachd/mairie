@@ -1,22 +1,17 @@
 from pydantic import BaseModel, EmailStr, ConfigDict
 from datetime import datetime
 
-class UserBase(BaseModel):
-    model_config = ConfigDict(from_attributes=True)
-    name: str
-    email: EmailStr
-
 class UserCreate(BaseModel):
     model_config = ConfigDict(from_attributes=True)
     name: str
     email: EmailStr
-    mot_de_passe: str
+    mot_de_passe_hash: str
 
 class UserUpdate(BaseModel):
     model_config = ConfigDict(from_attributes=True)
     name: str | None = None
     email: EmailStr | None = None
-    mot_de_passe: str | None = None
+    mot_de_passe_hash: str | None = None
 
 class UserRead(BaseModel):
     model_config = ConfigDict(from_attributes=True)

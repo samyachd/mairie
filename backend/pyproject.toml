@@ -13,20 +13,11 @@ dependencies = [
     "passlib>=1.7.4",
     "bcrypt>=4.0.0",
     "python-jose[cryptography]>=3.5.0",
-    "docling>=2.69.1",
     "faiss-cpu>=1.13.2",
-    "langchain>=1.2.0",
-    "langchain-community>=0.4.1",
-    "langchain-ollama>=1.0.1",
-    "langchain-openai>=1.1.6",
-    "mistral>=21.0.0",
-    "ollama>=0.6.1",
     "numpy>=2.4.0",
     "pandas>=2.3.3",
     "pypdf>=6.5.0",
     "pymupdf>=1.26.7",
-
-    # HTTP client
     "requests>=2.32.5",
 ]
 

@@ -3,17 +3,13 @@ from fastapi import APIRouter, Depends, HTTPException, status
 from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer, OAuth2PasswordRequestForm
 from sqlalchemy.orm import Session
 from core.dependencies import get_current_user
-from core.security import (hacher_mot_de_passe,
-                           valider_force_mot_de_passe,
-                           verifier_mot_de_passe,
-                           creer_access_token,
-                           verifier_token)
+from core.security import verifier_mot_de_passe,creer_access_token
 from db.models import User
 from db.session import get_db
 
 logger = logging.getLogger(__name__)
 
-router = APIRouter(prefix="/auth", tags=["Authentication"])
+router = APIRouter(prefix="/connexion", tags=["Authentication"])
     
 # Route de connexion
 @router.post("/connexion")
@@ -24,10 +20,10 @@ def connexion(form: OAuth2PasswordRequestForm = Depends(), db: Session = Depends
     ).first()
     
     if not utilisateur:
-        raise HTTPException(status_code=401, detail="Email ou mot de passe incorrect")
+        raise HTTPException(status_code=401, detail="L'utilisateur n'existe pas")
 
-    if not verifier_mot_de_passe(form.password, utilisateur.mot_de_passe_hache):
-        raise HTTPException(status_code=401, detail="Email ou mot de passe incorrect")
+    if not verifier_mot_de_passe(form.password, utilisateur.mot_de_passe_hash):
+        raise HTTPException(status_code=401, detail="Mot de passe incorrect")
 
     access_token = creer_access_token(data={"sub": utilisateur.email, "role":utilisateur.role})
 

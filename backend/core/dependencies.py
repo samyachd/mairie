@@ -23,8 +23,6 @@ def get_current_user(credentials: HTTPAuthorizationCredentials = Depends(securit
             detail="Token invalide ou expiré",
             headers={"WWW-Authenticate": "Bearer"},
         )
-    
-    # Trouver l'utilisateur
     utilisateur = db.query(Utilisateur).filter(Utilisateur.email == email).first()
     
     if utilisateur is None:

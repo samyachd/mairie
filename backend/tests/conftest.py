@@ -6,9 +6,9 @@ from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 from sqlalchemy.pool import StaticPool
 from datetime import datetime, timedelta, timezone
-from backend.db.db import Base
-from backend.db.session import get_db
-from backend.main import app
+from db.db import Base
+from db.session import get_db
+from main import app
 from dotenv import load_dotenv
 
 load_dotenv()

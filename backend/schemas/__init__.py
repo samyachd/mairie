@@ -3,38 +3,31 @@
 Schémas Pydantic pour l'API
 """
 
-from schemas.base_equipment_schemas import (
+from schemas.base_equipment import (
     BaseEquipmentCreate,
     BaseEquipmentUpdate,
     BaseEquipmentRead,
 )
 
-from schemas.ordinateurs_schemas import (
+from schemas.ordinateur import (
     PCCreate,
     PCUpdate,
     PCRead,
-    PCReadSimple,
 )
 
-from schemas.ecrans_schemas import (
+from schemas.ecran import (
     EcranCreate,
     EcranUpdate,
     EcranRead,
-    EcranReadSimple,
 )
 
-from schemas.officelicenses_schemas import (
+from backend.schemas.office_license import (
     OfficeLicenseCreate,
     OfficeLicenseUpdate,
     OfficeLicenseRead,
-    OfficeLicenseReadSimple,
 )
 
 __all__ = [
-    # Base
-    "BaseEquipmentCreate",
-    "BaseEquipmentUpdate",
-    "BaseEquipmentRead",
     # Ordinateurs
     "PCCreate",
     "PCUpdate",
