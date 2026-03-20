@@ -1,5 +1,5 @@
 import pytest
-from db.models import Ordinateurs
+from backend.db.models.models import Ordinateurs
 
 @pytest.fixture
 def test_ordinateur(db_session):

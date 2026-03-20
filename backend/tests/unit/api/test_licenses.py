@@ -1,5 +1,5 @@
 import pytest
-from db.models import OfficeLicenses
+from backend.db.models.models import OfficeLicenses
 
 @pytest.fixture
 def test_license(db_session):

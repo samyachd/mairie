@@ -4,7 +4,7 @@ from sqlalchemy.orm import Session
 from sqlalchemy.exc import IntegrityError
 from schemas.ordinateur import OrdinateurCreate, OrdinateurRead, OrdinateurUpdate
 from db.session import get_db
-from db.models import Ordinateurs
+from backend.db.models.models import Ordinateurs
 
 router = APIRouter(dependencies=[Depends(require_role("user","admin"))], prefix="/ordinateurs", tags=["ordinateurs"])
 

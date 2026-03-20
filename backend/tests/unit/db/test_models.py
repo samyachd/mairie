@@ -1,4 +1,4 @@
-from db.models import Ecrans, OfficeLicenses, Ordinateurs, User
+from backend.db.models.models import Ecrans, OfficeLicenses, Ordinateurs, User
 
 
 class TestModelsCreation:

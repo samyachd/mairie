@@ -4,7 +4,7 @@ from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer, OAuth2Pas
 from sqlalchemy.orm import Session
 from core.dependencies import get_current_user
 from core.security import verifier_mot_de_passe,creer_access_token
-from db.models import User
+from backend.db.models.models import User
 from db.session import get_db
 
 logger = logging.getLogger(__name__)

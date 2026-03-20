@@ -3,7 +3,7 @@ from sqlalchemy.orm import Session
 from core.dependencies import require_role
 from backend.schemas.office_license import OfficeLicenseCreate, OfficeLicenseRead, OfficeLicenseUpdate
 from db.session import get_db
-from db.models import OfficeLicenses
+from backend.db.models.models import OfficeLicenses
 
 router = APIRouter(dependencies=[Depends(require_role("user","admin"))], prefix="/licenses", tags=["licenses"])
 

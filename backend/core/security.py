@@ -4,8 +4,6 @@ from jose import JWTError, jwt
 from typing import Optional
 from core.settings import settings
 
-# Configuration du contexte de hachage des mots de passe
-
 if settings.SECRET_KEY is None:
     raise ValueError("JWT_KEY n'est pas définie dans les variables d'environnement")
 

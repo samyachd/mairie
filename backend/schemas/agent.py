@@ -1,19 +1,23 @@
 from pydantic import BaseModel, EmailStr, ConfigDict
 from datetime import datetime
 
-class UserCreate(BaseModel):
-    model_config = ConfigDict(from_attributes=True)
-    nom: str
-    email: EmailStr
-    mot_de_passe_hash: str
-
-class UserUpdate(BaseModel):
+class AgentCreate(BaseModel):
     model_config = ConfigDict(from_attributes=True)
     nom: str | None = None
+    prenom: str | None = None
+    service: str | None = None
     email: EmailStr | None = None
-    mot_de_passe_hash: str | None = None
+    telephone: str | None = None
 
-class UserRead(BaseModel):
+class AgentUpdate(BaseModel):
+    model_config = ConfigDict(from_attributes=True)
+    nom: str | None = None
+    prenom: str | None = None
+    service: str | None = None
+    email: EmailStr | None = None
+    telephone: str | None = None
+
+class AgentRead(BaseModel):
     model_config = ConfigDict(from_attributes=True)
     id: int
     created_at: datetime | None = None
