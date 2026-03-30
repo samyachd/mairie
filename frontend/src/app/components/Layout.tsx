@@ -1,11 +1,5 @@
 import { Outlet, Link, useLocation } from "react-router";
-import {
-  LayoutDashboard,
-  Package,
-  PlusCircle,
-  Menu,
-  X,
-} from "lucide-react";
+import {LayoutDashboard,Package,SquareChartGantt,Menu,X,} from "lucide-react";
 import { useState } from "react";
 
 export function Layout() {
@@ -13,9 +7,11 @@ export function Layout() {
   const [sidebarOpen, setSidebarOpen] = useState(true);
 
   const navigation = [
-    { name: "Dashboard", href: "/", icon: LayoutDashboard },
-    { name: "Products", href: "/products", icon: Package },
-    { name: "Add Product", href: "/products/add", icon: PlusCircle },
+    { name: "Page d'accueil", href: "/", icon: LayoutDashboard },
+    { name: "Inventaire", href: "/inventaire", icon: Package },
+    { name: "Gestion", href: "/gestion", icon: SquareChartGantt },
+    { name: "Administration", href: "/administration", icon: SquareChartGantt },
+    { name: "Paramètres", href: "/parametres", icon: SquareChartGantt },
   ];
 
   const isActive = (path: string) => {
@@ -36,7 +32,7 @@ export function Layout() {
         <div className="h-full px-3 py-4 overflow-y-auto">
           <div className="flex items-center justify-between mb-8 px-3">
             <h2 className="text-xl font-bold text-gray-800">
-              Inventory Pro
+              Inventaire
             </h2>
             <button
               onClick={() => setSidebarOpen(false)}
@@ -81,7 +77,7 @@ export function Layout() {
                 <Menu className="w-6 h-6" />
               </button>
               <h1 className="text-xl font-semibold text-gray-900">
-                Inventory Management System
+                Système de gestion d'inventaire
               </h1>
             </div>
           </div>

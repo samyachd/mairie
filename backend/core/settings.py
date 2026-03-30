@@ -17,6 +17,10 @@ class Settings(BaseSettings):
     ALGORITHM: str = "HS256"
     ACCESS_TOKEN_EXPIRE: int = 30
 
+    MISTRAL_API_KEY: str
+    MISTRAL_MODEL: str = "mistral-ocr-latest"
+    EXEMPLE: str = "../data/files_test/Guide Entretien professionnel évaluation 2025.pdf"
+
     @property
     def DATABASE_URL(self) -> URL:
         return URL.create(

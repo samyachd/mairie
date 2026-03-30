@@ -4,13 +4,13 @@ from sqlalchemy.orm import Session
 from sqlalchemy.exc import IntegrityError
 from schemas.ordinateur import OrdinateurCreate, OrdinateurRead, OrdinateurUpdate
 from db.session import get_db
-from backend.db.models.models import Ordinateurs
+from db.models.ordinateur import Ordinateur
 
 router = APIRouter(dependencies=[Depends(require_role("user","admin"))], prefix="/ordinateurs", tags=["ordinateurs"])
 
 @router.post("/", response_model=OrdinateurRead, status_code=status.HTTP_201_CREATED)
 def create_ordinateur(ordinateur: OrdinateurCreate, db: Session = Depends(get_db)):
-    db_ordinateur = Ordinateurs(**ordinateur.model_dump(exclude_unset=True))
+    db_ordinateur = Ordinateur(**ordinateur.model_dump(exclude_unset=True))
     db.add(db_ordinateur)
     try:
         db.commit()
@@ -25,7 +25,7 @@ def create_ordinateur(ordinateur: OrdinateurCreate, db: Session = Depends(get_db
 
 @router.delete("/{ordinateur_id}", status_code=status.HTTP_204_NO_CONTENT)
 def delete_pc(ordinateur_id: int, db: Session = Depends(get_db)):
-    db_ordinateur = db.query(Ordinateurs).filter(Ordinateurs.id == ordinateur_id).first()
+    db_ordinateur = db.query(Ordinateur).filter(Ordinateur.id == ordinateur_id).first()
     if not db_ordinateur:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Ordinateur inexistant")
     db.delete(db_ordinateur)
@@ -34,7 +34,7 @@ def delete_pc(ordinateur_id: int, db: Session = Depends(get_db)):
 
 @router.put("/{ordinateur_id}", response_model=OrdinateurRead)
 def update_ordinateur(ordinateur_id: int, ordinateur: OrdinateurUpdate, db: Session = Depends(get_db)):
-    db_ordinateur = db.query(Ordinateurs).filter(Ordinateurs.id == ordinateur_id).first()
+    db_ordinateur = db.query(Ordinateur).filter(Ordinateur.id == ordinateur_id).first()
     if not db_ordinateur:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Ordinateur inexistant")
 

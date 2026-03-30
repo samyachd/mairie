@@ -1,17 +1,22 @@
 import logging
-from fastapi import APIRouter, Depends, HTTPException, status
-from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer, OAuth2PasswordRequestForm
+from fastapi import APIRouter, Depends, HTTPException
+from fastapi.security import HTTPAuthorizationCredentials, OAuth2PasswordRequestForm, HTTPBearer
+from jose import jwt
+from datetime import datetime, timezone
+from core.settings import settings
 from sqlalchemy.orm import Session
-from core.dependencies import get_current_user
 from core.security import verifier_mot_de_passe,creer_access_token
-from backend.db.models.models import User
+from db.models.base import TokenBlacklist
+from db.models.user import User
 from db.session import get_db
+from core.dependencies import get_current_user
 
 logger = logging.getLogger(__name__)
 
-router = APIRouter(prefix="/connexion", tags=["Authentication"])
-    
-# Route de connexion
+router = APIRouter(tags=["Authentication"])
+
+security= HTTPBearer()
+
 @router.post("/connexion")
 def connexion(form: OAuth2PasswordRequestForm = Depends(), db: Session = Depends(get_db)):
     
@@ -28,13 +33,22 @@ def connexion(form: OAuth2PasswordRequestForm = Depends(), db: Session = Depends
     access_token = creer_access_token(data={"sub": utilisateur.email, "role":utilisateur.role})
 
     return {
-        "access_token": access_token,
-        "token_type": "bearer"
-    }, {"message": "Connexion réussie", "utilisateur_id": utilisateur.id}
+    "access_token": access_token,
+    "token_type": "bearer",
+    "utilisateur_id": utilisateur.id
+}
 
-@router.post("/logout")
-def logout(current_user: User = Depends(get_current_user)):
-
-    print(f"Utilisateur {current_user.email} déconnecté")
+@router.delete("/logout")
+def logout(
+    credentials: HTTPAuthorizationCredentials = Depends(security),
+    current_user = Depends(get_current_user),
+    db: Session = Depends(get_db)
+):
+    token = credentials.credentials
     
-    return {"message": "Déconnecté avec succès. Supprimez le token côté client."}
+    payload = jwt.decode(token, settings.SECRET_KEY, algorithms=[settings.ALGORITHM])
+    expire_at = datetime.fromtimestamp(payload["exp"], tz=timezone.utc)
+    
+    db.add(TokenBlacklist(token=token, expire_at=expire_at))
+    db.commit()
+    return {"message": "Déconnecté"}

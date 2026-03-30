@@ -2,7 +2,10 @@ from passlib.context import CryptContext
 from datetime import datetime, timedelta, timezone
 from jose import JWTError, jwt
 from typing import Optional
+
+from sqlalchemy.orm import Session
 from core.settings import settings
+from db.models.base import TokenBlacklist
 
 if settings.SECRET_KEY is None:
     raise ValueError("JWT_KEY n'est pas définie dans les variables d'environnement")
@@ -49,28 +52,13 @@ def creer_access_token(data: dict, expires_delta: Optional[timedelta] = None):
 
 def verifier_email(token: str) -> Optional[str]:
     """Récupères l'email du user dans le login"""
-
     try:
         payload = jwt.decode(token, settings.SECRET_KEY, algorithms=[settings.ALGORITHM])
         email: str = payload.get("sub")
 
-        if email is None:
+        if not email:
             return None
         return email
-    
-    except JWTError:
-        return None
-    
-def verifier_role(role: str) -> str:
-    """
-    Récupères le role du user dans le login"""
-    try:
-        payload = jwt.decode(role, settings.SECRET_KEY, algorithms=[settings.ALGORITHM])
-        role: str = payload.get("role")
-
-        if role is None:
-            return None
-        return role
     
     except JWTError:
         return None

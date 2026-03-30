@@ -1,16 +1,9 @@
 import { useState, useMemo } from "react";
 import { useInventory } from "@/app/context/InventoryContext";
 import { Link } from "react-router";
-import {
-  Search,
-  Edit,
-  Trash2,
-  AlertCircle,
-  Filter,
-  Plus,
-} from "lucide-react";
+import {Search,Edit,Trash2,AlertCircle,Filter,Plus,} from "lucide-react";
 
-export function Products() {
+export function Inventaire() {
   const { products, deleteProduct } = useInventory();
   const [searchTerm, setSearchTerm] = useState("");
   const [categoryFilter, setCategoryFilter] = useState("all");

@@ -8,7 +8,6 @@ if TYPE_CHECKING:
     from db.models.ordinateur import Ordinateur
     from db.models.office_license import OfficeLicense
 
-
 class Devis(Document):
     __tablename__ = "devis"
 
