@@ -1,6 +1,12 @@
-export interface Product {
+export interface Equipement {
   id: number;
   nom: string;
-  prix: number;
+  type: "ordinateur" | "ecran" | "licence";
+  // ... autres champs
 }
 
+export interface User {
+
+}
+
+export interface 
