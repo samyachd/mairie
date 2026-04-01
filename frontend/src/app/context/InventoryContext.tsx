@@ -1,4 +1,16 @@
 import React, { createContext, useContext, useState, ReactNode } from "react";
+import { loginService } from "../services/auth";
+
+const [token, setToken] = useState<string | null>(null);
+
+const login = async (username: string, password: string) => {
+  const data = await loginService(username, password);
+  setToken(data.access_token);  // ← stocké en mémoire
+};
+
+const logout = () => {
+  setToken(null);  // ← effacé
+};
 
 export interface Product {
   id: string;

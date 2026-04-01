@@ -1,6 +1,6 @@
 import { createContext, useState, useEffect } from "react";
 import { getInventaire } from "../services/calls";
-import { Equipement } from "@/app/types";
+import { Equipement } from "../types/index";
 
 const [equipements, setEquipements] = useState<Equipement[]>([]);
 

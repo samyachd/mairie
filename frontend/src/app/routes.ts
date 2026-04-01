@@ -1,10 +1,11 @@
 import { createBrowserRouter } from "react-router";
-import { Login } from "@/app/pages/Login";
-import { Inventaire } from "@/app/pages/Inventaire";
-import { Gestion } from "@/app/pages/Gestion";
-import { Parametres } from "@/app/pages/Parametres";
-import { Admin } from "@/app/pages/Adminstration";
-import { Layout } from "@/app/components/Layout";
+import { Layout } from "../app/components/Layout";
+import { Login } from "../app/pages/Login";
+import { Inventaire } from "../app/pages/Inventaire";
+import { Gestion } from "../app/pages/Gestion";
+import { Parametres } from "../app/pages/Parametres";
+import { Administration } from "../app/pages/Administration";
+
 
 export const router = createBrowserRouter([
   {

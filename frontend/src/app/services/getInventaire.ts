@@ -1,6 +1,6 @@
-import axios from 'axios';
+import api from "./api";
 
 export const getInventaire = async () => {
-  const response = await axios.get("/inventaire");
+  const response = await api.get("/inventaire");
   return response.data;  // liste plate de tous les équipements
 }

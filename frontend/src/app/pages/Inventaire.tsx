@@ -1,5 +1,5 @@
 import { useState, useMemo } from "react";
-import { useInventory } from "@/app/context/InventoryContext";
+import { useInventory } from "../context/InventoryContext";
 import { Link } from "react-router";
 import {Search,Edit,Trash2,AlertCircle,Filter,Plus,} from "lucide-react";
 

@@ -1,4 +1,4 @@
-import { useInventory } from "@/app/context/InventoryContext";
+import { useInventory } from "../context/InventoryContext";
 import { Package, AlertTriangle, DollarSign, TrendingUp } from "lucide-react";
 import {
   BarChart,
@@ -15,7 +15,7 @@ import {
 } from "recharts";
 import { Link } from "react-router";
 
-export function Dashboard() {
+export function Gestion() {
   const { products } = useInventory();
 
   const totalProducts = products.length;

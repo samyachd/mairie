@@ -1,10 +1,10 @@
 import { useState } from "react";
 import { useNavigate } from "react-router";
-import { useInventory } from "@/app/context/InventoryContext";
+import { useInventory } from "../context/InventoryContext";
 import { ArrowLeft, Save } from "lucide-react";
 import { Link } from "react-router";
 
-export function AddProduct() {
+export function Login() {
   const navigate = useNavigate();
   const { addProduct } = useInventory();
 

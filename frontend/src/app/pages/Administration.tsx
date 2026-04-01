@@ -1,9 +1,9 @@
 import { useState, useEffect } from "react";
 import { useNavigate, useParams, Link } from "react-router";
-import { useInventory } from "@/app/context/InventoryContext";
+import { useInventory } from "../context/InventoryContext";
 import { ArrowLeft, Save } from "lucide-react";
 
-export function EditProduct() {
+export function Administration() {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
   const { getProductById, updateProduct } = useInventory();
