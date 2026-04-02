@@ -5,8 +5,17 @@ export interface Equipement {
   // ... autres champs
 }
 
-export interface User {
-
+export interface LoginResponse {
+  access_token: string;
 }
 
-export interface 
+export interface Credentials {
+  username: string;
+  password: string;
+}
+
+export interface User {
+  id: number;
+  email: string;
+  role: "admin" | "lecteur";
+}

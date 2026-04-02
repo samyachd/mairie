@@ -1,6 +1,8 @@
 import api from "./api";
+import { LoginResponse } from "@/app/types/index";
+import { Credentials } from "@/app/types/index";
 
-export const loginService = async (username: string, password: string) => {
-  const response = await api.post("/auth/login", { username, password });
-  return response.data;  // { access_token: "..." }
+export const loginService = async (credentials: Credentials): Promise<LoginResponse> => {
+  const response = await api.post("/auth/login", credentials);
+  return response.data as LoginResponse;  // { access_token: "..." }
 };
