@@ -6,14 +6,14 @@ from datetime import datetime, timezone
 from core.settings import settings
 from sqlalchemy.orm import Session
 from core.security import verifier_mot_de_passe,creer_access_token
-from db.models.base import TokenBlacklist
-from db.models.user import User
+from db.models import TokenBlacklist
+from db.models import User
 from db.session import get_db
 from core.dependencies import get_current_user
 
 logger = logging.getLogger(__name__)
 
-router = APIRouter(tags=["Authentication"])
+router = APIRouter()
 
 security= HTTPBearer()
 

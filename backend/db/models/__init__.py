@@ -4,3 +4,4 @@ from .ecran import Ecran
 from .agent import Agent
 from .office_license import OfficeLicense
 from .documents import Devis, BonDeCommande, Facture
+from .base import TokenBlacklist

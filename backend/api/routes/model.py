@@ -3,7 +3,7 @@ from requests import Session
 from db.session import get_db
 from core.dependencies import require_role
 
-router = APIRouter(prefix="/documents", tags=["documents"])
+router = APIRouter()
 
 @router.post("/upload")
 async def upload_document(

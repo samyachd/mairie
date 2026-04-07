@@ -6,7 +6,7 @@ from schemas.ordinateur import OrdinateurCreate, OrdinateurRead, OrdinateurUpdat
 from db.session import get_db
 from db.models.ordinateur import Ordinateur
 
-router = APIRouter(dependencies=[Depends(require_role("user","admin"))], prefix="/ordinateurs", tags=["ordinateurs"])
+router = APIRouter(dependencies=[Depends(require_role("user","admin"))])
 
 @router.post("/", response_model=OrdinateurRead, status_code=status.HTTP_201_CREATED)
 def create_ordinateur(ordinateur: OrdinateurCreate, db: Session = Depends(get_db)):

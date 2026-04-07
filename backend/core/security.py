@@ -2,10 +2,7 @@ from passlib.context import CryptContext
 from datetime import datetime, timedelta, timezone
 from jose import JWTError, jwt
 from typing import Optional
-
-from sqlalchemy.orm import Session
 from core.settings import settings
-from db.models.base import TokenBlacklist
 
 if settings.SECRET_KEY is None:
     raise ValueError("JWT_KEY n'est pas définie dans les variables d'environnement")

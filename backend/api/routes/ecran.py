@@ -3,9 +3,9 @@ from sqlalchemy.orm import Session
 from core.dependencies import require_role
 from schemas.ecran import EcranCreate, EcranRead, EcranUpdate
 from db.session import get_db
-from db.models.ecran import Ecran
+from db.models import Ecran
 
-router = APIRouter(dependencies=[Depends(require_role("user","admin"))], prefix="/ecrans", tags=["ecrans"])
+router = APIRouter(dependencies=[Depends(require_role("user","admin"))])
 
 @router.post("/", response_model=EcranRead, status_code=status.HTTP_201_CREATED)
 def create_ecran(ecran: EcranCreate, db: Session = Depends(get_db)):

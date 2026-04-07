@@ -7,7 +7,7 @@ from core.security import (hacher_mot_de_passe,valider_force_mot_de_passe,)
 from db.models.user import User
 from schemas.user import UserCreate, UserRead, UserUpdate
 
-router = APIRouter(dependencies=[Depends(require_role("admin", "user"))], prefix="/users", tags=["users"])
+router = APIRouter(dependencies=[Depends(require_role("admin", "user"))])
 
 @router.post("/inscription", response_model=UserRead, status_code=status.HTTP_201_CREATED)
 def inscription(user: UserCreate, db: Session = Depends(require_role("admin"))):

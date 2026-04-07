@@ -20,7 +20,7 @@ export function Login() {
   // Pour désactiver le bouton pendant la requête
   const [loading, setLoading] = useState(false);
 
-  // Appelle la fonction login du contexte
+  // Appelle le contexte UseInventory et la fonction login du contexte
   const handleSubmit = async () => {
     setLoading(true);
     setError(null);
@@ -34,6 +34,7 @@ export function Login() {
     }
   };
 
+  // HTML du formulaire de login
   return (
     <div className="min-h-screen flex items-center justify-center bg-gray-50">
       <div className="bg-white p-8 rounded-lg border border-gray-200 w-full max-w-sm">

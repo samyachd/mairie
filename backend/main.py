@@ -1,7 +1,6 @@
 from fastapi import FastAPI
-from api.routes import ecrans, ordinateurs
 from core.settings import settings
-from backend.api.routes import licence, user
+from api.routes import ecran, inventaire, office_licence, ordinateur, user, auth, agent, model
 from fastapi.middleware.cors import CORSMiddleware
 from core.logger import setup_logger
 
@@ -30,6 +29,10 @@ def root():
     return {"status": "ok", "message": "API Inventaire"}
 
 app.include_router(user.router, prefix="/users", tags=["users"])
-app.include_router(ordinateurs.router, prefix="/ordinateurs", tags=["ordinateurs"])
-app.include_router(licence.router, prefix="/licenses", tags=["licenses"])
-app.include_router(ecrans.router, prefix="/ecrans", tags=["ecrans"])
+app.include_router(ordinateur.router, prefix="/ordinateurs", tags=["ordinateurs"])
+app.include_router(office_licence.router, prefix="/licenses", tags=["licenses"])
+app.include_router(ecran.router, prefix="/ecrans", tags=["ecrans"])
+app.include_router(auth.router, prefix="/auth", tags=["auth"])
+app.include_router(inventaire.router, prefix="/inventaire", tags=["inventaire"])
+# app.include_router(agent.router, prefix="/agents", tags=["agents"])
+# app.include_router(model.router, prefix="/models", tags=["models"])

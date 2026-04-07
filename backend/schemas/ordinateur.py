@@ -1,5 +1,5 @@
 from datetime import date
-from pydantic import BaseModel, Field
+from pydantic import Field
 from schemas.base_equipment import BaseEquipmentCreate, BaseEquipmentUpdate, BaseEquipmentRead
 
 class OrdinateurCreate(BaseEquipmentCreate):

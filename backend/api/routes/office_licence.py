@@ -5,7 +5,7 @@ from schemas.office_license import OfficeLicenseCreate, OfficeLicenseRead, Offic
 from db.session import get_db
 from db.models.office_license import OfficeLicense
 
-router = APIRouter(dependencies=[Depends(require_role("user","admin"))], prefix="/licenses", tags=["licenses"])
+router = APIRouter(dependencies=[Depends(require_role("user","admin"))])
 
 @router.post("/", response_model=OfficeLicenseRead, status_code=status.HTTP_201_CREATED)
 def create_license(license: OfficeLicenseCreate, db: Session = Depends(get_db)):

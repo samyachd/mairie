@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { Credentials } from "@/app/types/index";
+import type { Credentials } from "@/app/types/index";
 import { loginService } from "@/app/services/auth";
 import api from "@/app/services/api";
 

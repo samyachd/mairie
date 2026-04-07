@@ -10,9 +10,9 @@ from schemas.base_equipment import (
 )
 
 from schemas.ordinateur import (
-    PCCreate,
-    PCUpdate,
-    PCRead,
+    OrdinateurCreate,
+    OrdinateurUpdate,
+    OrdinateurRead,
 )
 
 from schemas.ecran import (
@@ -21,7 +21,7 @@ from schemas.ecran import (
     EcranRead,
 )
 
-from backend.schemas.office_license import (
+from schemas.office_license import (
     OfficeLicenseCreate,
     OfficeLicenseUpdate,
     OfficeLicenseRead,
@@ -29,10 +29,10 @@ from backend.schemas.office_license import (
 
 __all__ = [
     # Ordinateurs
-    "PCCreate",
-    "PCUpdate",
-    "PCRead",
-    "PCReadSimple",
+    "OrdinateurCreate",
+    "OrdinateurUpdate",
+    "OrdinateurRead",
+    "OrdinateurReadSimple",
     # Écrans
     "EcranCreate",
     "EcranUpdate",
