@@ -1,23 +1,20 @@
-import logging
 from fastapi import APIRouter, Depends, HTTPException
 from fastapi.security import HTTPAuthorizationCredentials, OAuth2PasswordRequestForm, HTTPBearer
 from jose import jwt
 from datetime import datetime, timezone
-from core.settings import settings
+from core import settings, logger
 from sqlalchemy.orm import Session
-from core.security import verifier_mot_de_passe,creer_access_token
-from db.models import TokenBlacklist
-from db.models import User
-from db.session import get_db
+from core import verifier_mot_de_passe,creer_access_token
 from core.dependencies import get_current_user
-
-logger = logging.getLogger(__name__)
+from db.models import TokenBlacklist, User
+from db.session import get_db
+from schemas import Token
 
 router = APIRouter()
 
 security= HTTPBearer()
 
-@router.post("/connexion")
+@router.post("/connexion", response_model=Token)
 def connexion(form: OAuth2PasswordRequestForm = Depends(), db: Session = Depends(get_db)):
     
     utilisateur = db.query(User).filter(
@@ -25,9 +22,11 @@ def connexion(form: OAuth2PasswordRequestForm = Depends(), db: Session = Depends
     ).first()
     
     if not utilisateur:
+        logger.warning(f"Échec de connexion pour l'email: {form.username}")
         raise HTTPException(status_code=401, detail="L'utilisateur n'existe pas")
 
     if not verifier_mot_de_passe(form.password, utilisateur.mot_de_passe_hash):
+        logger.warning(f"Échec de connexion pour l'email: {form.username}")
         raise HTTPException(status_code=401, detail="Mot de passe incorrect")
 
     access_token = creer_access_token(data={"sub": utilisateur.email, "role":utilisateur.role})
@@ -51,4 +50,5 @@ def logout(
     
     db.add(TokenBlacklist(token=token, expire_at=expire_at))
     db.commit()
+    logger.info(f"Déconnexion : {current_user.username}")
     return {"message": "Déconnecté"}

@@ -27,20 +27,49 @@ from schemas.office_license import (
     OfficeLicenseRead,
 )
 
+from schemas.agent import (
+    AgentCreate,
+    AgentUpdate,
+    AgentRead,
+)
+
+from schemas.documents import (
+    DevisResponse,
+    FactureResponse,
+    BonDeCommandeResponse,
+)
+
+from schemas.user import (
+    UserCreate,
+    UserRead,
+    UserUpdate,
+)
+
+from schemas.auth import (
+    Token,
+)
+
+from schemas.inventaire import InventaireRead
+
 __all__ = [
     # Ordinateurs
     "OrdinateurCreate",
     "OrdinateurUpdate",
     "OrdinateurRead",
-    "OrdinateurReadSimple",
     # Écrans
     "EcranCreate",
     "EcranUpdate",
     "EcranRead",
-    "EcranReadSimple",
     # Licences Office
     "OfficeLicenseCreate",
     "OfficeLicenseUpdate",
     "OfficeLicenseRead",
-    "OfficeLicenseReadSimple",
+    # Agents
+    "AgentCreate",
+    "AgentUpdate",
+    "AgentRead",
+    # Documents
+    "DevisResponse",
+    "FactureResponse",
+    "BonDeCommandeResponse",
 ]

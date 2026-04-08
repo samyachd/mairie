@@ -2,7 +2,7 @@ from fastapi import APIRouter, Depends, HTTPException, status
 from core.dependencies import  require_role
 from sqlalchemy.orm import Session
 from sqlalchemy.exc import IntegrityError
-from schemas.ordinateur import OrdinateurCreate, OrdinateurRead, OrdinateurUpdate
+from schemas import OrdinateurCreate, OrdinateurRead, OrdinateurUpdate
 from db.session import get_db
 from db.models.ordinateur import Ordinateur
 

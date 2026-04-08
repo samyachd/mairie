@@ -4,7 +4,7 @@ from sqlalchemy.orm import Session
 from db.models.base import TokenBlacklist
 from db.models.user import User as Utilisateur
 from db.session import get_db
-from core.security import verifier_email as verifier_token
+from core import verifier_email as verifier_token
 
 security = HTTPBearer()
 

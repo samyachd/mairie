@@ -2,7 +2,7 @@ from passlib.context import CryptContext
 from datetime import datetime, timedelta, timezone
 from jose import JWTError, jwt
 from typing import Optional
-from core.settings import settings
+from core import settings
 
 if settings.SECRET_KEY is None:
     raise ValueError("JWT_KEY n'est pas définie dans les variables d'environnement")

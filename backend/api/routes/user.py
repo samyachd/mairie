@@ -5,7 +5,7 @@ from core.constants import PAGINATION_LIMIT_DEFAULT, PAGINATION_SKIP_DEFAULT
 from core.dependencies import require_role
 from core.security import (hacher_mot_de_passe,valider_force_mot_de_passe,)
 from db.models.user import User
-from schemas.user import UserCreate, UserRead, UserUpdate
+from schemas import UserCreate, UserRead, UserUpdate
 
 router = APIRouter(dependencies=[Depends(require_role("admin", "user"))])
 

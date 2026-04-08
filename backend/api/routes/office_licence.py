@@ -1,7 +1,7 @@
 from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.orm import Session
 from core.dependencies import require_role
-from schemas.office_license import OfficeLicenseCreate, OfficeLicenseRead, OfficeLicenseUpdate
+from schemas import OfficeLicenseCreate, OfficeLicenseRead, OfficeLicenseUpdate
 from db.session import get_db
 from db.models.office_license import OfficeLicense
 

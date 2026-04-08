@@ -1,8 +1,8 @@
 from fastapi import FastAPI
-from core.settings import settings
+from core import settings
 from api.routes import ecran, inventaire, office_licence, ordinateur, user, auth, agent, model
 from fastapi.middleware.cors import CORSMiddleware
-from core.logger import setup_logger
+from core.logger import setup_logger, logger
 
 setup_logger()
 
@@ -11,6 +11,7 @@ app = FastAPI(
     version=settings.VERSION,
     debug=settings.DEBUG,
 )
+logger.info(f"Démarrage de l'application {settings.APP_NAME} version {settings.VERSION}")
 
 origins = [
     "https://castelnau-le-lez-inventaire.com",  # Ton site en production
@@ -34,5 +35,5 @@ app.include_router(office_licence.router, prefix="/licenses", tags=["licenses"])
 app.include_router(ecran.router, prefix="/ecrans", tags=["ecrans"])
 app.include_router(auth.router, prefix="/auth", tags=["auth"])
 app.include_router(inventaire.router, prefix="/inventaire", tags=["inventaire"])
-# app.include_router(agent.router, prefix="/agents", tags=["agents"])
+app.include_router(agent.router, prefix="/agents", tags=["agents"])
 # app.include_router(model.router, prefix="/models", tags=["models"])
