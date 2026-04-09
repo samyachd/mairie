@@ -9,14 +9,14 @@ if TYPE_CHECKING:
     from db.models.documents import Devis, BonDeCommande, Facture
     from db.models.ordinateur import Ordinateur
 
-class OfficeLicense(BaseEntry):
-    __tablename__ = "office_license"
+class OfficeLicence(BaseEntry):
+    __tablename__ = "office_licences"
 
     devis_id: Mapped[int | None] = mapped_column(ForeignKey("devis.id", ondelete="SET NULL"), nullable=True)
     bon_de_commande_id: Mapped[int | None] = mapped_column(ForeignKey("bon_de_commande.id", ondelete="SET NULL"), nullable=True)
     facture_id: Mapped[int | None] = mapped_column(ForeignKey("facture.id", ondelete="SET NULL"), nullable=True)
 
-    type_license: Mapped[str | None] = mapped_column(String(255), nullable=True, index=True)
+    type_licence: Mapped[str | None] = mapped_column(String(255), nullable=True, index=True)
     version: Mapped[str] = mapped_column(String(500), nullable=False, index=True)
     date_achat: Mapped[dt.date] = mapped_column(Date, nullable=False)
     fournisseur: Mapped[str | None] = mapped_column(String(255), nullable=True)

@@ -1,6 +1,6 @@
 from fastapi import FastAPI
 from core import settings
-from api.routes import ecran, inventaire, office_licence, ordinateur, user, auth, agent, model
+from api.routes import ordinateur, user, auth, agent, ecran, licence, devis, bon_de_commande, facture, inventaire
 from fastapi.middleware.cors import CORSMiddleware
 from core.logger import setup_logger, logger
 
@@ -29,11 +29,14 @@ app.add_middleware(
 def root():
     return {"status": "ok", "message": "API Inventaire"}
 
-app.include_router(user.router, prefix="/users", tags=["users"])
-app.include_router(ordinateur.router, prefix="/ordinateurs", tags=["ordinateurs"])
-app.include_router(office_licence.router, prefix="/licenses", tags=["licenses"])
-app.include_router(ecran.router, prefix="/ecrans", tags=["ecrans"])
-app.include_router(auth.router, prefix="/auth", tags=["auth"])
-app.include_router(inventaire.router, prefix="/inventaire", tags=["inventaire"])
-app.include_router(agent.router, prefix="/agents", tags=["agents"])
+app.include_router(user, prefix="/users", tags=["users"])
+app.include_router(ordinateur, prefix="/ordinateurs", tags=["ordinateurs"])
+app.include_router(licence, prefix="/licenses", tags=["licenses"])
+app.include_router(ecran, prefix="/ecrans", tags=["ecrans"])
+app.include_router(auth, prefix="/auth", tags=["auth"])
+app.include_router(inventaire, prefix="/inventaire", tags=["inventaire"])
+app.include_router(agent, prefix="/agents", tags=["agents"])
+app.include_router(devis, prefix="/devis", tags=["devis"])
+app.include_router(bon_de_commande, prefix="/bons-de-commande", tags=["bons-de-commande"])
+app.include_router(facture, prefix="/factures", tags=["factures"])
 # app.include_router(model.router, prefix="/models", tags=["models"])

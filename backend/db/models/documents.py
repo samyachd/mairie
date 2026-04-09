@@ -5,7 +5,7 @@ from typing import TYPE_CHECKING
 if TYPE_CHECKING:
     from db.models.ecran import Ecran
     from db.models.ordinateur import Ordinateur
-    from db.models.office_license import OfficeLicense
+    from db.models.office_licence import OfficeLicense
 
 class Devis(Document):
     __tablename__ = "devis"

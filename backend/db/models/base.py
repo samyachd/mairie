@@ -26,7 +26,7 @@ class Document(BaseEntry):
 
     nom: Mapped[str] = mapped_column(String(255), nullable=False)
     numero: Mapped[str] = mapped_column(String(50), nullable=False)
-    path: Mapped[str] = mapped_column(String(255), nullable=False)
+    path: Mapped[str] = mapped_column(String(255), unique=True, nullable=False)
 
 class BaseEquipement(BaseEntry):
     __abstract__ = True

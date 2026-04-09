@@ -21,10 +21,10 @@ from schemas.ecran import (
     EcranRead,
 )
 
-from schemas.office_license import (
-    OfficeLicenseCreate,
-    OfficeLicenseUpdate,
-    OfficeLicenseRead,
+from schemas.office_licence import (
+    OfficeLicenceCreate,
+    OfficeLicenceUpdate,
+    OfficeLicenceRead,
 )
 
 from schemas.agent import (
@@ -61,9 +61,9 @@ __all__ = [
     "EcranUpdate",
     "EcranRead",
     # Licences Office
-    "OfficeLicenseCreate",
-    "OfficeLicenseUpdate",
-    "OfficeLicenseRead",
+    "OfficeLicenceCreate",
+    "OfficeLicenceUpdate",
+    "OfficeLicenceRead",
     # Agents
     "AgentCreate",
     "AgentUpdate",

@@ -7,9 +7,9 @@ from core.security import (hacher_mot_de_passe,valider_force_mot_de_passe,)
 from db.models.user import User
 from schemas import UserCreate, UserRead, UserUpdate
 
-router = APIRouter(dependencies=[Depends(require_role("admin", "user"))])
+user = APIRouter(dependencies=[Depends(require_role("admin", "user"))])
 
-@router.post("/inscription", response_model=UserRead, status_code=status.HTTP_201_CREATED)
+@user.post("/creation", response_model=UserRead, status_code=status.HTTP_201_CREATED)
 def inscription(user: UserCreate, db: Session = Depends(require_role("admin"))):
     
     utilisateur_existant = db.query(User).filter(
@@ -39,18 +39,18 @@ def inscription(user: UserCreate, db: Session = Depends(require_role("admin"))):
         logger.error(f"Error creating user: {str(e)}")
         raise HTTPException(status_code=400, detail="Error creating user")
     
-@router.get("/", response_model=list[UserRead])
+@user.get("/", response_model=list[UserRead])
 def read_users(
     skip: int = PAGINATION_SKIP_DEFAULT,
     limit: int = PAGINATION_LIMIT_DEFAULT,
-    db: Session = Depends(require_role("user","admin","read")),
+    db: Session = Depends(require_role("admin")),
 ):
     users = db.query(User).offset(skip).limit(limit).all()
     logger.debug(f"Retrieved {len(users)} users")
     return users
 
-@router.get("/{user_id}", response_model=UserRead)
-def read_user(user_id: int, db: Session = Depends(require_role("user","admin","read"))):
+@user.get("/{user_id}", response_model=UserRead)
+def read_user(user_id: int, db: Session = Depends(require_role("user","admin"))):
     db_user = db.query(User).filter(User.id == user_id).first()
     if not db_user:
         logger.warning(f"User not found: {user_id}")
@@ -58,8 +58,8 @@ def read_user(user_id: int, db: Session = Depends(require_role("user","admin","r
     return db_user
 
 
-@router.delete("/{user_id}")
-def delete_user(user_id: int, db: Session = Depends(require_role("user","admin"))):
+@user.delete("/{user_id}")
+def delete_user(user_id: int, db: Session = Depends(require_role("admin"))):
     db_user = db.query(User).filter(User.id == user_id).first()
     if not db_user:
         logger.warning(f"Delete user not found: {user_id}")
@@ -70,8 +70,8 @@ def delete_user(user_id: int, db: Session = Depends(require_role("user","admin")
     return None
 
 
-@router.put("/{user_id}", response_model=UserRead)
-def update_user(user_id: int, user: UserUpdate, db: Session = Depends(require_role("user","admin"))):
+@user.put("/{user_id}", response_model=UserRead)
+def update_user(user_id: int, user: UserUpdate, db: Session = Depends(require_role("admin"))):
     db_user = db.query(User).filter(User.id == user_id).first()
     if not db_user:
         logger.warning(f"Update user not found: {user_id}")

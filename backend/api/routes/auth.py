@@ -10,11 +10,11 @@ from db.models import TokenBlacklist, User
 from db.session import get_db
 from schemas import Token
 
-router = APIRouter()
+auth = APIRouter()
 
 security= HTTPBearer()
 
-@router.post("/connexion", response_model=Token)
+@auth.post("/connexion", response_model=Token)
 def connexion(form: OAuth2PasswordRequestForm = Depends(), db: Session = Depends(get_db)):
     
     utilisateur = db.query(User).filter(
@@ -37,7 +37,7 @@ def connexion(form: OAuth2PasswordRequestForm = Depends(), db: Session = Depends
     "utilisateur_id": utilisateur.id
 }
 
-@router.delete("/logout")
+@auth.delete("/logout")
 def logout(
     credentials: HTTPAuthorizationCredentials = Depends(security),
     current_user = Depends(get_current_user),

@@ -3,9 +3,9 @@ from requests import Session
 from db.session import get_db
 from core.dependencies import require_role
 
-router = APIRouter()
+model = APIRouter()
 
-@router.post("/upload")
+@model.post("/upload")
 async def upload_document(
     file: UploadFile = File(...),
     db: Session = Depends(get_db),

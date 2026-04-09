@@ -8,7 +8,7 @@ if TYPE_CHECKING:
     from db.models.ecran import Ecran
     from db.models.agent import Agent
     from db.models.documents import Devis, BonDeCommande, Facture
-    from db.models.office_license import OfficeLicense
+    from db.models.office_licence import OfficeLicense
 
 class Ordinateur(BaseEquipement):
     __tablename__ = "ordinateur"
