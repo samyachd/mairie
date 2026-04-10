@@ -1,0 +1,18 @@
+groups:
+  - name: mairie_alerts
+    rules:
+      - alert: TempsReponseEleve
+        expr: http_request_duration_seconds_p95 > 2
+        for: 1m
+        labels:
+          severity: warning
+        annotations:
+          summary: "Temps de réponse élevé"
+
+      - alert: TauxErreurEleve
+        expr: rate(http_requests_total{status=~"5.."}[5m]) > 0.1
+        for: 2m
+        labels:
+          severity: critical
+        annotations:
+          summary: "Taux d'erreur > 10%"

@@ -14,10 +14,10 @@ test:
 
 # Docker
 dockerdev:
-	docker-compose -f docker-compose.dev.yml up
+	docker compose -f docker-compose.dev.yml up
 
 dockerprod:
-	docker-compose -f docker-compose.prod.yml up -d
+	docker compose -f docker-compose.yml up -d
 
 dockerdown:
-	docker-compose down
+	docker compose down

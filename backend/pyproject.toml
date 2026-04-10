@@ -20,6 +20,7 @@ dependencies = [
     "pymupdf>=1.26.7",
     "requests>=2.32.5",
     "mistralai>=2.1.2",
+    "prometheus-fastapi-instrumentator>=7.1.0",
 ]
 
 [dependency-groups]
