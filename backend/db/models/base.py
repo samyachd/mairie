@@ -27,6 +27,7 @@ class Document(BaseEntry):
     nom: Mapped[str] = mapped_column(String(255), nullable=False)
     numero: Mapped[str] = mapped_column(String(50), nullable=False)
     path: Mapped[str] = mapped_column(String(255), unique=True, nullable=False)
+    date_document: Mapped[dt.date] = mapped_column(Date, nullable=False)
 
 class BaseEquipement(BaseEntry):
     __abstract__ = True

@@ -5,7 +5,7 @@ from core.dependencies import require_role
 from services.ocr import extraire_document
 from core.logger import logger
 
-model = APIRouter(prefix="/documents", tags=["documents"])
+model = APIRouter(dependencies=[Depends(require_role("admin", "user"))])
 
 @model.post("/upload/{type_document}/{equipement_id}")
 async def upload_document(
@@ -13,7 +13,7 @@ async def upload_document(
     equipement_id: int,
     file: UploadFile = File(...),
     db: Session = Depends(get_db),
-    current_user = Depends(require_role("admin"))
+    current_user = Depends(require_role("admin", "user"))
 ):
     # 1. Vérifier le type de fichier
     if file.content_type not in ["application/pdf", "image/jpeg", "image/png"]:
@@ -45,8 +45,16 @@ async def upload_document(
         doc = Devis(
             equipement_id=equipement_id,
             fournisseur=donnees.get("fournisseur"),
-            montant=donnees.get("montant_ttc"),
             date_devis=donnees.get("date_document"),
+        )
+
+    elif type_document == "bon_commande":
+        from db.models.documents import BonCommande
+        doc = BonCommande(
+            equipement_id=equipement_id,
+            numero_bon=donnees.get("numero_document"),
+            fournisseur=donnees.get("fournisseur"),
+            date_commande=donnees.get("date_document"),
         )
     else:
         raise HTTPException(status_code=400, detail="Type de document invalide")

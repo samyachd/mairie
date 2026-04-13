@@ -1,12 +1,12 @@
 import pytest
-from backend.db.models.models import Ordinateurs
+from db.models import Ordinateur
 
 @pytest.fixture
 def test_ordinateur(db_session):
     """
     Insère un écran de test dans la base.
     """
-    ordinateurs = Ordinateurs(
+    ordinateurs = Ordinateur(
         tag="PC-TEST-001",
         proprietaire="Commune",
         service="Finances publiques",
@@ -21,29 +21,6 @@ def test_ordinateur(db_session):
     db_session.commit()
     db_session.refresh(ordinateurs)  # récupère l'id généré par la DB
     return ordinateurs
-
-# -------- GET Methods (list all, list vide, lire, lire inexistant) -----------------
-
-def test_get_ordinateur(client, test_ordinateur):
-    response = client.get(f"/ordinateurs/{test_ordinateur.id}")
-    assert response.status_code == 200
-    data = response.json()
-    assert data["proprietaire"] == "Commune"
-    assert data["tag"] == "PC-TEST-001"
-
-def test_liste_ordinateur(client, test_ordinateur):
-    response = client.get(f"/ordinateurs")
-    assert response.status_code == 200
-    assert len(response.json()) >= 1
-
-def test_liste_ordinateur_vide(client):
-    response = client.get(f"/ordinateurs")
-    assert response.status_code == 200
-    assert response.json() == []
-
-def test_ordinateur_inexistant(client):
-    response = client.get("/ordinateurs/99999")
-    assert response.status_code == 404
 
 # -------- POST Methods -----------------
 

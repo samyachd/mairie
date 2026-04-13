@@ -1,4 +1,4 @@
-from sqlalchemy.orm import Mapped, relationship
+from sqlalchemy.orm import Mapped, mapped_column, relationship
 from db.models.base import  Document
 from typing import TYPE_CHECKING
 
@@ -24,6 +24,8 @@ class BonDeCommande(Document):
 class Facture(Document):
     __tablename__ = "facture"
 
+    montant_ttc: Mapped[float | None] = mapped_column(nullable=True)
+    montant_ht: Mapped[float | None] = mapped_column(nullable=True)
     ordinateur: Mapped[list["Ordinateur"]] = relationship(back_populates="facture")
     ecran: Mapped[list["Ecran"]] = relationship(back_populates="facture")
     office_license: Mapped[list["OfficeLicense"]] = relationship(back_populates="facture")

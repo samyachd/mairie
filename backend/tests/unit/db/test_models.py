@@ -1,4 +1,4 @@
-from backend.db.models.models import Ecrans, OfficeLicenses, Ordinateurs, User
+from db.models import Ecran, OfficeLicence, Ordinateur, User
 
 
 class TestModelsCreation:
@@ -12,28 +12,28 @@ class TestModelsCreation:
         assert retrieved.name == "Test User"
 
     def test_create_ordinateur(self, db_session):
-        ordinateur = Ordinateurs(type_pc="Desktop", marque="Dell")
+        ordinateur = Ordinateur(type_pc="Desktop", marque="Dell")
         db_session.add(ordinateur)
         db_session.commit()
 
-        retrieved = db_session.query(Ordinateurs).first()
+        retrieved = db_session.query(Ordinateur).first()
         assert retrieved is not None
         assert retrieved.type_pc == "Desktop"
 
     def test_create_ecran(self, db_session):
-        ecran = Ecrans(tag="ECRAN001", marque="LG")
+        ecran = Ecran(tag="ECRAN001", marque="LG")
         db_session.add(ecran)
         db_session.commit()
 
-        retrieved = db_session.query(Ecrans).first()
+        retrieved = db_session.query(Ecran).first()
         assert retrieved is not None
         assert retrieved.tag == "ECRAN001"
 
     def test_create_office_license(self, db_session):
-        license = OfficeLicenses(version="Office 2021", type_license="Pro")
+        license = OfficeLicence(version="Office 2021", type_license="Pro")
         db_session.add(license)
         db_session.commit()
 
-        retrieved = db_session.query(OfficeLicenses).first()
+        retrieved = db_session.query(OfficeLicence).first()
         assert retrieved is not None
         assert retrieved.version == "Office 2021"

@@ -4,6 +4,8 @@ from datetime import datetime
 class FactureResponse(BaseModel):
     id: int
     equipement_id: int
+    montant_ttc: float | None
+    montant_ht: float | None
     fournisseur: str | None
     montant: float | None
     date_facture: datetime | None

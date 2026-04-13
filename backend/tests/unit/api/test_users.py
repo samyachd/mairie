@@ -1,5 +1,5 @@
 import pytest
-from backend.db.models.models import User
+from db.models import User
 
 @pytest.fixture
 def test_user(db_session):

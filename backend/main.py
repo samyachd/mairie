@@ -1,7 +1,7 @@
 from fastapi import FastAPI
 from prometheus_fastapi_instrumentator import Instrumentator
 from core import settings
-from api.routes import ordinateur, user, auth, agent, ecran, licence, devis, bon_de_commande, facture, inventaire
+from api.routes import ordinateur, user, auth, agent, ecran, licence, devis, bon_de_commande, facture, inventaire, model
 from fastapi.middleware.cors import CORSMiddleware
 from core.logger import setup_logger, logger
 
@@ -41,4 +41,4 @@ app.include_router(agent, prefix="/agents", tags=["agents"])
 app.include_router(devis, prefix="/devis", tags=["devis"])
 app.include_router(bon_de_commande, prefix="/bons-de-commande", tags=["bons-de-commande"])
 app.include_router(facture, prefix="/factures", tags=["factures"])
-# app.include_router(model, prefix="/models", tags=["models"])
+app.include_router(model, prefix="/models", tags=["models"])

@@ -1,7 +1,6 @@
 from __future__ import annotations
-from datetime import datetime
-from typing import Optional
-from sqlalchemy import String, Integer, ForeignKey, UniqueConstraint, CheckConstraint
+from datetime import datetime, timezone
+from sqlalchemy import Boolean, Float, Integer, ForeignKey, Text
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 from db.db import Base
 
@@ -24,7 +23,11 @@ class OcrStat(Base):
     taux_completude: Mapped[float]  # % champs remplis
 
     # Contexte
+    nom_fichier : Mapped[str]      # nom du fichier traité
     type_document: Mapped[str]     # "facture", "devis", "bon_commande"
     type_mime: Mapped[str]         # "application/pdf", "image/jpeg"
     taille_fichier: Mapped[int]    # en bytes
     nb_pages: Mapped[int]          # nombre de pages traitées
+
+    #Historique
+    resultat_json: Mapped[str | None] = mapped_column(Text, nullable=True)
