@@ -8,8 +8,8 @@ class OcrStat(Base):
     __tablename__ = "ocr_stats"
 
     id: Mapped[int] = mapped_column(primary_key=True)
-    user_id: Mapped[int] = mapped_column(ForeignKey("users.id"))
-    timestamp: Mapped[datetime] = mapped_column(default=datetime.now(datetime.timezone.utc))
+    user_id: Mapped[int] = mapped_column(ForeignKey("user.id"))
+    timestamp: Mapped[datetime] = mapped_column(default=datetime.now(timezone.utc))
 
     # Performance
     duree_ms: Mapped[int]          # temps de traitement total

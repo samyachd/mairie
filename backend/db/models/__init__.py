@@ -5,5 +5,5 @@ from .agent import Agent
 from .office_licence import OfficeLicence
 from .documents import Devis, BonDeCommande, Facture
 from .base import TokenBlacklist
-# from .ocr_stats import OCRStats
-# from .logs import Log
+from .ocr_stats import OcrStat
+from .logs import Log

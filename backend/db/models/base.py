@@ -16,8 +16,6 @@ class BaseEntry(Base):
     __abstract__ = True
 
     id: Mapped[int] = mapped_column(primary_key=True)
-    created_by: Mapped[int | None] = mapped_column(ForeignKey("user.id"), nullable=True)
-    updated_by: Mapped[int | None] = mapped_column(ForeignKey("user.id"), nullable=True)
     updated_at: Mapped["DateTime"] = mapped_column(DateTime(timezone=True), onupdate=func.now())
     created_at: Mapped["DateTime"] = mapped_column(DateTime(timezone=True), server_default=func.now())
 

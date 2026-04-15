@@ -21,3 +21,23 @@ dockerprod:
 
 dockerdown:
 	docker compose down
+
+# Database
+migration:
+	cd backend && uv run alembic revision --autogenerate -m "$(msg)"
+
+migrate:
+	cd backend && uv run alembic upgrade head
+
+seed:
+	cd backend && uv run python seed.py
+
+dbreset:
+	docker compose -f docker-compose.dev.yml down -v
+	docker compose -f docker-compose.dev.yml up db -d
+	sleep 3
+	cd backend && uv run alembic upgrade head
+
+# utils
+convert:
+	cd backend && uv run python convert_excel.py

@@ -10,7 +10,7 @@ if TYPE_CHECKING:
     from db.models.ordinateur import Ordinateur
 
 class OfficeLicence(BaseEntry):
-    __tablename__ = "office_licences"
+    __tablename__ = "officelicence"
 
     devis_id: Mapped[int | None] = mapped_column(ForeignKey("devis.id", ondelete="SET NULL"), nullable=True)
     bon_de_commande_id: Mapped[int | None] = mapped_column(ForeignKey("bon_de_commande.id", ondelete="SET NULL"), nullable=True)
@@ -21,7 +21,7 @@ class OfficeLicence(BaseEntry):
     date_achat: Mapped[dt.date] = mapped_column(Date, nullable=False)
     fournisseur: Mapped[str | None] = mapped_column(String(255), nullable=True)
 
-    ordinateur: Mapped[list["Ordinateur"]] = relationship(back_populates="office_license", passive_deletes=True)
-    devis: Mapped[Optional["Devis"]] = relationship(back_populates="office_license")
-    bon_de_commande: Mapped[Optional["BonDeCommande"]] = relationship(back_populates="office_license")
-    facture: Mapped[Optional["Facture"]] = relationship(back_populates="office_license")
+    ordinateur: Mapped[list["Ordinateur"]] = relationship(back_populates="officelicence", passive_deletes=True)
+    devis: Mapped[Optional["Devis"]] = relationship(back_populates="officelicence")
+    bon_de_commande: Mapped[Optional["BonDeCommande"]] = relationship(back_populates="officelicence")
+    facture: Mapped[Optional["Facture"]] = relationship(back_populates="officelicence")
