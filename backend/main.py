@@ -44,8 +44,8 @@ app.include_router(facture, prefix="/factures", tags=["factures"])
 app.include_router(model, prefix="/models", tags=["models"])
 app.include_router(log, prefix="/logs", tags=["logs"])
 
-@app.lifespan("startup")
-async def startup():
-    from db.seed import seed
-    seed()
-    logger.info(f"{settings.APP_NAME} démarré")
+# @app.lifespan("startup")
+# async def startup():
+#     from db.seed import seed
+#     seed()
+#     logger.info(f"{settings.APP_NAME} démarré")
