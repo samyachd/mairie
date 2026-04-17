@@ -1,5 +1,13 @@
 # Makefile
 .PHONY: backend frontend test docker-dev docker-prod docker-down
+
+setup:
+	uv run utils/clean_pipeline.py
+	cd backend && uv pip install -r requirements.txt
+	cd frontend && npm install
+	wslview http://localhost:8000/docs
+	wslview http://localhost:3000
+
 # Backend
 backend:
 	cd backend && uv run uvicorn main:app --host 0.0.0.0 --port 8000 --reload
