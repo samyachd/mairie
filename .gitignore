@@ -3,7 +3,6 @@
 # ============================================
 
 # Notebooks
-notebooks/
 
 # Environnements virtuels
 .venv/
@@ -55,7 +54,6 @@ coverage.xml
 
 # Jupyter Notebook
 .ipynb_checkpoints
-*.ipynb
 
 # MyPy
 .mypy_cache/
