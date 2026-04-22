@@ -1,7 +1,7 @@
-
 FROM python:3.12-slim
 
-RUN groupadd -r appuser && useradd -r -g appuser appuser
+# Crée le user AVEC son home directory (-m = make home)
+RUN groupadd -r appuser && useradd -r -g appuser -m appuser
 
 WORKDIR /app
 
@@ -18,6 +18,9 @@ RUN if [ "$DEV" = "true" ]; \
 COPY . .
 
 RUN chown -R appuser:appuser /app
+
+# Ajoute le venv au PATH : uvicorn, pytest, alembic directement accessibles
+ENV PATH="/app/.venv/bin:$PATH"
 
 USER appuser
 

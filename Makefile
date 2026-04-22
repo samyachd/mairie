@@ -21,11 +21,11 @@ test:
 	cd backend && uv run pytest
 
 # Docker
-dockerdev:
-	docker compose -f docker-compose.dev.yml up
+dev:
+	docker compose up --build
 
-dockerprod:
-	docker compose -f docker-compose.yml up -d
+prod:
+	docker compose -f docker-compose.yml -f docker-compose.prod.yml up -d --build
 
 dockerdown:
 	docker compose down

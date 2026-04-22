@@ -1,5 +1,5 @@
 import pytest
-import jwt
+from jose import jwt
 import os
 from fastapi.testclient import TestClient
 from sqlalchemy import create_engine

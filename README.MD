@@ -18,3 +18,32 @@
     - lance le backend
     - lance le frontend
     - ouvres la doc api et localhost:3000
+
+
+## Prérequis
+
+- Docker et Docker Compose installés
+- Git
+
+## Installation
+
+1. Cloner le dépôt :
+   git clone <url>
+   cd mairie
+
+2. Créer le fichier .env à partir du template :
+   cp .env.example .env
+   # Éditer .env avec les valeurs appropriées (DB, JWT_SECRET, MISTRAL_API_KEY)
+
+3. Lancer la stack :
+   docker compose -f docker-compose.dev.yml up --build
+
+4. Appliquer les migrations :
+   docker compose -f docker-compose.dev.yml exec backend alembic upgrade head
+
+5. Seeder les données initiales :
+   docker compose -f docker-compose.dev.yml exec backend python -m utils.seed
+
+L'API est disponible sur http://localhost:8000/docs
+Grafana sur http://localhost:3001
+Prometheus sur http://localhost:9090
