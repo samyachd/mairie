@@ -1,8 +1,8 @@
-"""
+"""initial
 
-Revision ID: 3eaf6c70baa3
+Revision ID: fe8de391e2f7
 Revises: 
-Create Date: 2026-04-15 12:51:10.721214
+Create Date: 2026-04-23 09:23:40.925024
 
 """
 from typing import Sequence, Union
@@ -12,7 +12,7 @@ import sqlalchemy as sa
 
 
 # revision identifiers, used by Alembic.
-revision: str = '3eaf6c70baa3'
+revision: str = 'fe8de391e2f7'
 down_revision: Union[str, None] = None
 branch_labels: Union[str, Sequence[str], None] = None
 depends_on: Union[str, Sequence[str], None] = None
@@ -26,7 +26,7 @@ def upgrade() -> None:
     sa.Column('path', sa.String(length=255), nullable=False),
     sa.Column('date_document', sa.Date(), nullable=False),
     sa.Column('id', sa.Integer(), nullable=False),
-    sa.Column('updated_at', sa.DateTime(timezone=True), nullable=False),
+    sa.Column('updated_at', sa.DateTime(timezone=True), server_default=sa.text('now()'), nullable=False),
     sa.Column('created_at', sa.DateTime(timezone=True), server_default=sa.text('now()'), nullable=False),
     sa.PrimaryKeyConstraint('id'),
     sa.UniqueConstraint('path')
@@ -37,7 +37,7 @@ def upgrade() -> None:
     sa.Column('path', sa.String(length=255), nullable=False),
     sa.Column('date_document', sa.Date(), nullable=False),
     sa.Column('id', sa.Integer(), nullable=False),
-    sa.Column('updated_at', sa.DateTime(timezone=True), nullable=False),
+    sa.Column('updated_at', sa.DateTime(timezone=True), server_default=sa.text('now()'), nullable=False),
     sa.Column('created_at', sa.DateTime(timezone=True), server_default=sa.text('now()'), nullable=False),
     sa.PrimaryKeyConstraint('id'),
     sa.UniqueConstraint('path')
@@ -50,7 +50,7 @@ def upgrade() -> None:
     sa.Column('path', sa.String(length=255), nullable=False),
     sa.Column('date_document', sa.Date(), nullable=False),
     sa.Column('id', sa.Integer(), nullable=False),
-    sa.Column('updated_at', sa.DateTime(timezone=True), nullable=False),
+    sa.Column('updated_at', sa.DateTime(timezone=True), server_default=sa.text('now()'), nullable=False),
     sa.Column('created_at', sa.DateTime(timezone=True), server_default=sa.text('now()'), nullable=False),
     sa.PrimaryKeyConstraint('id'),
     sa.UniqueConstraint('path')
@@ -65,7 +65,7 @@ def upgrade() -> None:
     op.create_table('user',
     sa.Column('id', sa.Integer(), nullable=False),
     sa.Column('nom', sa.String(length=255), nullable=False),
-    sa.Column('email', sa.String(length=255), nullable=True),
+    sa.Column('email', sa.String(length=255), nullable=False),
     sa.Column('mot_de_passe_hash', sa.String(length=500), nullable=False),
     sa.Column('role', sa.Enum('admin', 'user', 'read', name='roleenum'), nullable=False),
     sa.PrimaryKeyConstraint('id')
@@ -111,7 +111,7 @@ def upgrade() -> None:
     sa.Column('date_achat', sa.Date(), nullable=False),
     sa.Column('fournisseur', sa.String(length=255), nullable=True),
     sa.Column('id', sa.Integer(), nullable=False),
-    sa.Column('updated_at', sa.DateTime(timezone=True), nullable=False),
+    sa.Column('updated_at', sa.DateTime(timezone=True), server_default=sa.text('now()'), nullable=False),
     sa.Column('created_at', sa.DateTime(timezone=True), server_default=sa.text('now()'), nullable=False),
     sa.ForeignKeyConstraint(['bon_de_commande_id'], ['bon_de_commande.id'], ondelete='SET NULL'),
     sa.ForeignKeyConstraint(['devis_id'], ['devis.id'], ondelete='SET NULL'),
@@ -147,7 +147,7 @@ def upgrade() -> None:
     sa.Column('date_achat', sa.Date(), nullable=False),
     sa.Column('fournisseur', sa.String(length=255), nullable=True),
     sa.Column('id', sa.Integer(), nullable=False),
-    sa.Column('updated_at', sa.DateTime(timezone=True), nullable=False),
+    sa.Column('updated_at', sa.DateTime(timezone=True), server_default=sa.text('now()'), nullable=False),
     sa.Column('created_at', sa.DateTime(timezone=True), server_default=sa.text('now()'), nullable=False),
     sa.ForeignKeyConstraint(['bon_de_commande_id'], ['bon_de_commande.id'], ondelete='SET NULL'),
     sa.ForeignKeyConstraint(['devis_id'], ['devis.id'], ondelete='SET NULL'),
@@ -162,6 +162,7 @@ def upgrade() -> None:
     sa.UniqueConstraint('tag_chargeur')
     )
     op.create_index(op.f('ix_ordinateur_batiment'), 'ordinateur', ['batiment'], unique=False)
+    op.create_index(op.f('ix_ordinateur_date_achat'), 'ordinateur', ['date_achat'], unique=False)
     op.create_index(op.f('ix_ordinateur_fin_garantie'), 'ordinateur', ['fin_garantie'], unique=False)
     op.create_index(op.f('ix_ordinateur_marque'), 'ordinateur', ['marque'], unique=False)
     op.create_index(op.f('ix_ordinateur_officelicence_id'), 'ordinateur', ['officelicence_id'], unique=False)
@@ -170,13 +171,13 @@ def upgrade() -> None:
     op.create_index(op.f('ix_ordinateur_type_equipement'), 'ordinateur', ['type_equipement'], unique=False)
     op.create_table('agent',
     sa.Column('ordinateur_id', sa.Integer(), nullable=True),
-    sa.Column('nom', sa.String(length=255), nullable=True),
-    sa.Column('prenom', sa.String(length=255), nullable=True),
+    sa.Column('nom', sa.String(length=255), nullable=False),
+    sa.Column('prenom', sa.String(length=255), nullable=False),
     sa.Column('service', sa.String(length=255), nullable=True),
     sa.Column('email', sa.String(length=255), nullable=True),
     sa.Column('telephone', sa.String(length=20), nullable=True),
     sa.Column('id', sa.Integer(), nullable=False),
-    sa.Column('updated_at', sa.DateTime(timezone=True), nullable=False),
+    sa.Column('updated_at', sa.DateTime(timezone=True), server_default=sa.text('now()'), nullable=False),
     sa.Column('created_at', sa.DateTime(timezone=True), server_default=sa.text('now()'), nullable=False),
     sa.ForeignKeyConstraint(['ordinateur_id'], ['ordinateur.id'], ondelete='SET NULL'),
     sa.PrimaryKeyConstraint('id')
@@ -203,7 +204,7 @@ def upgrade() -> None:
     sa.Column('date_achat', sa.Date(), nullable=False),
     sa.Column('fournisseur', sa.String(length=255), nullable=True),
     sa.Column('id', sa.Integer(), nullable=False),
-    sa.Column('updated_at', sa.DateTime(timezone=True), nullable=False),
+    sa.Column('updated_at', sa.DateTime(timezone=True), server_default=sa.text('now()'), nullable=False),
     sa.Column('created_at', sa.DateTime(timezone=True), server_default=sa.text('now()'), nullable=False),
     sa.CheckConstraint('slot IS NULL OR (slot BETWEEN 1 AND 5)', name='ck_slot_1_5'),
     sa.ForeignKeyConstraint(['agent_id'], ['agent.id'], ondelete='SET NULL'),
@@ -217,6 +218,7 @@ def upgrade() -> None:
     )
     op.create_index(op.f('ix_ecran_agent_id'), 'ecran', ['agent_id'], unique=False)
     op.create_index(op.f('ix_ecran_batiment'), 'ecran', ['batiment'], unique=False)
+    op.create_index(op.f('ix_ecran_date_achat'), 'ecran', ['date_achat'], unique=False)
     op.create_index(op.f('ix_ecran_fin_garantie'), 'ecran', ['fin_garantie'], unique=False)
     op.create_index(op.f('ix_ecran_marque'), 'ecran', ['marque'], unique=False)
     op.create_index(op.f('ix_ecran_ordinateur_id'), 'ecran', ['ordinateur_id'], unique=False)
@@ -236,6 +238,7 @@ def downgrade() -> None:
     op.drop_index(op.f('ix_ecran_ordinateur_id'), table_name='ecran')
     op.drop_index(op.f('ix_ecran_marque'), table_name='ecran')
     op.drop_index(op.f('ix_ecran_fin_garantie'), table_name='ecran')
+    op.drop_index(op.f('ix_ecran_date_achat'), table_name='ecran')
     op.drop_index(op.f('ix_ecran_batiment'), table_name='ecran')
     op.drop_index(op.f('ix_ecran_agent_id'), table_name='ecran')
     op.drop_table('ecran')
@@ -250,6 +253,7 @@ def downgrade() -> None:
     op.drop_index(op.f('ix_ordinateur_officelicence_id'), table_name='ordinateur')
     op.drop_index(op.f('ix_ordinateur_marque'), table_name='ordinateur')
     op.drop_index(op.f('ix_ordinateur_fin_garantie'), table_name='ordinateur')
+    op.drop_index(op.f('ix_ordinateur_date_achat'), table_name='ordinateur')
     op.drop_index(op.f('ix_ordinateur_batiment'), table_name='ordinateur')
     op.drop_table('ordinateur')
     op.drop_index(op.f('ix_officelicence_version'), table_name='officelicence')

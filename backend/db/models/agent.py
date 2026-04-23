@@ -16,10 +16,10 @@ class Agent(BaseEntry):
 
     ordinateur_id: Mapped[int | None] = mapped_column(ForeignKey("ordinateur.id", ondelete="SET NULL"), nullable=True)
 
-    nom: Mapped[str] = mapped_column(String(255), nullable=True, index=True)
-    prenom: Mapped[str] = mapped_column(String(255), nullable=True, index=True)
+    nom: Mapped[str] = mapped_column(String(255), nullable=False, index=True)
+    prenom: Mapped[str] = mapped_column(String(255), nullable=False, index=True)
     service: Mapped[str | None] = mapped_column(String(255), nullable=True, index=True)
-    email: Mapped[str | None] = mapped_column(String(255), unique=True, index=True, nullable=True)
+    email: Mapped[str | None] = mapped_column(String(255), nullable=True, unique=True, index=True)
     telephone: Mapped[str | None] = mapped_column(String(20), nullable=True)
 
     ordinateur: Mapped[Optional["Ordinateur"]] = relationship(back_populates="agent", passive_deletes=True)

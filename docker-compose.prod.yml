@@ -1,14 +1,23 @@
 services:
-  db:
+  frontend:
+    build:
+      context: ./frontend
+      target: prod   # ← On cible le stage "prod"
+      args:
+        VITE_API_URL: ${VITE_API_URL}   # ← Lu depuis .env.prod
+    ports:
+      - "80:80"
+    depends_on:
+      - backend
     restart: unless-stopped
-    # pas de ports exposés : la DB reste interne au réseau Docker
-
   backend:
     image: ghcr.io/tonpseudo/mairie-backend:latest
     restart: unless-stopped
     command: uvicorn main:app --host 0.0.0.0 --port 8000 --workers 4
     # pas de volumes bind : code figé dans l'image
-
+  db:
+    restart: unless-stopped
+    # pas de ports exposés : la DB reste interne au réseau Docker
   prometheus:
     restart: unless-stopped
     # pas de port exposé : accessible via Apache reverse proxy uniquement

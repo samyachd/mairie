@@ -16,7 +16,7 @@ class BaseEntry(Base):
     __abstract__ = True
 
     id: Mapped[int] = mapped_column(primary_key=True)
-    updated_at: Mapped["DateTime"] = mapped_column(DateTime(timezone=True), onupdate=func.now())
+    updated_at: Mapped["DateTime"] = mapped_column(DateTime(timezone=True), server_default=func.now(), onupdate=func.now())
     created_at: Mapped["DateTime"] = mapped_column(DateTime(timezone=True), server_default=func.now())
 
 class Document(BaseEntry):
@@ -37,5 +37,5 @@ class BaseEquipement(BaseEntry):
     tag: Mapped[str | None] = mapped_column(String(50), unique=True, nullable=True)
     marque: Mapped[str | None] = mapped_column(String(255), nullable=True, index=True)
     fin_garantie: Mapped[dt.date | None] = mapped_column(Date, nullable=True, index=True)
-    date_achat: Mapped[dt.date] = mapped_column(Date, nullable=False)
+    date_achat: Mapped[dt.date] = mapped_column(Date, nullable=False, index=True)
     fournisseur: Mapped[str | None] = mapped_column(String(255), nullable=True)
