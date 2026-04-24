@@ -11,7 +11,7 @@ export function Login() {
 
   // credentials pour login
   const [credentials, setCredentials] = useState({
-    username: "",
+    email: "",
     password: "",
   });
 
@@ -46,9 +46,9 @@ export function Login() {
         <div className="space-y-4">
           <input
             type="text"
-            placeholder="Nom d'utilisateur"
-            value={credentials.username}
-            onChange={e => setCredentials({ ...credentials, username: e.target.value })}
+            placeholder="Adresse email"
+            value={credentials.email}
+            onChange={e => setCredentials({ ...credentials, email: e.target.value })}
             onKeyDown={e => e.key === "Enter" && handleSubmit()}
             className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
           />
