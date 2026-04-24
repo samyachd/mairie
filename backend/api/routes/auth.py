@@ -9,24 +9,25 @@ from core.dependencies import get_current_user
 from db.models import TokenBlacklist, User
 from db.session import get_db
 from schemas import Token
+from schemas.auth import LoginRequest
 
 auth = APIRouter()
 
 security= HTTPBearer()
 
-@auth.post("/connexion", response_model=Token)
-def connexion(form: OAuth2PasswordRequestForm = Depends(), db: Session = Depends(get_db)):
+@auth.post("/login", response_model=Token)
+def login(credentials: LoginRequest, db: Session = Depends(get_db)):
     
     utilisateur = db.query(User).filter(
-        User.email == form.username,
+        User.email == credentials.email,
     ).first()
     
     if not utilisateur:
-        logger.warning(f"Échec de connexion pour l'email: {form.username}")
+        logger.warning(f"Échec de connexion pour l'email: {credentials.email}")
         raise HTTPException(status_code=401, detail="L'utilisateur n'existe pas")
 
-    if not verifier_mot_de_passe(form.password, utilisateur.mot_de_passe_hash):
-        logger.warning(f"Échec de connexion pour l'email: {form.username}")
+    if not verifier_mot_de_passe(credentials.password, utilisateur.mot_de_passe_hash):
+        logger.warning(f"Échec de connexion pour l'email: {credentials.email}")
         raise HTTPException(status_code=401, detail="Mot de passe incorrect")
 
     access_token = creer_access_token(data={"sub": utilisateur.email, "role":utilisateur.role})

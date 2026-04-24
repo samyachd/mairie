@@ -1,3 +1,4 @@
+import os
 from fastapi import FastAPI
 from prometheus_fastapi_instrumentator import Instrumentator
 from core import settings
@@ -15,18 +16,16 @@ app = FastAPI(
 Instrumentator().instrument(app).expose(app)
 logger.info(f"Démarrage de l'application {settings.APP_NAME} version {settings.VERSION}")
 
-origins = [
-    "https://castelnau-le-lez-inventaire.com",  # Ton site en production
-    "http://localhost:3000",  # Pour le développement local
-]
+CORS_ORIGINS = os.getenv("CORS_ORIGINS", "http://localhost:5173").split(",")
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=origins,  # Domaines autorisés
-    allow_credentials=True,  # Permet les cookies
-    allow_methods=["GET", "POST", "PUT", "DELETE"],  # Méthodes HTTP autorisées
-    allow_headers=["*"],  # Headers autorisés
+    allow_origins=CORS_ORIGINS,
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
 )
+
 @app.get("/")
 def root():
     return {"status": "ok", "message": "API Inventaire"}

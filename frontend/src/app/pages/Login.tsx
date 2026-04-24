@@ -1,11 +1,11 @@
 import { useState } from "react";
-import { useInventory } from "@/app/context/InventoryContext";
 import { useNavigate } from "react-router";
+import { useAuth } from "../hooks/useAuth";
 
 export function Login() {
 
   // Récupère la fonction login du contexte
-  const { login } = useInventory();
+  const { login } = useAuth();
   // Permet de rediriger après login
   const navigate = useNavigate();
 

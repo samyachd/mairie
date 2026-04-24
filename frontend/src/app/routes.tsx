@@ -6,10 +6,10 @@ import { Inventaire } from "./pages/Inventaire";
 import { Gestion } from "./pages/Gestion";
 import { Parametres } from "./pages/Parametres";
 import { Administration } from "./pages/Administration";
-import { useInventory } from "@/app/context/InventoryContext";
+import { useAuth } from "./hooks/useAuth";
 
 function ProtectedRoute({ children }: { children: ReactNode }) {
-  const { isAuthenticated } = useInventory();
+  const { isAuthenticated } = useAuth();
   return isAuthenticated ? children : <Navigate to="/login" />;
 }
 

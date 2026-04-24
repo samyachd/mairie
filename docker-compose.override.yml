@@ -1,14 +1,14 @@
 services:
   db:
     ports:
-      - "5432:5432"   # accessible depuis DBeaver/pgAdmin
+      - "${POSTGRES_PORT}"   # accessible depuis DBeaver/pgAdmin
 
   backend:
     build:
       args:
         DEV: "true"
     ports:
-      - "8000:8000"
+      - "${BACKEND_PORT}:8000"
     volumes:
       - ./backend:/app
       - /app/.venv
@@ -19,7 +19,7 @@ services:
       context: ./frontend
       target: dev   # ← On cible le stage "dev"
     ports:
-      - "5173:5173"
+      - "${FRONTEND_PORT}:5173"
     volumes:
       - ./frontend:/app
       - /app/node_modules
