@@ -1,24 +1,16 @@
 from datetime import date
 from pydantic import Field
-from schemas.base_equipment import BaseEquipmentCreate, BaseEquipmentUpdate, BaseEquipmentRead
+from schemas.base_equipment import (
+    BaseEquipmentCreate,
+    BaseEquipmentUpdate,
+    BaseEquipmentRead,
+)
+
 
 class OrdinateurCreate(BaseEquipmentCreate):
-    tag: str = Field(..., min_length=1, max_length=50)
-    marque: str = Field(..., min_length=1, max_length=255)
-    numero_bc: str = Field(..., min_length=1, max_length=50)
-    achat: date
-    proprietaire: str | None = None
-    service: str | None = None
-    batiment: str | None = None 
-    type_equipement: str | None = None
-    fournisseur: str | None = None
-    agent: str | None = None
-    fin_garantie: date | None = None
-
-class OrdinateurUpdate(BaseEquipmentUpdate):
-    """Mettre à jour un ordinateur (tous les champs optionnels)"""
+    """Créer un ordinateur. Hérite des champs communs + spécifiques."""
     
-    office_license_id: int | None = None
+    # Champs spécifiques optionnels
     ram: str | None = Field(None, max_length=50)
     os: str | None = Field(None, max_length=100)
     nom_reseau: str | None = Field(None, max_length=50)
@@ -31,11 +23,41 @@ class OrdinateurUpdate(BaseEquipmentUpdate):
     casque: bool | None = None
     absolute_dell: bool | None = None
     watt: int | None = Field(None, ge=0)
+    
+    # FK
+    agent_id: int | None = None
+    officelicence_id: int | None = None
+    devis_id: int | None = None
+    bon_de_commande_id: int | None = None
+    facture_id: int | None = None
+
+
+class OrdinateurUpdate(BaseEquipmentUpdate):
+    """Mettre à jour un ordinateur (tous champs optionnels)."""
+    
+    ram: str | None = Field(None, max_length=50)
+    os: str | None = Field(None, max_length=100)
+    nom_reseau: str | None = Field(None, max_length=50)
+    tag_chargeur: str | None = Field(None, max_length=50)
+    ip_address: str | None = Field(None, max_length=45)
+    mac_ethernet: str | None = Field(None, max_length=17)
+    mac_wifi: str | None = Field(None, max_length=17)
+    clef_wifi: bool | None = None
+    lecteur_cd: bool | None = None
+    casque: bool | None = None
+    absolute_dell: bool | None = None
+    watt: int | None = Field(None, ge=0)
+    
+    agent_id: int | None = None
+    officelicence_id: int | None = None
+    devis_id: int | None = None
+    bon_de_commande_id: int | None = None
+    facture_id: int | None = None
+
 
 class OrdinateurRead(BaseEquipmentRead):
-    """Ordinateur complet retourné par l'API"""
+    """Ordinateur retourné par l'API."""
     
-    office_license_id: int | None = None
     ram: str | None = None
     os: str | None = None
     nom_reseau: str | None = None
@@ -48,3 +70,9 @@ class OrdinateurRead(BaseEquipmentRead):
     casque: bool | None = None
     absolute_dell: bool | None = None
     watt: int | None = None
+    
+    agent_id: int | None = None
+    officelicence_id: int | None = None
+    devis_id: int | None = None
+    bon_de_commande_id: int | None = None
+    facture_id: int | None = None

@@ -1,13 +1,16 @@
+from pydantic import BaseModel
 from .ordinateur import OrdinateurRead
 from .ecran import EcranRead
 from .office_licence import OfficeLicenceRead
-from .documents import DevisResponse, BonDeCommandeResponse, FactureResponse
-from pydantic import BaseModel
+from .documents import DevisRead, BonDeCommandeRead, FactureRead
+from .agent import AgentRead
+
 
 class InventaireRead(BaseModel):
     ordinateurs: list[OrdinateurRead]
     ecrans: list[EcranRead]
-    licenses: list[OfficeLicenceRead]
-    devis: list[DevisResponse]
-    bons_de_commande: list[BonDeCommandeResponse]
-    factures: list[FactureResponse]
+    licences: list[OfficeLicenceRead]
+    agents: list[AgentRead]
+    devis: list[DevisRead]
+    bons_de_commande: list[BonDeCommandeRead]
+    factures: list[FactureRead]

@@ -23,23 +23,28 @@ export interface User {
 // Correspond à BaseEquipmentRead côté backend
 export interface BaseEquipment {
   id: number;
-  tag: string;
+  tag: string | null;
   marque: string | null;
   proprietaire: string | null;
   service: string | null;
   batiment: string | null;
   type_equipement: string | null;
-  fin_garantie: string | null; // dates en string (ISO) côté JSON
-  date_achat: string | null;
   fournisseur: string | null;
+  fin_garantie: string | null;
+  date_achat: string;                 // ← obligatoire (dates en string ISO en JSON)
   created_at: string;
-  updated_at: string;
+  updated_at: string | null;
 }
 
 // ────────── Ordinateur ──────────
 
 export interface Ordinateur extends BaseEquipment {
-  office_license_id: number | null;
+  agent_id: number | null;
+  officelicence_id: number | null;
+  devis_id: number | null;
+  bon_de_commande_id: number | null;
+  facture_id: number | null;
+  
   ram: string | null;
   os: string | null;
   nom_reseau: string | null;
@@ -58,37 +63,62 @@ export interface Ordinateur extends BaseEquipment {
 
 export interface Ecran extends BaseEquipment {
   taille: string | null;
-  ordinateur_id: number | null;
   slot: number | null;
+  
+  ordinateur_id: number | null;
+  agent_id: number | null;
+  devis_id: number | null;
+  bon_de_commande_id: number | null;
+  facture_id: number | null;
 }
-
 // ────────── Licence Office ──────────
 
 export interface OfficeLicence {
   id: number;
   version: string;
   type_licence: string | null;
-  numero_bc: string;
-  achat: string; // date ISO
+  fournisseur: string | null;
+  date_achat: string;
+  
+  devis_id: number | null;
+  bon_de_commande_id: number | null;
+  facture_id: number | null;
+  
+  created_at: string;
+  updated_at: string | null;
+}
+// ────────── Agent ──────────
+export interface Agent {
+  id: number;
+  nom: string;
+  prenom: string;
+  service: string | null;
+  email: string | null;
+  telephone: string | null;
+  created_at: string;
+  updated_at: string | null;
 }
 
-// ────────── Documents (on posera les détails plus tard) ──────────
 
-// On met des placeholders pour l'instant, on étoffera quand tu partageras
-// les schémas Pydantic de Devis / BonDeCommande / Facture
-export interface Devis {
+// ────────── Documents ──────────
+
+interface DocumentBase {
   id: number;
-  // TODO: compléter
+  nom: string;
+  numero: string;
+  path: string;
+  date_document: string;
+  created_at: string;
+  updated_at: string | null;
 }
 
-export interface BonDeCommande {
-  id: number;
-  // TODO: compléter
-}
+export interface Devis extends DocumentBase {}
 
-export interface Facture {
-  id: number;
-  // TODO: compléter
+export interface BonDeCommande extends DocumentBase {}
+
+export interface Facture extends DocumentBase {
+  montant_ttc: number | null;
+  montant_ht: number | null;
 }
 
 // ────────── Réponse de /inventaire ──────────
@@ -96,7 +126,8 @@ export interface Facture {
 export interface InventaireResponse {
   ordinateurs: Ordinateur[];
   ecrans: Ecran[];
-  licenses: OfficeLicence[]; // attention : "licenses" au pluriel anglais côté backend
+  licences: OfficeLicence[];
+  agents: Agent[];
   devis: Devis[];
   bons_de_commande: BonDeCommande[];
   factures: Facture[];

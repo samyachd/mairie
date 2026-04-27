@@ -14,8 +14,6 @@ if TYPE_CHECKING:
 class Agent(BaseEntry):
     __tablename__ = "agent"
 
-    ordinateur_id: Mapped[int | None] = mapped_column(ForeignKey("ordinateur.id", ondelete="SET NULL"), nullable=True)
-
     nom: Mapped[str] = mapped_column(String(255), nullable=False, index=True)
     prenom: Mapped[str] = mapped_column(String(255), nullable=False, index=True)
     service: Mapped[str | None] = mapped_column(String(255), nullable=True, index=True)

@@ -139,7 +139,7 @@ def seed_ordinateurs(db: Session, agents: list[Agent]) -> list[Ordinateur]:
         db.flush()  # pour récupérer l'ID
         
         # Assigne l'ordi à l'agent (FK côté Agent)
-        agents[i].ordinateur_id = ordi.id
+        ordi.agent_id = agents[i].id
         
         ordis.append(ordi)
         print(f"  ✓ {tag} - {marque} {ram} ({agents[i].prenom} {agents[i].nom})")

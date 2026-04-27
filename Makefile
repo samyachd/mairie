@@ -13,8 +13,8 @@ help:  ## Affiche la liste des commandes disponibles
 dev:  ## Démarre la stack en mode dev (avec hot-reload)
 	docker compose up --build
 
-dev-detached:  ## Démarre la stack en dev en arrière-plan
-	docker compose up --build -d
+devrun:
+	docker compose up
 
 prod:  ## Démarre la stack en mode prod
 	docker compose -f docker-compose.yml -f docker-compose.prod.yml up -d --build
@@ -63,7 +63,6 @@ backend-shell:  ## Ouvre un shell bash dans le conteneur backend
 
 convert:  ## Convertit Excel en JSON (utilitaire)
 	docker compose exec backend uv run python -m utils.convert_excel
-
 
 build-frontend:  ## Build le frontend pour la prod (local, sans Docker)
 	cd frontend && npm run build

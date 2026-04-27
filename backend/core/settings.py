@@ -19,7 +19,7 @@ class Settings(BaseSettings):
 
     MISTRAL_API_KEY: str
     MISTRAL_MODEL: str = "mistral-ocr-latest"
-    EXEMPLE: str = "../data/files_test/Guide Entretien professionnel évaluation 2025.pdf"
+    CORS_ORIGINS: str
 
     @property
     def DATABASE_URL(self) -> URL:
@@ -33,7 +33,7 @@ class Settings(BaseSettings):
         )
 
     class Config:
-        env_file = "../.env"
+        env_file = ".env"
         extra = "ignore"
 
 settings = Settings()

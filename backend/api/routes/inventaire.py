@@ -5,7 +5,7 @@ from schemas import (OfficeLicenceCreate, OfficeLicenceRead, OfficeLicenceUpdate
                      AgentRead, AgentCreate, AgentUpdate,
                       OrdinateurCreate, OrdinateurRead, OrdinateurUpdate, 
                       EcranCreate, EcranRead, EcranUpdate, 
-                      DevisResponse, BonDeCommandeResponse, FactureResponse, InventaireRead)
+                      DevisRead, BonDeCommandeRead, FactureRead, InventaireRead)
 from db.session import get_db
 from db.models import OfficeLicence, Ordinateur, Ecran, Devis, BonDeCommande, Facture, Agent
 from core import logger
@@ -22,16 +22,16 @@ facture = APIRouter(dependencies=[Depends(require_role("user","admin"))])
 
 # Inventaire endpoint : on charge tout l'inventaire en une seule requête pour éviter les multiples appels depuis le frontend
 
-@inventaire.get("/", response_model=list[InventaireRead])
-def read_ecrans(db: Session = Depends(get_db)):
+@inventaire.get("/", response_model=InventaireRead)
+def read_inventaire(db: Session = Depends(get_db)):
     return InventaireRead(
         agents=db.query(Agent).all(),
         ordinateurs=db.query(Ordinateur).all(),
         ecrans=db.query(Ecran).all(),
-        licenses=db.query(OfficeLicence).all(),
+        licences=db.query(OfficeLicence).all(),  # ← clé adaptée selon ton choix
         devis=db.query(Devis).all(),
         bons_de_commande=db.query(BonDeCommande).all(),
-        factures=db.query(Facture).all()
+        factures=db.query(Facture).all(),
     )
 
 # Agent endpoints
@@ -211,8 +211,8 @@ def update_ecran(ecran_id: int, ecran: EcranUpdate, db: Session = Depends(get_db
 
 # Devis endpoints
 
-@devis.post("/", response_model=DevisResponse, status_code=status.HTTP_201_CREATED)
-def create_devis(devis: DevisResponse, db: Session = Depends(get_db)):
+@devis.post("/", response_model=DevisRead, status_code=status.HTTP_201_CREATED)
+def create_devis(devis: DevisRead, db: Session = Depends(get_db)):
     db_devis = Devis(**devis.model_dump(exclude_unset=True))
     db.add(db_devis)
     try:
@@ -239,8 +239,8 @@ def delete_devis(devis_id: int, db: Session = Depends(get_db)):
     logger.info(f"Devis avec l'ID {devis_id} supprimé avec succès")
     return None
 
-@devis.put("/{devis_id}", response_model=DevisResponse)
-def update_devis(devis_id: int, devis: DevisResponse, db: Session = Depends(get_db)):
+@devis.put("/{devis_id}", response_model=DevisRead)
+def update_devis(devis_id: int, devis: DevisRead, db: Session = Depends(get_db)):
     db_devis = db.query(Devis).filter(Devis.id == devis_id).first()
     if not db_devis:
         logger.warning(f"Devis avec l'ID {devis_id} non trouvé pour mise à jour")
@@ -254,8 +254,8 @@ def update_devis(devis_id: int, devis: DevisResponse, db: Session = Depends(get_
 
 # Facture endpoints
 
-@facture.post("/", response_model=FactureResponse, status_code=status.HTTP_201_CREATED)
-def create_facture(facture: FactureResponse, db: Session = Depends(get_db)):
+@facture.post("/", response_model=FactureRead, status_code=status.HTTP_201_CREATED)
+def create_facture(facture: FactureRead, db: Session = Depends(get_db)):
     db_facture = Facture(**facture.model_dump(exclude_unset=True))
     db.add(db_facture)
     try:
@@ -282,8 +282,8 @@ def delete_facture(facture_id: int, db: Session = Depends(get_db)):
     logger.info(f"Facture avec l'ID {facture_id} supprimée avec succès")
     return None
 
-@facture.put("/{facture_id}", response_model=FactureResponse)
-def update_facture(facture_id: int, facture: FactureResponse, db: Session = Depends(get_db)):
+@facture.put("/{facture_id}", response_model=FactureRead)
+def update_facture(facture_id: int, facture: FactureRead, db: Session = Depends(get_db)):
     db_facture = db.query(Facture).filter(Facture.id == facture_id).first()
     if not db_facture:
         logger.warning(f"Facture avec l'ID {facture_id} non trouvée pour mise à jour")
@@ -297,8 +297,8 @@ def update_facture(facture_id: int, facture: FactureResponse, db: Session = Depe
 
 # Bon de commande endpoints
 
-@bon_de_commande.post("/", response_model=BonDeCommandeResponse, status_code=status.HTTP_201_CREATED)
-def create_bon_de_commande(bon_de_commande: BonDeCommandeResponse, db: Session = Depends(get_db)):
+@bon_de_commande.post("/", response_model=BonDeCommandeRead, status_code=status.HTTP_201_CREATED)
+def create_bon_de_commande(bon_de_commande: BonDeCommandeRead, db: Session = Depends(get_db)):
     db_bon_de_commande = BonDeCommande(**bon_de_commande.model_dump(exclude_unset=True))
     db.add(db_bon_de_commande)
     try:
@@ -325,8 +325,8 @@ def delete_bon_de_commande(bon_de_commande_id: int, db: Session = Depends(get_db
     logger.info(f"Bon de commande avec l'ID {bon_de_commande_id} supprimé avec succès")
     return None
 
-@bon_de_commande.put("/{bon_de_commande_id}", response_model=BonDeCommandeResponse)
-def update_bon_de_commande(bon_de_commande_id: int, bon_de_commande: BonDeCommandeResponse, db: Session = Depends(get_db)):
+@bon_de_commande.put("/{bon_de_commande_id}", response_model=BonDeCommandeRead)
+def update_bon_de_commande(bon_de_commande_id: int, bon_de_commande: BonDeCommandeRead, db: Session = Depends(get_db)):
     db_bon_de_commande = db.query(BonDeCommande).filter(BonDeCommande.id == bon_de_commande_id).first()
     if not db_bon_de_commande:
         logger.warning(f"Bon de commande avec l'ID {bon_de_commande_id} non trouvé pour mise à jour")

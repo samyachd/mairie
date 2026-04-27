@@ -13,10 +13,11 @@ if TYPE_CHECKING:
 class Ordinateur(BaseEquipement):
     __tablename__ = "ordinateur"
 
-    officelicence_id: Mapped[int | None] = mapped_column(ForeignKey("officelicence.id", ondelete="SET NULL"), nullable=True, index=True)
+    office_licence_id: Mapped[int | None] = mapped_column(ForeignKey("office_licence.id", ondelete="SET NULL"), nullable=True)
     devis_id: Mapped[int | None] = mapped_column(ForeignKey("devis.id", ondelete="SET NULL"), nullable=True)
     bon_de_commande_id: Mapped[int | None] = mapped_column(ForeignKey("bon_de_commande.id", ondelete="SET NULL"), nullable=True)
     facture_id: Mapped[int | None] = mapped_column(ForeignKey("facture.id", ondelete="SET NULL"), nullable=True)
+    agent_id:Mapped[int | None] = mapped_column(ForeignKey("agent.id", ondelete="SET NULL"), nullable=True)
 
     ram: Mapped[str | None] = mapped_column(String(50), nullable=True)
     os: Mapped[str | None] = mapped_column(String(100), nullable=True)
@@ -32,7 +33,7 @@ class Ordinateur(BaseEquipement):
     watt: Mapped[int | None] = mapped_column(Integer, nullable=True)
 
     ecran: Mapped[Optional[list["Ecran"]]] = relationship(back_populates="ordinateur", passive_deletes=True)
-    officelicence: Mapped[Optional["OfficeLicence"]] = relationship(back_populates="ordinateur", passive_deletes=True)
+    office_licence: Mapped[Optional["OfficeLicence"]] = relationship(back_populates="ordinateur", passive_deletes=True)
     agent: Mapped[Optional["Agent"]] = relationship(back_populates="ordinateur", passive_deletes=True)
     devis: Mapped[Optional["Devis"]] = relationship(back_populates="ordinateur")
     bon_de_commande: Mapped[Optional["BonDeCommande"]] = relationship(back_populates="ordinateur")

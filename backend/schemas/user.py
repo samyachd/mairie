@@ -1,19 +1,35 @@
-from pydantic import BaseModel, EmailStr, ConfigDict
 from datetime import datetime
+from pydantic import BaseModel, EmailStr, ConfigDict, Field
+from db.models.user import RoleEnum
+
 
 class UserCreate(BaseModel):
-    model_config = ConfigDict(from_attributes=True)
-    nom: str
+    """Créer un utilisateur (utilisé par les admins / le seed)."""
+    
+    nom: str = Field(..., min_length=1, max_length=255)
     email: EmailStr
-    mot_de_passe_hash: str
+    password: str = Field(..., min_length=8, max_length=128)
+    role: RoleEnum = RoleEnum.read
+
 
 class UserUpdate(BaseModel):
-    model_config = ConfigDict(from_attributes=True)
-    nom: str | None = None
+    """Mettre à jour un utilisateur (tous champs optionnels)."""
+    
+    nom: str | None = Field(None, min_length=1, max_length=255)
     email: EmailStr | None = None
-    mot_de_passe_hash: str | None = None
+    password: str | None = Field(None, min_length=8, max_length=128)
+    role: RoleEnum | None = None
+
 
 class UserRead(BaseModel):
+    """Utilisateur retourné par l'API.
+    
+    IMPORTANT : ne contient PAS le mot de passe (hashé ou non).
+    """
+    
     model_config = ConfigDict(from_attributes=True)
+    
     id: int
-    created_at: datetime | None = None
+    nom: str
+    email: EmailStr
+    role: RoleEnum

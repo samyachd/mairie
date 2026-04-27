@@ -34,9 +34,9 @@ from schemas.agent import (
 )
 
 from schemas.documents import (
-    DevisResponse,
-    FactureResponse,
-    BonDeCommandeResponse,
+    DevisRead,
+    FactureRead,
+    BonDeCommandeRead,
 )
 
 from schemas.user import (
@@ -69,7 +69,7 @@ __all__ = [
     "AgentUpdate",
     "AgentRead",
     # Documents
-    "DevisResponse",
-    "FactureResponse",
-    "BonDeCommandeResponse",
+    "DevisRead",
+    "FactureRead",
+    "BonDeCommandeRead",
 ]
