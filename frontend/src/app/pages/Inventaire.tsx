@@ -1,14 +1,12 @@
 // src/app/pages/Inventaire.tsx
 import { useInventaire } from "@/app/hooks/useInventaire";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/app/components/ui/tabs";
+import { OrdinateursTable } from "@/app/components/OrdinateursTable";
 
 export function Inventaire() {
   const { data, isLoading, isError, error } = useInventaire();
 
-  if (isLoading) {
-    return <div className="p-6">Chargement...</div>;
-  }
-
+  if (isLoading) return <div className="p-6">Chargement...</div>;
   if (isError) {
     return (
       <div className="p-6 text-red-600">
@@ -16,10 +14,7 @@ export function Inventaire() {
       </div>
     );
   }
-
-  if (!data) {
-    return null;
-  }
+  if (!data) return null;
 
   return (
     <div className="p-6">
@@ -48,22 +43,22 @@ export function Inventaire() {
         </TabsList>
 
         <TabsContent value="ordinateurs" className="mt-6">
-          <div>Tableau des ordinateurs (à venir)</div>
+          <OrdinateursTable data={data.ordinateurs} />
         </TabsContent>
-        <TabsContent value="ecrans">
-          <div>Tableau des écrans (à venir)</div>
+        <TabsContent value="ecrans" className="mt-6">
+          <div className="text-gray-500">Tableau des écrans (à venir)</div>
         </TabsContent>
-        <TabsContent value="licences">
-          <div>Tableau des licences (à venir)</div>
+        <TabsContent value="licences" className="mt-6">
+          <div className="text-gray-500">Tableau des licences (à venir)</div>
         </TabsContent>
-        <TabsContent value="devis">
-          <div>Tableau des devis (à venir)</div>
+        <TabsContent value="devis" className="mt-6">
+          <div className="text-gray-500">Tableau des devis (à venir)</div>
         </TabsContent>
-        <TabsContent value="bons_de_commande">
-          <div>Tableau des bons de commande (à venir)</div>
+        <TabsContent value="bons_de_commande" className="mt-6">
+          <div className="text-gray-500">Tableau (à venir)</div>
         </TabsContent>
-        <TabsContent value="factures">
-          <div>Tableau des factures (à venir)</div>
+        <TabsContent value="factures" className="mt-6">
+          <div className="text-gray-500">Tableau des factures (à venir)</div>
         </TabsContent>
       </Tabs>
     </div>

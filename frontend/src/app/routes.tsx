@@ -2,6 +2,7 @@ import { createBrowserRouter, Navigate } from "react-router";
 import { ReactNode } from "react";
 import { Layout } from "./components/Layout";
 import { Login } from "./pages/Login";
+import { Home } from "./pages/Home";
 import { Inventaire } from "./pages/Inventaire";
 import { Gestion } from "./pages/Gestion";
 import { Parametres } from "./pages/Parametres";
@@ -10,19 +11,24 @@ import { useAuth } from "./hooks/useAuth";
 
 function ProtectedRoute({ children }: { children: ReactNode }) {
   const { isAuthenticated } = useAuth();
-  return isAuthenticated ? children : <Navigate to="/login" />;
+  return isAuthenticated ? children : <Navigate to="/login" replace />;
 }
 
 export const router = createBrowserRouter([
   {
     path: "/login",
-    Component: Login,        // ← hors du Layout, pas de sidebar
+    Component: Login,
   },
   {
     path: "/",
-    Component: Layout,
+    element: (
+      <ProtectedRoute>
+        <Layout />
+      </ProtectedRoute>
+    ),
     children: [
-      { index: true, Component: Inventaire },
+      { index: true, Component: Home },
+      { path: "inventaire", Component: Inventaire },
       { path: "gestion", Component: Gestion },
       { path: "administration", Component: Administration },
       { path: "parametres", Component: Parametres },
