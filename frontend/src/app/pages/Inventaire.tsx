@@ -4,6 +4,10 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/app/components/ui/ta
 import { OrdinateursTable } from "@/app/components/OrdinateursTable";
 import { OfficeLicencesTable } from "@/app/components/OfficeLicencesTable";
 import { EcransTable } from "../components/EcransTable";
+import { AgentsTable } from "../components/AgentsTable";
+import { DevisTable } from "../components/DevisTable";
+import { FacturesTable } from "../components/FacturesTable";
+import { BonsDeCommandeTable } from "../components/BonsDeCommandeTable";
 
 export function Inventaire() {
   const { data, isLoading, isError, error } = useInventaire();
@@ -42,6 +46,9 @@ export function Inventaire() {
           <TabsTrigger value="factures">
             Factures ({data.factures.length})
           </TabsTrigger>
+          <TabsTrigger value = "agents">
+            Agents ({data.agents.length})
+          </TabsTrigger>
         </TabsList>
 
         <TabsContent value="ordinateurs" className="mt-6">
@@ -54,13 +61,16 @@ export function Inventaire() {
           <OfficeLicencesTable data={data.licences} />
         </TabsContent>
         <TabsContent value="devis" className="mt-6">
-          <div className="text-gray-500">Tableau des devis (à venir)</div>
+          <DevisTable data={data.devis} />
         </TabsContent>
         <TabsContent value="bons_de_commande" className="mt-6">
-          <div className="text-gray-500">Tableau (à venir)</div>
+          <BonsDeCommandeTable data={data.bons_de_commande} />
         </TabsContent>
         <TabsContent value="factures" className="mt-6">
-          <div className="text-gray-500">Tableau des factures (à venir)</div>
+          <FacturesTable data={data.factures} />
+        </TabsContent>
+        <TabsContent value="agents" className="mt-6">
+          <AgentsTable data={data.agents} />
         </TabsContent>
       </Tabs>
     </div>
