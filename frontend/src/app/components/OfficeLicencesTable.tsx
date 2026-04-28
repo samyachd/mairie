@@ -21,12 +21,12 @@ import {
 } from "@/app/components/ui/table";
 import { Button } from "@/app/components/ui/button";
 import { Input } from "@/app/components/ui/input";
-import type { Ordinateur } from "@/app/types";
+import type { OfficeLicence } from "@/app/types";
 
-const columns: ColumnDef<Ordinateur>[] = [
+const columns: ColumnDef<OfficeLicence>[] = [
   // ... tes 3 colonnes inchangées
   {
-    accessorKey: "tag",
+    accessorKey: "version",
     header: ({ column }) => (
       <Button
         variant="ghost"
@@ -34,7 +34,7 @@ const columns: ColumnDef<Ordinateur>[] = [
         onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
         className="h-8 -ml-3"
       >
-        Tag
+        Version
         {column.getIsSorted() === "asc" ? (
           <ArrowUp className="ml-2 h-4 w-4" />
         ) : column.getIsSorted() === "desc" ? (
@@ -46,7 +46,7 @@ const columns: ColumnDef<Ordinateur>[] = [
     ),
   },
   {
-    accessorKey: "marque",
+    accessorKey: "type_licence",
     header: ({ column }) => (
       <Button
         variant="ghost"
@@ -54,7 +54,7 @@ const columns: ColumnDef<Ordinateur>[] = [
         onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
         className="h-8 -ml-3"
       >
-        Marque
+        Type de licence
         {column.getIsSorted() === "asc" ? (
           <ArrowUp className="ml-2 h-4 w-4" />
         ) : column.getIsSorted() === "desc" ? (
@@ -66,7 +66,7 @@ const columns: ColumnDef<Ordinateur>[] = [
     ),
   },
   {
-    accessorKey: "proprietaire",
+    accessorKey: "fournisseur",
     header: ({ column }) => (
       <Button
         variant="ghost"
@@ -74,7 +74,7 @@ const columns: ColumnDef<Ordinateur>[] = [
         onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
         className="h-8 -ml-3"
       >
-        Propriétaire
+        Fournisseur
         {column.getIsSorted() === "asc" ? (
           <ArrowUp className="ml-2 h-4 w-4" />
         ) : column.getIsSorted() === "desc" ? (
@@ -88,10 +88,10 @@ const columns: ColumnDef<Ordinateur>[] = [
 ];
 
 interface Props {
-  data: Ordinateur[];
+  data: OfficeLicence[];
 }
 
-export function OrdinateursTable({ data }: Props) {
+export function OfficeLicencesTable({ data }: Props) {
   const [sorting, setSorting] = useState<SortingState>([]);
   const [globalFilter, setGlobalFilter] = useState("");   // ← nouveau
 
@@ -128,7 +128,7 @@ export function OrdinateursTable({ data }: Props) {
           className="max-w-sm"
         />
         <div className="ml-auto text-sm text-gray-500">
-          {table.getFilteredRowModel().rows.length} sur {data.length} ordinateurs
+          {table.getFilteredRowModel().rows.length} sur {data.length} licences
         </div>
       </div>
 

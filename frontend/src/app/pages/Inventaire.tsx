@@ -2,6 +2,8 @@
 import { useInventaire } from "@/app/hooks/useInventaire";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/app/components/ui/tabs";
 import { OrdinateursTable } from "@/app/components/OrdinateursTable";
+import { OfficeLicencesTable } from "@/app/components/OfficeLicencesTable";
+import { EcransTable } from "../components/EcransTable";
 
 export function Inventaire() {
   const { data, isLoading, isError, error } = useInventaire();
@@ -46,10 +48,10 @@ export function Inventaire() {
           <OrdinateursTable data={data.ordinateurs} />
         </TabsContent>
         <TabsContent value="ecrans" className="mt-6">
-          <div className="text-gray-500">Tableau des écrans (à venir)</div>
+          <EcransTable data={data.ecrans} />
         </TabsContent>
         <TabsContent value="licences" className="mt-6">
-          <div className="text-gray-500">Tableau des licences (à venir)</div>
+          <OfficeLicencesTable data={data.licences} />
         </TabsContent>
         <TabsContent value="devis" className="mt-6">
           <div className="text-gray-500">Tableau des devis (à venir)</div>
