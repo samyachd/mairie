@@ -11,7 +11,7 @@ from db.models import OfficeLicence, Ordinateur, Ecran, Devis, BonDeCommande, Fa
 from core import logger
 from sqlalchemy.exc import IntegrityError
 
-inventaire = APIRouter(dependencies=[Depends(require_role("user","admin"))])
+inventaire = APIRouter(dependencies=[Depends(require_role("read","user","admin"))])
 agent = APIRouter(dependencies=[Depends(require_role("user","admin"))])
 ordinateur = APIRouter(dependencies=[Depends(require_role("user","admin"))])
 ecran = APIRouter(dependencies=[Depends(require_role("user","admin"))])

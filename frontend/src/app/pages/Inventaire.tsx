@@ -52,7 +52,7 @@ export function Inventaire() {
         </TabsList>
 
         <TabsContent value="ordinateurs" className="mt-6">
-          <OrdinateursTable data={data.ordinateurs} />
+          <OrdinateursTable data={data.ordinateurs} agents={data.agents} />
         </TabsContent>
         <TabsContent value="ecrans" className="mt-6">
           <EcransTable data={data.ecrans} />

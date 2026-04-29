@@ -1,16 +1,15 @@
+// components/OrdinateursTable.tsx
 import { useState } from "react";
-import { getPaginationRowModel} from "@tanstack/react-table";
 import {
-  ColumnDef,
   ColumnFiltersState,
   SortingState,
   flexRender,
   getCoreRowModel,
   getFilteredRowModel,
+  getPaginationRowModel,
   getSortedRowModel,
   useReactTable,
 } from "@tanstack/react-table";
-import { ArrowUpDown, ArrowUp, ArrowDown } from "lucide-react";
 import {
   Table,
   TableBody,
@@ -21,118 +20,58 @@ import {
 } from "@/app/components/ui/table";
 import { Button } from "@/app/components/ui/button";
 import { Input } from "@/app/components/ui/input";
-import type { Ordinateur } from "@/app/types";
-
-const columns: ColumnDef<Ordinateur>[] = [
-  // ... tes 3 colonnes inchangées
-  {
-    accessorKey: "tag",
-    header: ({ column }) => (
-      <Button
-        variant="ghost"
-        size="sm"
-        onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
-        className="h-8 -ml-3"
-      >
-        Tag
-        {column.getIsSorted() === "asc" ? (
-          <ArrowUp className="ml-2 h-4 w-4" />
-        ) : column.getIsSorted() === "desc" ? (
-          <ArrowDown className="ml-2 h-4 w-4" />
-        ) : (
-          <ArrowUpDown className="ml-2 h-4 w-4 opacity-50" />
-        )}
-      </Button>
-    ),
-  },
-  {
-    accessorKey: "marque",
-    header: ({ column }) => (
-      <Button
-        variant="ghost"
-        size="sm"
-        onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
-        className="h-8 -ml-3"
-      >
-        Marque
-        {column.getIsSorted() === "asc" ? (
-          <ArrowUp className="ml-2 h-4 w-4" />
-        ) : column.getIsSorted() === "desc" ? (
-          <ArrowDown className="ml-2 h-4 w-4" />
-        ) : (
-          <ArrowUpDown className="ml-2 h-4 w-4 opacity-50" />
-        )}
-      </Button>
-    ),
-  },
-  {
-    accessorKey: "proprietaire",
-    header: ({ column }) => (
-      <Button
-        variant="ghost"
-        size="sm"
-        onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
-        className="h-8 -ml-3"
-      >
-        Propriétaire
-        {column.getIsSorted() === "asc" ? (
-          <ArrowUp className="ml-2 h-4 w-4" />
-        ) : column.getIsSorted() === "desc" ? (
-          <ArrowDown className="ml-2 h-4 w-4" />
-        ) : (
-          <ArrowUpDown className="ml-2 h-4 w-4 opacity-50" />
-        )}
-      </Button>
-    ),
-  },
-];
+import type { Agent, Ordinateur } from "@/app/types";
+import { useOrdinateurColumns } from "@/app/hooks/useOrdinateurColumns";
+import { OrdinateurCreateDialog } from "./OrdinateurCreateDialog";
+import { OrdinateurEditDialog } from "./OrdinateurEditDialog";
 
 interface Props {
   data: Ordinateur[];
+  agents: Agent[];
 }
 
-export function OrdinateursTable({ data }: Props) {
+export function OrdinateursTable({ data, agents }: Props) {
   const [sorting, setSorting] = useState<SortingState>([]);
-  const [globalFilter, setGlobalFilter] = useState("");   // ← nouveau
+  const [globalFilter, setGlobalFilter] = useState("");
+
+  // State pour gérer l'édition
+  const [editingOrdinateur, setEditingOrdinateur] =
+    useState<Ordinateur | null>(null);
+
+  const columns = useOrdinateurColumns({
+    onEdit: (ordinateur) => setEditingOrdinateur(ordinateur),
+  });
 
   const table = useReactTable({
-  data,
-  columns,
-  getCoreRowModel: getCoreRowModel(),
-  getSortedRowModel: getSortedRowModel(),
-  getFilteredRowModel: getFilteredRowModel(),
-  getPaginationRowModel: getPaginationRowModel(),    // ← nouveau
-  onSortingChange: setSorting,
-  onGlobalFilterChange: setGlobalFilter,
-  state: {
-    sorting,
-    globalFilter,
-  },
-  initialState: {                                    // ← nouveau
-    pagination: {
-      pageSize: 10,
-    },
-  },
-});
-
-
+    data,
+    columns,
+    getCoreRowModel: getCoreRowModel(),
+    getSortedRowModel: getSortedRowModel(),
+    getFilteredRowModel: getFilteredRowModel(),
+    getPaginationRowModel: getPaginationRowModel(),
+    onSortingChange: setSorting,
+    onGlobalFilterChange: setGlobalFilter,
+    state: { sorting, globalFilter },
+    initialState: { pagination: { pageSize: 10 } },
+  });
 
   return (
     <div className="space-y-4">
-      {/* Barre de recherche */}
-      <div className="flex items-center">
+      <div className="flex items-center gap-4">
         <Input
           placeholder="Rechercher..."
           value={globalFilter}
           onChange={(event) => setGlobalFilter(event.target.value)}
           className="max-w-sm"
         />
-        <div className="ml-auto text-sm text-gray-500">
+        <div className="text-sm text-gray-500">
           {table.getFilteredRowModel().rows.length} sur {data.length} ordinateurs
+        </div>
+        <div className="ml-auto">
+          <OrdinateurCreateDialog agents={agents} />
         </div>
       </div>
 
-      {/* Tableau */}
       <div className="rounded-md border">
         <Table>
           <TableHeader>
@@ -172,10 +111,11 @@ export function OrdinateursTable({ data }: Props) {
             )}
           </TableBody>
         </Table>
-        {/* Pagination */}
+
         <div className="flex items-center justify-between py-4">
           <div className="text-sm text-gray-500">
-            Page {table.getState().pagination.pageIndex + 1} sur {table.getPageCount()}
+            Page {table.getState().pagination.pageIndex + 1} sur{" "}
+            {table.getPageCount()}
           </div>
           <div className="flex items-center gap-2">
             <Button
@@ -197,6 +137,18 @@ export function OrdinateursTable({ data }: Props) {
           </div>
         </div>
       </div>
+
+      {/* Dialog d'édition - rendu uniquement quand un ordi est sélectionné */}
+      {editingOrdinateur && (
+        <OrdinateurEditDialog
+          ordinateur={editingOrdinateur}
+          agents={agents}
+          open={true}
+          onOpenChange={(open) => {
+            if (!open) setEditingOrdinateur(null);
+          }}
+        />
+      )}
     </div>
   );
 }
