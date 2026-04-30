@@ -1,16 +1,13 @@
 import { useState } from "react";
-import { getPaginationRowModel} from "@tanstack/react-table";
 import {
-  ColumnDef,
-  ColumnFiltersState,
   SortingState,
   flexRender,
   getCoreRowModel,
   getFilteredRowModel,
+  getPaginationRowModel,
   getSortedRowModel,
   useReactTable,
 } from "@tanstack/react-table";
-import { ArrowUpDown, ArrowUp, ArrowDown } from "lucide-react";
 import {
   Table,
   TableBody,
@@ -22,70 +19,9 @@ import {
 import { Button } from "@/app/components/ui/button";
 import { Input } from "@/app/components/ui/input";
 import type { Agent } from "@/app/types";
-
-const columns: ColumnDef<Agent>[] = [
-  // ... tes 3 colonnes inchangées
-  {
-    accessorKey: "nom",
-    header: ({ column }) => (
-      <Button
-        variant="ghost"
-        size="sm"
-        onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
-        className="h-8 -ml-3"
-      >
-        Nom
-        {column.getIsSorted() === "asc" ? (
-          <ArrowUp className="ml-2 h-4 w-4" />
-        ) : column.getIsSorted() === "desc" ? (
-          <ArrowDown className="ml-2 h-4 w-4" />
-        ) : (
-          <ArrowUpDown className="ml-2 h-4 w-4 opacity-50" />
-        )}
-      </Button>
-    ),
-  },
-  {
-    accessorKey: "Prénom",
-    header: ({ column }) => (
-      <Button
-        variant="ghost"
-        size="sm"
-        onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
-        className="h-8 -ml-3"
-      >
-        Prénom
-        {column.getIsSorted() === "asc" ? (
-          <ArrowUp className="ml-2 h-4 w-4" />
-        ) : column.getIsSorted() === "desc" ? (
-          <ArrowDown className="ml-2 h-4 w-4" />
-        ) : (
-          <ArrowUpDown className="ml-2 h-4 w-4 opacity-50" />
-        )}
-      </Button>
-    ),
-  },
-  {
-    accessorKey: "service",
-    header: ({ column }) => (
-      <Button
-        variant="ghost"
-        size="sm"
-        onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
-        className="h-8 -ml-3"
-      >
-        Service
-        {column.getIsSorted() === "asc" ? (
-          <ArrowUp className="ml-2 h-4 w-4" />
-        ) : column.getIsSorted() === "desc" ? (
-          <ArrowDown className="ml-2 h-4 w-4" />
-        ) : (
-          <ArrowUpDown className="ml-2 h-4 w-4 opacity-50" />
-        )}
-      </Button>
-    ),
-  },
-];
+import { useAgentColumns } from "@/app/hooks/useAgentColumns";
+import { AgentCreateDialog } from "./AgentCreateDialog";
+import { AgentEditDialog } from "./AgentEditDialog";
 
 interface Props {
   data: Agent[];
@@ -93,46 +29,43 @@ interface Props {
 
 export function AgentsTable({ data }: Props) {
   const [sorting, setSorting] = useState<SortingState>([]);
-  const [globalFilter, setGlobalFilter] = useState("");   // ← nouveau
+  const [globalFilter, setGlobalFilter] = useState("");
+  const [editingAgent, setEditingAgent] = useState<Agent | null>(null);
+
+  const columns = useAgentColumns({
+    onEdit: (agent) => setEditingAgent(agent),
+  });
 
   const table = useReactTable({
-  data,
-  columns,
-  getCoreRowModel: getCoreRowModel(),
-  getSortedRowModel: getSortedRowModel(),
-  getFilteredRowModel: getFilteredRowModel(),
-  getPaginationRowModel: getPaginationRowModel(),    // ← nouveau
-  onSortingChange: setSorting,
-  onGlobalFilterChange: setGlobalFilter,
-  state: {
-    sorting,
-    globalFilter,
-  },
-  initialState: {                                    // ← nouveau
-    pagination: {
-      pageSize: 10,
-    },
-  },
-});
-
-
+    data,
+    columns,
+    getCoreRowModel: getCoreRowModel(),
+    getSortedRowModel: getSortedRowModel(),
+    getFilteredRowModel: getFilteredRowModel(),
+    getPaginationRowModel: getPaginationRowModel(),
+    onSortingChange: setSorting,
+    onGlobalFilterChange: setGlobalFilter,
+    state: { sorting, globalFilter },
+    initialState: { pagination: { pageSize: 10 } },
+  });
 
   return (
     <div className="space-y-4">
-      {/* Barre de recherche */}
-      <div className="flex items-center">
+      <div className="flex items-center gap-4">
         <Input
           placeholder="Rechercher..."
           value={globalFilter}
           onChange={(event) => setGlobalFilter(event.target.value)}
           className="max-w-sm"
         />
-        <div className="ml-auto text-sm text-gray-500">
+        <div className="text-sm text-gray-500">
           {table.getFilteredRowModel().rows.length} sur {data.length} agents
+        </div>
+        <div className="ml-auto">
+          <AgentCreateDialog />
         </div>
       </div>
 
-      {/* Tableau */}
       <div className="rounded-md border">
         <Table>
           <TableHeader>
@@ -172,10 +105,11 @@ export function AgentsTable({ data }: Props) {
             )}
           </TableBody>
         </Table>
-        {/* Pagination */}
+
         <div className="flex items-center justify-between py-4">
           <div className="text-sm text-gray-500">
-            Page {table.getState().pagination.pageIndex + 1} sur {table.getPageCount()}
+            Page {table.getState().pagination.pageIndex + 1} sur{" "}
+            {table.getPageCount()}
           </div>
           <div className="flex items-center gap-2">
             <Button
@@ -197,6 +131,17 @@ export function AgentsTable({ data }: Props) {
           </div>
         </div>
       </div>
+
+      {/* Dialog d'édition */}
+      {editingAgent && (
+        <AgentEditDialog
+          agent={editingAgent}
+          open={true}
+          onOpenChange={(open) => {
+            if (!open) setEditingAgent(null);
+          }}
+        />
+      )}
     </div>
   );
 }

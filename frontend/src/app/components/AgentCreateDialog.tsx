@@ -1,4 +1,3 @@
-// components/OrdinateurCreateDialog.tsx
 import { useState } from "react";
 import { Plus } from "lucide-react";
 import {
@@ -10,17 +9,12 @@ import {
   DialogTrigger,
 } from "@/app/components/ui/dialog";
 import { Button } from "@/app/components/ui/button";
-import { OrdinateurForm } from "./ordinateur/OrdinateurForm";
-import { useCreateOrdinateur } from "@/app/hooks/useOrdinateur";
-import type { Agent } from "@/app/types";
+import { AgentForm } from "./agent/AgentForm";
+import { useCreateAgent } from "@/app/hooks/useAgent";
 
-interface Props {
-  agents: Agent[];
-}
-
-export function OrdinateurCreateDialog({ agents }: Props) {
+export function AgentCreateDialog() {
   const [open, setOpen] = useState(false);
-  const createMutation = useCreateOrdinateur();
+  const createMutation = useCreateAgent();
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
@@ -32,19 +26,18 @@ export function OrdinateurCreateDialog({ agents }: Props) {
       </DialogTrigger>
       <DialogContent>
         <DialogHeader>
-          <DialogTitle>Nouvel ordinateur</DialogTitle>
+          <DialogTitle>Nouvel agent</DialogTitle>
           <DialogDescription>
-            Saisissez les informations de base. Vous pourrez compléter les
-            détails techniques (RAM, OS, IP...) après création.
+            Saisissez les informations de l'agent. Le nom et le prénom sont
+            obligatoires.
           </DialogDescription>
         </DialogHeader>
-        <OrdinateurForm
-          agents={agents}
+        <AgentForm
           isPending={createMutation.isPending}
           onSubmit={(data) => {
             createMutation.mutate(data, {
               onSuccess: () => {
-                setOpen(false); // ferme le dialog après succès
+                setOpen(false);
               },
             });
           }}

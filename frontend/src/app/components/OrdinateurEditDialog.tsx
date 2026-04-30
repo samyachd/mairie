@@ -7,7 +7,7 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/app/components/ui/dialog";
-import { OrdinateurForm } from "./OrdinateurForm";
+import { OrdinateurForm } from "./ordinateur/OrdinateurForm";
 import { useUpdateOrdinateur } from "@/app/hooks/useOrdinateur";
 import type { Agent, Ordinateur } from "@/app/types";
 

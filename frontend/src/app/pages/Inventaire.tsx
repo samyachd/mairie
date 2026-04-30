@@ -1,13 +1,13 @@
 // src/app/pages/Inventaire.tsx
 import { useInventaire } from "@/app/hooks/useInventaire";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/app/components/ui/tabs";
-import { OrdinateursTable } from "@/app/components/OrdinateursTable";
-import { OfficeLicencesTable } from "@/app/components/OfficeLicencesTable";
-import { EcransTable } from "../components/EcransTable";
-import { AgentsTable } from "../components/AgentsTable";
-import { DevisTable } from "../components/DevisTable";
-import { FacturesTable } from "../components/FacturesTable";
-import { BonsDeCommandeTable } from "../components/BonsDeCommandeTable";
+import { OrdinateursTable } from "@/app/components/OrdinateurTable";
+import { OfficeLicencesTable } from "@/app/components/officelicence/OfficeLicenceTable";
+import { EcransTable } from "../components/ecran/EcranTable";
+import { AgentsTable } from "../components/AgentTable";
+import { DevisTable } from "../components/devis/DevisTable";
+import { FacturesTable } from "../components/facture/FactureTable";
+import { BonsDeCommandeTable } from "../components/bondecommande/BonDeCommandeTable";
 
 export function Inventaire() {
   const { data, isLoading, isError, error } = useInventaire();
