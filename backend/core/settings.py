@@ -19,7 +19,7 @@ class Settings(BaseSettings):
 
     MISTRAL_API_KEY: str
     MISTRAL_MODEL: str = "mistral-ocr-latest"
-    CORS_ORIGINS: str
+    CORS_ORIGINS: list[str]
 
     @property
     def DATABASE_URL(self) -> URL:

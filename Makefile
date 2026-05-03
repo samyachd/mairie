@@ -42,7 +42,7 @@ migrate:  ## Applique les migrations en attente
 	docker compose exec backend uv run alembic upgrade head
 
 seed:  ## Remplit la DB avec des données de test
-	docker compose exec backend uv run python -m utils.seed
+	docker compose exec backend uv run python -m utils.seed_example
 
 db-reset:  ## ⚠️  Efface la DB, recrée le schéma et re-seed
 	docker compose down -v
@@ -50,7 +50,7 @@ db-reset:  ## ⚠️  Efface la DB, recrée le schéma et re-seed
 	@echo "Attente du démarrage de Postgres..."
 	@sleep 5
 	docker compose exec backend uv run alembic upgrade head
-	docker compose exec backend uv run python -m utils.seed
+	docker compose exec backend uv run python -m utils.seed_example
 
 db-shell:  ## Ouvre un shell psql dans la DB
 	docker compose exec db sh -c 'psql -U $$POSTGRES_USER -d $$POSTGRES_DB'

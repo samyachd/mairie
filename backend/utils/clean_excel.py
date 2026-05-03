@@ -20,7 +20,7 @@ print(dernier_fichier.name)
 
 data = json.loads(dernier_fichier.read_text(encoding="utf-8"))
 df = pd.DataFrame(data["inventaire"])  # Remplacez "inventaire" par la clé appropriée si nécessaire
-df = df.drop(df.index[[0,1]])
+df = df.iloc[2:].reset_index(drop=True)
 df.columns = df.columns.str.replace("\n", " ").str.strip()  # Supprime les sauts de ligne et les espaces
 df = df.rename(columns={"Unnamed: 0": "SERVICE",
                         "Unnamed: 1": "EMPLACEMENT",
