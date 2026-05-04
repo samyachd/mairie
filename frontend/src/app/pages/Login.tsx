@@ -1,94 +1,87 @@
 import { useState } from "react";
+import { useForm } from "react-hook-form";
 import { useNavigate } from "react-router";
 import { useAuth } from "../hooks/useAuth";
+import type { Credentials } from "@/app/types";
 
 export function Login() {
-
-  // Récupère la fonction login du contexte
-  const { login } = useAuth();
-  // Permet de rediriger après login
+  const login = useAuth((s) => s.login);
   const navigate = useNavigate();
+  const [error, setError] = useState<string | null>(null);
 
-  // credentials pour login
-  const [credentials, setCredentials] = useState({
-    email: "",
-    password: "",
+  const {
+    register,
+    handleSubmit,
+    formState: { errors, isSubmitting },
+  } = useForm<Credentials>({
+    defaultValues: { email: "", password: "" },
   });
 
-  // Pour afficher une erreur si login échoue
-  const [error, setError] = useState<string | null>(null);
-  // Pour désactiver le bouton pendant la requête
-  const [loading, setLoading] = useState(false);
-
-  // Appelle le contexte UseInventory et la fonction login du contexte
-  const handleSubmit = async () => {
-    setLoading(true);
+  const onSubmit = async (data: Credentials) => {
     setError(null);
     try {
-      await login(credentials);
+      await login(data);
       navigate("/");
     } catch {
       setError("Identifiants incorrects");
-    } finally {
-      setLoading(false);
     }
   };
 
-  // HTML du formulaire de login
   return (
     <div className="min-h-screen flex items-center justify-center bg-gray-50">
       <div className="bg-white p-8 rounded-lg border border-gray-200 w-full max-w-sm">
-
         <h1 className="text-xl font-semibold text-gray-900 mb-6">
           Connexion
         </h1>
 
-        <div className="space-y-4">
-          <input
-            type="text"
-            placeholder="Adresse email"
-            value={credentials.email}
-            onChange={e => setCredentials({ ...credentials, email: e.target.value })}
-            onKeyDown={e => e.key === "Enter" && handleSubmit()}
-            className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-          />
+        <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
+          <div>
+            <input
+              type="email"
+              placeholder="Adresse email"
+              autoComplete="email"
+              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+              {...register("email", {
+                required: "L'email est obligatoire",
+                pattern: {
+                  value: /^[^\s@]+@[^\s@]+\.[^\s@]+$/,
+                  message: "Format d'email invalide",
+                },
+              })}
+            />
+            {errors.email && (
+              <p className="text-sm text-red-600 mt-1">{errors.email.message}</p>
+            )}
+          </div>
 
-          <input
-            type="password"
-            placeholder="Mot de passe"
-            value={credentials.password}
-            onChange={e => setCredentials({ ...credentials, password: e.target.value })}
-            onKeyDown={e => e.key === "Enter" && handleSubmit()}
-            className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-          />
+          <div>
+            <input
+              type="password"
+              placeholder="Mot de passe"
+              autoComplete="current-password"
+              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+              {...register("password", {
+                required: "Le mot de passe est obligatoire",
+              })}
+            />
+            {errors.password && (
+              <p className="text-sm text-red-600 mt-1">
+                {errors.password.message}
+              </p>
+            )}
+          </div>
 
-          {error && (
-            <p className="text-sm text-red-600">{error}</p>
-          )}
+          {error && <p className="text-sm text-red-600">{error}</p>}
 
           <button
-            onClick={handleSubmit}
-            disabled={loading}
+            type="submit"
+            disabled={isSubmitting}
             className="w-full py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:opacity-50"
           >
-            {loading ? "Connexion..." : "Se connecter"}
+            {isSubmitting ? "Connexion..." : "Se connecter"}
           </button>
-        </div>
-
+        </form>
       </div>
     </div>
   );
 }
-
-
-/*Ce que chaque partie fait
-credentials  → stocke username + password ensemble
-error        → message d'erreur si login échoue
-loading      → désactive le bouton pendant la requête
-
-handleSubmit → appelle login() → succès : navigate("/")
-                              → échec : affiche l'erreur
-
-onKeyDown    → soumet avec la touche Entrée
-finally      → remet loading à false dans tous les cas
-*/

@@ -5,7 +5,7 @@ import type { OfficeLicence } from "@/app/types";
 export interface LicenceCreatePayload {
   version: string;
   type_licence: string | null;
-  date_achat: string | null;          // format ISO "YYYY-MM-DD"
+  date_achat: string | null;
   fournisseur: string | null;
 }
 

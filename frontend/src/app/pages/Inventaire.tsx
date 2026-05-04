@@ -1,13 +1,9 @@
-// src/app/pages/Inventaire.tsx
 import { useInventaire } from "@/app/hooks/useInventaire";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/app/components/ui/tabs";
-import { OrdinateursTable } from "@/app/components/OrdinateurTable";
-import { OfficeLicencesTable } from "@/app/components/officelicence/OfficeLicenceTable";
-import { EcransTable } from "../components/ecran/EcranTable";
-import { AgentsTable } from "../components/AgentTable";
-import { DevisTable } from "../components/devis/DevisTable";
-import { FacturesTable } from "../components/facture/FactureTable";
-import { BonsDeCommandeTable } from "../components/bondecommande/BonDeCommandeTable";
+import { OrdinateurTable } from "@/app/components/ordinateur/OrdinateurTable";
+import { OfficeLicenceTable } from "@/app/components/officelicence/OfficeLicenceTable";
+import { EcranTable } from "../components/ecran/EcranTable";
+import { AgentTable } from "../components/agent/AgentTable";
 
 export function Inventaire() {
   const { data, isLoading, isError, error } = useInventaire();
@@ -21,6 +17,12 @@ export function Inventaire() {
     );
   }
   if (!data) return null;
+
+  const docs = {
+    devis: data.devis,
+    bonsDeCommande: data.bons_de_commande,
+    factures: data.factures,
+  };
 
   return (
     <div className="p-6">
@@ -37,40 +39,30 @@ export function Inventaire() {
           <TabsTrigger value="licences">
             Licences ({data.licences.length})
           </TabsTrigger>
-          <TabsTrigger value="devis">
-            Devis ({data.devis.length})
-          </TabsTrigger>
-          <TabsTrigger value="bons_de_commande">
-            Bons de commande ({data.bons_de_commande.length})
-          </TabsTrigger>
-          <TabsTrigger value="factures">
-            Factures ({data.factures.length})
-          </TabsTrigger>
-          <TabsTrigger value = "agents">
+          <TabsTrigger value="agents">
             Agents ({data.agents.length})
           </TabsTrigger>
         </TabsList>
 
         <TabsContent value="ordinateurs" className="mt-6">
-          <OrdinateursTable data={data.ordinateurs} agents={data.agents} />
+          <OrdinateurTable
+            data={data.ordinateurs}
+            agents={data.agents}
+            {...docs}
+          />
         </TabsContent>
         <TabsContent value="ecrans" className="mt-6">
-          <EcransTable data={data.ecrans} />
+          <EcranTable
+            data={data.ecrans}
+            agents={data.agents}
+            {...docs}
+          />
         </TabsContent>
         <TabsContent value="licences" className="mt-6">
-          <OfficeLicencesTable data={data.licences} />
-        </TabsContent>
-        <TabsContent value="devis" className="mt-6">
-          <DevisTable data={data.devis} />
-        </TabsContent>
-        <TabsContent value="bons_de_commande" className="mt-6">
-          <BonsDeCommandeTable data={data.bons_de_commande} />
-        </TabsContent>
-        <TabsContent value="factures" className="mt-6">
-          <FacturesTable data={data.factures} />
+          <OfficeLicenceTable data={data.licences} {...docs} />
         </TabsContent>
         <TabsContent value="agents" className="mt-6">
-          <AgentsTable data={data.agents} />
+          <AgentTable data={data.agents} />
         </TabsContent>
       </Tabs>
     </div>

@@ -3,9 +3,9 @@ import type { Ordinateur } from "@/app/types";
 
 
 export interface OrdinateurCreatePayload {
-  nom_reseau: string;
+  nom_reseau: string | null;
   marque: string | null;
-  date_achat: string | null;          // format ISO "YYYY-MM-DD"
+  date_achat: string | null;
   proprietaire: string | null;
   service: string | null;
   agent_id: number | null;

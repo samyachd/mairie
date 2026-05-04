@@ -2,18 +2,18 @@ import { useMemo } from "react";
 import { ColumnDef } from "@tanstack/react-table";
 import { Trash2, Pencil } from "lucide-react";
 import { Button } from "@/app/components/ui/button";
-import { useDeleteOrdinateur } from "./useOrdinateur";
+import { useDeleteOfficeLicence } from "./useOfficeLicence";
 import type {
   BonDeCommande,
   Devis,
   Facture,
-  Ordinateur,
+  OfficeLicence,
 } from "@/app/types";
 import { SortableHeader } from "../components/DataTable/SortableHeader";
 import { DocumentLink } from "../components/DocumentLink";
 
 interface Options {
-  onEdit: (ordinateur: Ordinateur) => void;
+  onEdit: (licence: OfficeLicence) => void;
   devis: Devis[];
   bonsDeCommande: BonDeCommande[];
   factures: Facture[];
@@ -23,13 +23,13 @@ function byId<T extends { id: number }>(items: T[]): Map<number, T> {
   return new Map(items.map((item) => [item.id, item]));
 }
 
-export function useOrdinateurColumns({
+export function useOfficeLicenceColumns({
   onEdit,
   devis,
   bonsDeCommande,
   factures,
-}: Options): ColumnDef<Ordinateur>[] {
-  const deleteOrdinateur = useDeleteOrdinateur();
+}: Options): ColumnDef<OfficeLicence>[] {
+  const deleteLicence = useDeleteOfficeLicence();
 
   const devisById = useMemo(() => byId(devis), [devis]);
   const bcById = useMemo(() => byId(bonsDeCommande), [bonsDeCommande]);
@@ -37,16 +37,32 @@ export function useOrdinateurColumns({
 
   return [
     {
-      accessorKey: "nom_reseau",
-      header: ({ column }) => <SortableHeader column={column} label="Nom réseau" />,
+      accessorKey: "version",
+      header: ({ column }) => <SortableHeader column={column} label="Version" />,
     },
     {
-      accessorKey: "marque",
-      header: ({ column }) => <SortableHeader column={column} label="Marque" />,
+      accessorKey: "type_licence",
+      header: ({ column }) => (
+        <SortableHeader column={column} label="Type de licence" />
+      ),
+      cell: ({ row }) => row.original.type_licence ?? "—",
     },
     {
-      accessorKey: "proprietaire",
-      header: ({ column }) => <SortableHeader column={column} label="Propriétaire" />,
+      accessorKey: "fournisseur",
+      header: ({ column }) => (
+        <SortableHeader column={column} label="Fournisseur" />
+      ),
+      cell: ({ row }) => row.original.fournisseur ?? "—",
+    },
+    {
+      accessorKey: "date_achat",
+      header: ({ column }) => (
+        <SortableHeader column={column} label="Date d'achat" />
+      ),
+      cell: ({ row }) =>
+        row.original.date_achat
+          ? new Date(row.original.date_achat).toLocaleDateString("fr-FR")
+          : "—",
     },
     {
       id: "devis",
@@ -97,11 +113,11 @@ export function useOrdinateurColumns({
             variant="ghost"
             size="sm"
             onClick={() => {
-              if (confirm(`Supprimer l'ordinateur ${row.original.tag} ?`)) {
-                deleteOrdinateur.mutate(row.original.id);
+              if (confirm(`Supprimer la licence ${row.original.version} ?`)) {
+                deleteLicence.mutate(row.original.id);
               }
             }}
-            disabled={deleteOrdinateur.isPending}
+            disabled={deleteLicence.isPending}
           >
             <Trash2 className="h-4 w-4 text-red-600" />
           </Button>

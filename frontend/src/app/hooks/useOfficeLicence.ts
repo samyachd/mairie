@@ -1,13 +1,17 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { createOrdinateur, deleteOrdinateur, OrdinateurUpdatePayload, updateOrdinateur } from "@/app/services/ordinateur";
+import {
+  createLicence,
+  deleteLicence,
+  LicenceUpdatePayload,
+  updateLicence,
+} from "@/app/services/officelicence";
 
 export function useDeleteOfficeLicence() {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: deleteOrdinateur,
+    mutationFn: deleteLicence,
     onSuccess: () => {
-      // Invalide le cache de /inventaire → refetch automatique
       queryClient.invalidateQueries({ queryKey: ["inventaire"] });
     },
   });
@@ -16,7 +20,7 @@ export function useDeleteOfficeLicence() {
 export function useCreateOfficeLicence() {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: createOrdinateur,
+    mutationFn: createLicence,
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["inventaire"] });
     },
@@ -26,8 +30,8 @@ export function useCreateOfficeLicence() {
 export function useUpdateOfficeLicence() {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: ({ id, data }: { id: number; data: OrdinateurUpdatePayload }) =>
-      updateOrdinateur(id, data),
+    mutationFn: ({ id, data }: { id: number; data: LicenceUpdatePayload }) =>
+      updateLicence(id, data),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["inventaire"] });
     },

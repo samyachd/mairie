@@ -2,7 +2,7 @@
 import api from "./api";
 import type { Agent } from "@/app/types";
 
-// Payload pour créer/modifier un agent
+
 export interface AgentPayload {
   nom: string;
   prenom: string;

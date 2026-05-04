@@ -1,11 +1,11 @@
 import api from "./api";
-import type { Ecran, Ordinateur } from "@/app/types";
+import type { Ecran } from "@/app/types";
 
 
 export interface EcranCreatePayload {
   taille: string | null;
   marque: string | null;
-  date_achat: string;          // format ISO "YYYY-MM-DD"
+  date_achat: string;
   proprietaire: string | null;
   service: string | null;
   agent_id: number | null;

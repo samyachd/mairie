@@ -1,5 +1,3 @@
-// src/app/types/index.ts
-
 // ────────── Auth ──────────
 
 export interface Credentials {
@@ -14,13 +12,11 @@ export interface LoginResponse {
 export interface User {
   id: number;
   email: string;
-  role: "admin" | "user" | "read"; // aligné sur le backend
+  role: "admin" | "user" | "read";
 }
 
-// ────────── Inventaire : base commune ──────────
+// ────────── Inventory: shared base ──────────
 
-// Les champs communs à tous les équipements (Ordinateur, Ecran)
-// Correspond à BaseEquipmentRead côté backend
 export interface BaseEquipment {
   id: number;
   tag: string | null;
@@ -31,7 +27,7 @@ export interface BaseEquipment {
   type_equipement: string | null;
   fournisseur: string | null;
   fin_garantie: string | null;
-  date_achat: string;                 // ← obligatoire (dates en string ISO en JSON)
+  date_achat: string;
   created_at: string;
   updated_at: string | null;
 }
@@ -59,7 +55,7 @@ export interface Ordinateur extends BaseEquipment {
   watt: number | null;
 }
 
-// ────────── Écran ──────────
+// ────────── Ecran ──────────
 
 export interface Ecran extends BaseEquipment {
   taille: string | null;
@@ -71,7 +67,7 @@ export interface Ecran extends BaseEquipment {
   bon_de_commande_id: number | null;
   facture_id: number | null;
 }
-// ────────── Licence Office ──────────
+// ────────── OfficeLicence ──────────
 
 export interface OfficeLicence {
   id: number;
@@ -112,16 +108,16 @@ interface DocumentBase {
   updated_at: string | null;
 }
 
-export interface Devis extends DocumentBase {}
+export type Devis = DocumentBase;
 
-export interface BonDeCommande extends DocumentBase {}
+export type BonDeCommande = DocumentBase;
 
 export interface Facture extends DocumentBase {
   montant_ttc: number | null;
   montant_ht: number | null;
 }
 
-// ────────── Réponse de /inventaire ──────────
+// ────────── /inventaire response ──────────
 
 export interface InventaireResponse {
   ordinateurs: Ordinateur[];

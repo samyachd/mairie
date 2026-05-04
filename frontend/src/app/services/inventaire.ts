@@ -1,4 +1,3 @@
-// src/app/services/inventaire.ts
 import api from "./api";
 import type { InventaireResponse } from "@/app/types";
 

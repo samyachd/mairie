@@ -7,7 +7,6 @@ export function useDeleteOrdinateur() {
   return useMutation({
     mutationFn: deleteOrdinateur,
     onSuccess: () => {
-      // Invalide le cache de /inventaire → refetch automatique
       queryClient.invalidateQueries({ queryKey: ["inventaire"] });
     },
   });

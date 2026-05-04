@@ -1,9 +1,9 @@
 import api from "./api";
-import type { BonDeCommande, Ordinateur } from "@/app/types";
+import type { BonDeCommande } from "@/app/types";
 
 
 export interface BonDeCommandeCreatePayload {
-    path: string;          // format ISO "YYYY-MM-DD"
+    path: string;
 }
 
 export type BonDeCommandeUpdatePayload = BonDeCommandeCreatePayload;

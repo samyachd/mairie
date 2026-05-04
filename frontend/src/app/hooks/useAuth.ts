@@ -1,31 +1,50 @@
-import { useState, useEffect } from "react";
+import { create } from "zustand";
+import { persist } from "zustand/middleware";
 import type { Credentials } from "@/app/types/index";
 import { loginService } from "@/app/services/auth";
 import api from "@/app/services/api";
 
-export function useAuth() {
-  const [token, setToken] = useState<string | null>(
-    localStorage.getItem("token")
-  );
-
-  const isAuthenticated = token !== null;
-
-  useEffect(() => {
-    if (token) {
-      api.defaults.headers.common["Authorization"] = `Bearer ${token}`;
-      localStorage.setItem("token", token);
-    } else {
-      delete api.defaults.headers.common["Authorization"];
-      localStorage.removeItem("token");
-    }
-  }, [token]);
-
-  const login = async (credentials: Credentials) => {
-    const data = await loginService(credentials);
-    setToken(data.access_token);
-  };
-
-  const logout = () => setToken(null);
-
-  return { token, isAuthenticated, login, logout };
+interface AuthState {
+  token: string | null;
+  isAuthenticated: boolean;
+  login: (credentials: Credentials) => Promise<void>;
+  logout: () => void;
 }
+
+function applyAuthHeader(token: string | null) {
+  if (token) {
+    api.defaults.headers.common["Authorization"] = `Bearer ${token}`;
+  } else {
+    delete api.defaults.headers.common["Authorization"];
+  }
+}
+
+export const useAuth = create<AuthState>()(
+  persist(
+    (set) => ({
+      token: null,
+      isAuthenticated: false,
+
+      login: async (credentials) => {
+        const data = await loginService(credentials);
+        applyAuthHeader(data.access_token);
+        set({ token: data.access_token, isAuthenticated: true });
+      },
+
+      logout: () => {
+        applyAuthHeader(null);
+        set({ token: null, isAuthenticated: false });
+      },
+    }),
+    {
+      name: "auth",
+      partialize: (state) => ({ token: state.token }),
+      onRehydrateStorage: () => (state) => {
+        if (state?.token) {
+          applyAuthHeader(state.token);
+          state.isAuthenticated = true;
+        }
+      },
+    }
+  )
+);
