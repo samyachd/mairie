@@ -1,7 +1,5 @@
-// components/OrdinateursTable.tsx
 import { useState } from "react";
 import {
-  ColumnFiltersState,
   SortingState,
   flexRender,
   getCoreRowModel,
@@ -20,7 +18,13 @@ import {
 } from "@/app/components/ui/table";
 import { Button } from "@/app/components/ui/button";
 import { Input } from "@/app/components/ui/input";
-import type { Agent, Ordinateur } from "@/app/types";
+import type {
+  Agent,
+  BonDeCommande,
+  Devis,
+  Facture,
+  Ordinateur,
+} from "@/app/types";
 import { useOrdinateurColumns } from "@/app/hooks/useOrdinateurColumns";
 import { OrdinateurCreateDialog } from "./OrdinateurCreateDialog";
 import { OrdinateurEditDialog } from "./OrdinateurEditDialog";
@@ -28,18 +32,28 @@ import { OrdinateurEditDialog } from "./OrdinateurEditDialog";
 interface Props {
   data: Ordinateur[];
   agents: Agent[];
+  devis: Devis[];
+  bonsDeCommande: BonDeCommande[];
+  factures: Facture[];
 }
 
-export function OrdinateursTable({ data, agents }: Props) {
+export function OrdinateurTable({
+  data,
+  agents,
+  devis,
+  bonsDeCommande,
+  factures,
+}: Props) {
   const [sorting, setSorting] = useState<SortingState>([]);
   const [globalFilter, setGlobalFilter] = useState("");
-
-  // State pour gérer l'édition
   const [editingOrdinateur, setEditingOrdinateur] =
     useState<Ordinateur | null>(null);
 
   const columns = useOrdinateurColumns({
     onEdit: (ordinateur) => setEditingOrdinateur(ordinateur),
+    devis,
+    bonsDeCommande,
+    factures,
   });
 
   const table = useReactTable({
@@ -138,7 +152,7 @@ export function OrdinateursTable({ data, agents }: Props) {
         </div>
       </div>
 
-      {/* Dialog d'édition - rendu uniquement quand un ordi est sélectionné */}
+      
       {editingOrdinateur && (
         <OrdinateurEditDialog
           ordinateur={editingOrdinateur}

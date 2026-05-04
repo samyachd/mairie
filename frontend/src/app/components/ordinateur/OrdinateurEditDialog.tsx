@@ -1,5 +1,3 @@
-// components/OrdinateurEditDialog.tsx
-import { useState } from "react";
 import {
   Dialog,
   DialogContent,
@@ -7,7 +5,7 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/app/components/ui/dialog";
-import { OrdinateurForm } from "./ordinateur/OrdinateurForm";
+import { OrdinateurForm } from "./OrdinateurForm";
 import { useUpdateOrdinateur } from "@/app/hooks/useOrdinateur";
 import type { Agent, Ordinateur } from "@/app/types";
 

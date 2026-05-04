@@ -5,7 +5,7 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/app/components/ui/dialog";
-import { AgentForm } from "./agent/AgentForm";
+import { AgentForm } from "./AgentForm";
 import { useUpdateAgent } from "@/app/hooks/useAgent";
 import type { Agent } from "@/app/types";
 

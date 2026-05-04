@@ -10,8 +10,8 @@ interface Props {
   agents: Agent[];
   onSubmit: (data: OrdinateurCreatePayload) => void;
   isPending?: boolean;
-  defaultValues?: Partial<OrdinateurCreatePayload>;  // ← nouveau
-  submitLabel?: string;                                // ← nouveau
+  defaultValues?: Partial<OrdinateurCreatePayload>;
+  submitLabel?: string;
 }
 
 export function OrdinateurForm({

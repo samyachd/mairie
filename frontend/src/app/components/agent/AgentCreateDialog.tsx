@@ -9,7 +9,7 @@ import {
   DialogTrigger,
 } from "@/app/components/ui/dialog";
 import { Button } from "@/app/components/ui/button";
-import { AgentForm } from "./agent/AgentForm";
+import { AgentForm } from "./AgentForm";
 import { useCreateAgent } from "@/app/hooks/useAgent";
 
 export function AgentCreateDialog() {

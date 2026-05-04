@@ -1,5 +1,4 @@
-import { createBrowserRouter, Navigate } from "react-router";
-import { ReactNode } from "react";
+import { createBrowserRouter } from "react-router";
 import { Layout } from "./components/Layout";
 import { Login } from "./pages/Login";
 import { Home } from "./pages/Home";
@@ -7,12 +6,7 @@ import { Inventaire } from "./pages/Inventaire";
 import { Gestion } from "./pages/Gestion";
 import { Parametres } from "./pages/Parametres";
 import { Administration } from "./pages/Administration";
-import { useAuth } from "./hooks/useAuth";
-
-function ProtectedRoute({ children }: { children: ReactNode }) {
-  const { isAuthenticated } = useAuth();
-  return isAuthenticated ? children : <Navigate to="/login" replace />;
-}
+import { ProtectedRoute } from "./routes/ProtectedRoute";
 
 export const router = createBrowserRouter([
   {

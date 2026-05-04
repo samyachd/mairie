@@ -27,7 +27,7 @@ interface Props {
   data: Agent[];
 }
 
-export function AgentsTable({ data }: Props) {
+export function AgentTable({ data }: Props) {
   const [sorting, setSorting] = useState<SortingState>([]);
   const [globalFilter, setGlobalFilter] = useState("");
   const [editingAgent, setEditingAgent] = useState<Agent | null>(null);
@@ -132,7 +132,7 @@ export function AgentsTable({ data }: Props) {
         </div>
       </div>
 
-      {/* Dialog d'édition */}
+      
       {editingAgent && (
         <AgentEditDialog
           agent={editingAgent}

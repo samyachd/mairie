@@ -1,4 +1,3 @@
-// components/OrdinateurCreateDialog.tsx
 import { useState } from "react";
 import { Plus } from "lucide-react";
 import {
@@ -10,17 +9,17 @@ import {
   DialogTrigger,
 } from "@/app/components/ui/dialog";
 import { Button } from "@/app/components/ui/button";
-import { OrdinateurForm } from "./ordinateur/OrdinateurForm";
-import { useCreateOrdinateur } from "@/app/hooks/useOrdinateur";
+import { EcranForm } from "./EcranForm";
+import { useCreateEcran } from "@/app/hooks/useEcran";
 import type { Agent } from "@/app/types";
 
 interface Props {
   agents: Agent[];
 }
 
-export function OrdinateurCreateDialog({ agents }: Props) {
+export function EcranCreateDialog({ agents }: Props) {
   const [open, setOpen] = useState(false);
-  const createMutation = useCreateOrdinateur();
+  const createMutation = useCreateEcran();
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
@@ -32,20 +31,18 @@ export function OrdinateurCreateDialog({ agents }: Props) {
       </DialogTrigger>
       <DialogContent>
         <DialogHeader>
-          <DialogTitle>Nouvel ordinateur</DialogTitle>
+          <DialogTitle>Nouvel écran</DialogTitle>
           <DialogDescription>
-            Saisissez les informations de base. Vous pourrez compléter les
-            détails techniques (RAM, OS, IP...) après création.
+            Saisissez les informations de base. Le slot et l'ordinateur lié
+            peuvent être renseignés après création.
           </DialogDescription>
         </DialogHeader>
-        <OrdinateurForm
+        <EcranForm
           agents={agents}
           isPending={createMutation.isPending}
           onSubmit={(data) => {
             createMutation.mutate(data, {
-              onSuccess: () => {
-                setOpen(false); // ferme le dialog après succès
-              },
+              onSuccess: () => setOpen(false),
             });
           }}
         />

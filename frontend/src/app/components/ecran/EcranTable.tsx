@@ -1,16 +1,13 @@
 import { useState } from "react";
-import { getPaginationRowModel} from "@tanstack/react-table";
 import {
-  ColumnDef,
-  ColumnFiltersState,
   SortingState,
   flexRender,
   getCoreRowModel,
   getFilteredRowModel,
+  getPaginationRowModel,
   getSortedRowModel,
   useReactTable,
 } from "@tanstack/react-table";
-import { ArrowUpDown, ArrowUp, ArrowDown } from "lucide-react";
 import {
   Table,
   TableBody,
@@ -21,118 +18,73 @@ import {
 } from "@/app/components/ui/table";
 import { Button } from "@/app/components/ui/button";
 import { Input } from "@/app/components/ui/input";
-import type { Ecran } from "@/app/types";
-
-const columns: ColumnDef<Ecran>[] = [
-  // ... tes 3 colonnes inchangées
-  {
-    accessorKey: "taille",
-    header: ({ column }) => (
-      <Button
-        variant="ghost"
-        size="sm"
-        onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
-        className="h-8 -ml-3"
-      >
-        Taille
-        {column.getIsSorted() === "asc" ? (
-          <ArrowUp className="ml-2 h-4 w-4" />
-        ) : column.getIsSorted() === "desc" ? (
-          <ArrowDown className="ml-2 h-4 w-4" />
-        ) : (
-          <ArrowUpDown className="ml-2 h-4 w-4 opacity-50" />
-        )}
-      </Button>
-    ),
-  },
-  {
-    accessorKey: "slot",
-    header: ({ column }) => (
-      <Button
-        variant="ghost"
-        size="sm"
-        onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
-        className="h-8 -ml-3"
-      >
-        Slot
-        {column.getIsSorted() === "asc" ? (
-          <ArrowUp className="ml-2 h-4 w-4" />
-        ) : column.getIsSorted() === "desc" ? (
-          <ArrowDown className="ml-2 h-4 w-4" />
-        ) : (
-          <ArrowUpDown className="ml-2 h-4 w-4 opacity-50" />
-        )}
-      </Button>
-    ),
-  },
-  {
-    accessorKey: "agent_id",
-    header: ({ column }) => (
-      <Button
-        variant="ghost"
-        size="sm"
-        onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
-        className="h-8 -ml-3"
-      >
-        Agent associé
-        {column.getIsSorted() === "asc" ? (
-          <ArrowUp className="ml-2 h-4 w-4" />
-        ) : column.getIsSorted() === "desc" ? (
-          <ArrowDown className="ml-2 h-4 w-4" />
-        ) : (
-          <ArrowUpDown className="ml-2 h-4 w-4 opacity-50" />
-        )}
-      </Button>
-    ),
-  },
-];
+import type {
+  Agent,
+  BonDeCommande,
+  Devis,
+  Ecran,
+  Facture,
+} from "@/app/types";
+import { useEcranColumns } from "@/app/hooks/useEcranColumns";
+import { EcranCreateDialog } from "./EcranCreateDialog";
+import { EcranEditDialog } from "./EcranEditDialog";
 
 interface Props {
   data: Ecran[];
+  agents: Agent[];
+  devis: Devis[];
+  bonsDeCommande: BonDeCommande[];
+  factures: Facture[];
 }
 
-export function EcransTable({ data }: Props) {
+export function EcranTable({
+  data,
+  agents,
+  devis,
+  bonsDeCommande,
+  factures,
+}: Props) {
   const [sorting, setSorting] = useState<SortingState>([]);
-  const [globalFilter, setGlobalFilter] = useState("");   // ← nouveau
+  const [globalFilter, setGlobalFilter] = useState("");
+  const [editingEcran, setEditingEcran] = useState<Ecran | null>(null);
+
+  const columns = useEcranColumns({
+    onEdit: (ecran) => setEditingEcran(ecran),
+    devis,
+    bonsDeCommande,
+    factures,
+  });
 
   const table = useReactTable({
-  data,
-  columns,
-  getCoreRowModel: getCoreRowModel(),
-  getSortedRowModel: getSortedRowModel(),
-  getFilteredRowModel: getFilteredRowModel(),
-  getPaginationRowModel: getPaginationRowModel(),    // ← nouveau
-  onSortingChange: setSorting,
-  onGlobalFilterChange: setGlobalFilter,
-  state: {
-    sorting,
-    globalFilter,
-  },
-  initialState: {                                    // ← nouveau
-    pagination: {
-      pageSize: 10,
-    },
-  },
-});
-
-
+    data,
+    columns,
+    getCoreRowModel: getCoreRowModel(),
+    getSortedRowModel: getSortedRowModel(),
+    getFilteredRowModel: getFilteredRowModel(),
+    getPaginationRowModel: getPaginationRowModel(),
+    onSortingChange: setSorting,
+    onGlobalFilterChange: setGlobalFilter,
+    state: { sorting, globalFilter },
+    initialState: { pagination: { pageSize: 10 } },
+  });
 
   return (
     <div className="space-y-4">
-      {/* Barre de recherche */}
-      <div className="flex items-center">
+      <div className="flex items-center gap-4">
         <Input
           placeholder="Rechercher..."
           value={globalFilter}
           onChange={(event) => setGlobalFilter(event.target.value)}
           className="max-w-sm"
         />
-        <div className="ml-auto text-sm text-gray-500">
+        <div className="text-sm text-gray-500">
           {table.getFilteredRowModel().rows.length} sur {data.length} écrans
+        </div>
+        <div className="ml-auto">
+          <EcranCreateDialog agents={agents} />
         </div>
       </div>
 
-      {/* Tableau */}
       <div className="rounded-md border">
         <Table>
           <TableHeader>
@@ -172,10 +124,11 @@ export function EcransTable({ data }: Props) {
             )}
           </TableBody>
         </Table>
-        {/* Pagination */}
+
         <div className="flex items-center justify-between py-4">
           <div className="text-sm text-gray-500">
-            Page {table.getState().pagination.pageIndex + 1} sur {table.getPageCount()}
+            Page {table.getState().pagination.pageIndex + 1} sur{" "}
+            {table.getPageCount()}
           </div>
           <div className="flex items-center gap-2">
             <Button
@@ -197,6 +150,17 @@ export function EcransTable({ data }: Props) {
           </div>
         </div>
       </div>
+
+      {editingEcran && (
+        <EcranEditDialog
+          ecran={editingEcran}
+          agents={agents}
+          open={true}
+          onOpenChange={(open) => {
+            if (!open) setEditingEcran(null);
+          }}
+        />
+      )}
     </div>
   );
 }
