@@ -1,7 +1,4 @@
-# schemas/__init__.py
-"""
-Schémas Pydantic pour l'API
-"""
+"""Pydantic schemas for the API."""
 
 from schemas.base_equipment import (
     BaseEquipmentCreate,
@@ -34,9 +31,9 @@ from schemas.agent import (
 )
 
 from schemas.documents import (
-    DevisRead,
-    FactureRead,
-    BonDeCommandeRead,
+    DocumentCreate,
+    DocumentUpdate,
+    DocumentRead,
 )
 
 from schemas.user import (
@@ -45,31 +42,29 @@ from schemas.user import (
     UserUpdate,
 )
 
-from schemas.auth import (
-    Token,
-)
+from schemas.auth import Token
 
 from schemas.inventaire import InventaireRead
 
 __all__ = [
-    # Ordinateurs
     "OrdinateurCreate",
     "OrdinateurUpdate",
     "OrdinateurRead",
-    # Écrans
     "EcranCreate",
     "EcranUpdate",
     "EcranRead",
-    # Licences Office
     "OfficeLicenceCreate",
     "OfficeLicenceUpdate",
     "OfficeLicenceRead",
-    # Agents
     "AgentCreate",
     "AgentUpdate",
     "AgentRead",
-    # Documents
-    "DevisRead",
-    "FactureRead",
-    "BonDeCommandeRead",
+    "DocumentCreate",
+    "DocumentUpdate",
+    "DocumentRead",
+    "UserCreate",
+    "UserRead",
+    "UserUpdate",
+    "Token",
+    "InventaireRead",
 ]

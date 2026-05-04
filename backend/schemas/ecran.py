@@ -14,9 +14,6 @@ class EcranCreate(BaseEquipmentCreate):
     
     ordinateur_id: int | None = None
     agent_id: int | None = None
-    devis_id: int | None = None
-    bon_de_commande_id: int | None = None
-    facture_id: int | None = None
     
     @field_validator("slot")
     @classmethod
@@ -34,9 +31,6 @@ class EcranUpdate(BaseEquipmentUpdate):
     
     ordinateur_id: int | None = None
     agent_id: int | None = None
-    devis_id: int | None = None
-    bon_de_commande_id: int | None = None
-    facture_id: int | None = None
     
     @field_validator("slot")
     @classmethod
@@ -54,6 +48,3 @@ class EcranRead(BaseEquipmentRead):
     
     ordinateur_id: int | None = None
     agent_id: int | None = None
-    devis_id: int | None = None
-    bon_de_commande_id: int | None = None
-    facture_id: int | None = None

@@ -2,7 +2,7 @@ from pydantic import BaseModel
 from .ordinateur import OrdinateurRead
 from .ecran import EcranRead
 from .office_licence import OfficeLicenceRead
-from .documents import DevisRead, BonDeCommandeRead, FactureRead
+from .documents import DocumentRead
 from .agent import AgentRead
 
 
@@ -11,6 +11,4 @@ class InventaireRead(BaseModel):
     ecrans: list[EcranRead]
     licences: list[OfficeLicenceRead]
     agents: list[AgentRead]
-    devis: list[DevisRead]
-    bons_de_commande: list[BonDeCommandeRead]
-    factures: list[FactureRead]
+    documents: list[DocumentRead]

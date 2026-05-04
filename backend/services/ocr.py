@@ -35,21 +35,24 @@ async def extraire_document(contenu: bytes, type_mime: str) -> dict:
             {
                 "role": "user",
                 "content": f"""Extrais les informations suivantes de ce document en JSON :
+                - type_document (UN SEUL parmi 'devis', 'bon_de_commande', 'facture' — un devis propose un prix, un bon de commande l'engage, une facture le réclame après livraison)
                 - marque
                 - montant_ttc
                 - montant_ht
-                - numéro_de_commande
+                - numero_de_commande
                 - fournisseur
-                - date_document
+                - date_document (format YYYY-MM-DD)
                 - numero_document
                 - tag
-                - date
-                - fin_garantie
-                - type_équipement
-                
+                - date_achat (format YYYY-MM-DD)
+                - fin_garantie (format YYYY-MM-DD)
+                - type_equipement (UN SEUL parmi 'PC FIXE', 'PC PORTABLE', 'ECRAN', 'AUTRE')
+
+                Mets `null` pour tout champ absent du document. Ne devine pas.
+
                 Document :
                 {texte}
-                
+
                 Réponds UNIQUEMENT en JSON valide, sans texte autour."""
             }
         ]
@@ -65,9 +68,10 @@ async def extraire_document(contenu: bytes, type_mime: str) -> dict:
     except json.JSONDecodeError:
         donnees = {}
     
-    champs_attendus = ["fournisseur", "montant_ttc", "montant_ht", "date_document", 
-                       "numero_document", "marque", "numero_de_commande", 
-                       "tag", "date_achat", "fin_garantie", "type_equipement" ]
+    champs_attendus = ["type_document", "fournisseur", "montant_ttc", "montant_ht",
+                       "date_document", "numero_document", "marque",
+                       "numero_de_commande", "tag", "date_achat", "fin_garantie",
+                       "type_equipement"]
     champs_remplis = len([k for k in champs_attendus if donnees.get(k)])
     
     return {

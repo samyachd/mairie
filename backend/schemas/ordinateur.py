@@ -27,9 +27,6 @@ class OrdinateurCreate(BaseEquipmentCreate):
     # FK
     agent_id: int | None = None
     officelicence_id: int | None = None
-    devis_id: int | None = None
-    bon_de_commande_id: int | None = None
-    facture_id: int | None = None
 
 
 class OrdinateurUpdate(BaseEquipmentUpdate):
@@ -50,9 +47,6 @@ class OrdinateurUpdate(BaseEquipmentUpdate):
     
     agent_id: int | None = None
     officelicence_id: int | None = None
-    devis_id: int | None = None
-    bon_de_commande_id: int | None = None
-    facture_id: int | None = None
 
 
 class OrdinateurRead(BaseEquipmentRead):
@@ -73,6 +67,3 @@ class OrdinateurRead(BaseEquipmentRead):
     
     agent_id: int | None = None
     officelicence_id: int | None = None
-    devis_id: int | None = None
-    bon_de_commande_id: int | None = None
-    facture_id: int | None = None
