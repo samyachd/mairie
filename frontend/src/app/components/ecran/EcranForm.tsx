@@ -4,6 +4,8 @@ import { Input } from "@/app/components/ui/input";
 import { Label } from "@/app/components/ui/label";
 import type { Agent } from "@/app/types";
 import type { EcranCreatePayload } from "@/app/services/ecran";
+import type { OcrExtractedData } from "@/app/services/document";
+import { OcrImportButton } from "../OcrImportButton";
 
 interface Props {
   agents: Agent[];
@@ -11,6 +13,7 @@ interface Props {
   isPending?: boolean;
   defaultValues?: Partial<EcranCreatePayload>;
   submitLabel?: string;
+  onOcrExtracted?: (data: OcrExtractedData) => void;
 }
 
 export function EcranForm({
@@ -19,10 +22,12 @@ export function EcranForm({
   isPending,
   defaultValues,
   submitLabel = "Créer l'écran",
+  onOcrExtracted,
 }: Props) {
   const {
     register,
     handleSubmit,
+    setValue,
     formState: { errors },
   } = useForm<EcranCreatePayload>({
     defaultValues: {
@@ -38,6 +43,16 @@ export function EcranForm({
 
   return (
     <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
+      <div className="flex justify-end">
+        <OcrImportButton
+          onExtracted={(d) => {
+            if (d.marque) setValue("marque", d.marque);
+            if (d.date_achat) setValue("date_achat", d.date_achat);
+            onOcrExtracted?.(d);
+          }}
+        />
+      </div>
+
       <div>
         <Label htmlFor="taille">Taille *</Label>
         <Input

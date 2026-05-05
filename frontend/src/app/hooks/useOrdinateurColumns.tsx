@@ -3,37 +3,52 @@ import { ColumnDef } from "@tanstack/react-table";
 import { Trash2, Pencil } from "lucide-react";
 import { Button } from "@/app/components/ui/button";
 import { useDeleteOrdinateur } from "./useOrdinateur";
-import type {
-  BonDeCommande,
-  Devis,
-  Facture,
-  Ordinateur,
-} from "@/app/types";
+import type { Document, DocumentType, Ordinateur } from "@/app/types";
 import { SortableHeader } from "../components/DataTable/SortableHeader";
 import { DocumentLink } from "../components/DocumentLink";
 
 interface Options {
   onEdit: (ordinateur: Ordinateur) => void;
-  devis: Devis[];
-  bonsDeCommande: BonDeCommande[];
-  factures: Facture[];
+  documents: Document[];
 }
 
-function byId<T extends { id: number }>(items: T[]): Map<number, T> {
-  return new Map(items.map((item) => [item.id, item]));
+type DocsByOwner = Map<number, Map<DocumentType, Document>>;
+
+function indexDocsByOwner(
+  documents: Document[],
+  ownerKey: "ordinateur_id" | "ecran_id" | "office_licence_id"
+): DocsByOwner {
+  const map: DocsByOwner = new Map();
+  for (const doc of documents) {
+    const ownerId = doc[ownerKey];
+    if (ownerId == null) continue;
+    let inner = map.get(ownerId);
+    if (!inner) {
+      inner = new Map();
+      map.set(ownerId, inner);
+    }
+    const existing = inner.get(doc.type);
+    if (!existing || doc.date_document > existing.date_document) {
+      inner.set(doc.type, doc);
+    }
+  }
+  return map;
 }
+
+export { indexDocsByOwner };
 
 export function useOrdinateurColumns({
   onEdit,
-  devis,
-  bonsDeCommande,
-  factures,
+  documents,
 }: Options): ColumnDef<Ordinateur>[] {
   const deleteOrdinateur = useDeleteOrdinateur();
+  const docsByOrdinateur = useMemo(
+    () => indexDocsByOwner(documents, "ordinateur_id"),
+    [documents]
+  );
 
-  const devisById = useMemo(() => byId(devis), [devis]);
-  const bcById = useMemo(() => byId(bonsDeCommande), [bonsDeCommande]);
-  const factureById = useMemo(() => byId(factures), [factures]);
+  const docFor = (id: number, type: DocumentType) =>
+    docsByOrdinateur.get(id)?.get(type) ?? null;
 
   return [
     {
@@ -51,35 +66,19 @@ export function useOrdinateurColumns({
     {
       id: "devis",
       header: "Devis",
-      cell: ({ row }) => (
-        <DocumentLink
-          doc={row.original.devis_id ? devisById.get(row.original.devis_id) : null}
-        />
-      ),
+      cell: ({ row }) => <DocumentLink doc={docFor(row.original.id, "devis")} />,
     },
     {
       id: "bon_de_commande",
       header: "BC",
       cell: ({ row }) => (
-        <DocumentLink
-          doc={
-            row.original.bon_de_commande_id
-              ? bcById.get(row.original.bon_de_commande_id)
-              : null
-          }
-        />
+        <DocumentLink doc={docFor(row.original.id, "bon_de_commande")} />
       ),
     },
     {
       id: "facture",
       header: "Facture",
-      cell: ({ row }) => (
-        <DocumentLink
-          doc={
-            row.original.facture_id ? factureById.get(row.original.facture_id) : null
-          }
-        />
-      ),
+      cell: ({ row }) => <DocumentLink doc={docFor(row.original.id, "facture")} />,
     },
     {
       id: "actions",

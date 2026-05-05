@@ -1,3 +1,4 @@
+import { useState } from "react";
 import {
   Dialog,
   DialogContent,
@@ -6,12 +7,20 @@ import {
   DialogTitle,
 } from "@/app/components/ui/dialog";
 import { EcranForm } from "./EcranForm";
+import { DocumentForm } from "../document/DocumentForm";
 import { useUpdateEcran } from "@/app/hooks/useEcran";
-import type { Agent, Ecran } from "@/app/types";
+import { useCreateDocument } from "@/app/hooks/useDocument";
+import type { Agent, Document as DocumentT, Ecran } from "@/app/types";
+import type { OcrExtractedData } from "@/app/services/document";
+import {
+  isDocumentAlreadyRegistered,
+  ocrToDocumentDefaults,
+} from "@/app/lib/ocrToDocument";
 
 interface Props {
   ecran: Ecran;
   agents: Agent[];
+  documents: DocumentT[];
   open: boolean;
   onOpenChange: (open: boolean) => void;
 }
@@ -19,43 +28,85 @@ interface Props {
 export function EcranEditDialog({
   ecran,
   agents,
+  documents,
   open,
   onOpenChange,
 }: Props) {
-  const updateMutation = useUpdateEcran();
+  const [pendingOcr, setPendingOcr] = useState<OcrExtractedData | null>(null);
+  const [equipmentSaved, setEquipmentSaved] = useState(false);
+
+  const updateEcran = useUpdateEcran();
+  const createDoc = useCreateDocument();
+
+  const close = () => {
+    setPendingOcr(null);
+    setEquipmentSaved(false);
+    onOpenChange(false);
+  };
+
+  const docDefaults = pendingOcr ? ocrToDocumentDefaults(pendingOcr) : null;
+  const showDocStep =
+    equipmentSaved &&
+    docDefaults != null &&
+    pendingOcr != null &&
+    !isDocumentAlreadyRegistered(pendingOcr, documents);
 
   return (
-    <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent>
+    <Dialog open={open} onOpenChange={(o) => (o ? null : close())}>
+      <DialogContent className="max-w-2xl">
         <DialogHeader>
           <DialogTitle>
-            Modifier {ecran.tag ?? `écran #${ecran.id}`}
+            {showDocStep
+              ? "Document détecté"
+              : `Modifier ${ecran.tag ?? `écran #${ecran.id}`}`}
           </DialogTitle>
           <DialogDescription>
-            Modifiez les informations de l'écran.
+            {showDocStep
+              ? "L'OCR a identifié un document non enregistré. Vérifiez et enregistrez-le."
+              : "Modifiez les informations de l'écran."}
           </DialogDescription>
         </DialogHeader>
-        <EcranForm
-          agents={agents}
-          isPending={updateMutation.isPending}
-          submitLabel="Enregistrer les modifications"
-          defaultValues={{
-            taille: ecran.taille,
-            marque: ecran.marque,
-            date_achat: ecran.date_achat,
-            proprietaire: ecran.proprietaire,
-            service: ecran.service,
-            agent_id: ecran.agent_id,
-          }}
-          onSubmit={(data) => {
-            updateMutation.mutate(
-              { id: ecran.id, data },
-              {
-                onSuccess: () => onOpenChange(false),
-              }
-            );
-          }}
-        />
+
+        {showDocStep ? (
+          <DocumentForm
+            fixedOwner={{ ecran_id: ecran.id }}
+            defaultValues={docDefaults}
+            isPending={createDoc.isPending}
+            onSubmit={(data) => {
+              createDoc.mutate(data, { onSuccess: close });
+            }}
+          />
+        ) : (
+          <EcranForm
+            agents={agents}
+            isPending={updateEcran.isPending}
+            submitLabel="Enregistrer les modifications"
+            onOcrExtracted={setPendingOcr}
+            defaultValues={{
+              taille: ecran.taille,
+              marque: ecran.marque,
+              date_achat: ecran.date_achat,
+              proprietaire: ecran.proprietaire,
+              service: ecran.service,
+              agent_id: ecran.agent_id,
+            }}
+            onSubmit={(data) => {
+              updateEcran.mutate(
+                { id: ecran.id, data },
+                {
+                  onSuccess: () => {
+                    const willShow =
+                      pendingOcr != null &&
+                      ocrToDocumentDefaults(pendingOcr) != null &&
+                      !isDocumentAlreadyRegistered(pendingOcr, documents);
+                    if (willShow) setEquipmentSaved(true);
+                    else close();
+                  },
+                }
+              );
+            }}
+          />
+        )}
       </DialogContent>
     </Dialog>
   );

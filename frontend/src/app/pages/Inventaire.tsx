@@ -4,6 +4,7 @@ import { OrdinateurTable } from "@/app/components/ordinateur/OrdinateurTable";
 import { OfficeLicenceTable } from "@/app/components/officelicence/OfficeLicenceTable";
 import { EcranTable } from "../components/ecran/EcranTable";
 import { AgentTable } from "../components/agent/AgentTable";
+import { DocumentTable } from "../components/document/DocumentTable";
 
 export function Inventaire() {
   const { data, isLoading, isError, error } = useInventaire();
@@ -17,12 +18,6 @@ export function Inventaire() {
     );
   }
   if (!data) return null;
-
-  const docs = {
-    devis: data.devis,
-    bonsDeCommande: data.bons_de_commande,
-    factures: data.factures,
-  };
 
   return (
     <div className="p-6">
@@ -39,6 +34,9 @@ export function Inventaire() {
           <TabsTrigger value="licences">
             Licences ({data.licences.length})
           </TabsTrigger>
+          <TabsTrigger value="documents">
+            Documents ({data.documents.length})
+          </TabsTrigger>
           <TabsTrigger value="agents">
             Agents ({data.agents.length})
           </TabsTrigger>
@@ -48,18 +46,29 @@ export function Inventaire() {
           <OrdinateurTable
             data={data.ordinateurs}
             agents={data.agents}
-            {...docs}
+            documents={data.documents}
           />
         </TabsContent>
         <TabsContent value="ecrans" className="mt-6">
           <EcranTable
             data={data.ecrans}
             agents={data.agents}
-            {...docs}
+            documents={data.documents}
           />
         </TabsContent>
         <TabsContent value="licences" className="mt-6">
-          <OfficeLicenceTable data={data.licences} {...docs} />
+          <OfficeLicenceTable
+            data={data.licences}
+            documents={data.documents}
+          />
+        </TabsContent>
+        <TabsContent value="documents" className="mt-6">
+          <DocumentTable
+            data={data.documents}
+            ordinateurs={data.ordinateurs}
+            ecrans={data.ecrans}
+            licences={data.licences}
+          />
         </TabsContent>
         <TabsContent value="agents" className="mt-6">
           <AgentTable data={data.agents} />

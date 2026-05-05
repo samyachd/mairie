@@ -27,7 +27,7 @@ export interface BaseEquipment {
   type_equipement: string | null;
   fournisseur: string | null;
   fin_garantie: string | null;
-  date_achat: string;
+  date_achat: string | null;
   created_at: string;
   updated_at: string | null;
 }
@@ -37,10 +37,7 @@ export interface BaseEquipment {
 export interface Ordinateur extends BaseEquipment {
   agent_id: number | null;
   officelicence_id: number | null;
-  devis_id: number | null;
-  bon_de_commande_id: number | null;
-  facture_id: number | null;
-  
+
   ram: string | null;
   os: string | null;
   nom_reseau: string | null;
@@ -60,30 +57,28 @@ export interface Ordinateur extends BaseEquipment {
 export interface Ecran extends BaseEquipment {
   taille: string | null;
   slot: number | null;
-  
+
   ordinateur_id: number | null;
   agent_id: number | null;
-  devis_id: number | null;
-  bon_de_commande_id: number | null;
-  facture_id: number | null;
 }
+
 // ────────── OfficeLicence ──────────
 
 export interface OfficeLicence {
   id: number;
-  version: string;
+  version: string | null;
   type_licence: string | null;
   fournisseur: string | null;
-  date_achat: string;
-  
-  devis_id: number | null;
-  bon_de_commande_id: number | null;
-  facture_id: number | null;
-  
+  date_achat: string | null;
+  clef: string | null;
+  mail_activation: string | null;
+
   created_at: string;
   updated_at: string | null;
 }
+
 // ────────── Agent ──────────
+
 export interface Agent {
   id: number;
   nom: string;
@@ -95,26 +90,24 @@ export interface Agent {
   updated_at: string | null;
 }
 
+// ────────── Document (unified) ──────────
 
-// ────────── Documents ──────────
+export type DocumentType = "devis" | "bon_de_commande" | "facture";
 
-interface DocumentBase {
+export interface Document {
   id: number;
+  type: DocumentType;
   nom: string;
   numero: string;
   path: string;
   date_document: string;
-  created_at: string;
-  updated_at: string | null;
-}
-
-export type Devis = DocumentBase;
-
-export type BonDeCommande = DocumentBase;
-
-export interface Facture extends DocumentBase {
   montant_ttc: number | null;
   montant_ht: number | null;
+  ordinateur_id: number | null;
+  ecran_id: number | null;
+  office_licence_id: number | null;
+  created_at: string;
+  updated_at: string | null;
 }
 
 // ────────── /inventaire response ──────────
@@ -124,7 +117,5 @@ export interface InventaireResponse {
   ecrans: Ecran[];
   licences: OfficeLicence[];
   agents: Agent[];
-  devis: Devis[];
-  bons_de_commande: BonDeCommande[];
-  factures: Facture[];
+  documents: Document[];
 }

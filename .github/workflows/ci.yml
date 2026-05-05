@@ -47,21 +47,25 @@ jobs:
       - name: Lancer les migrations Alembic
         working-directory: ./backend
         env:
-          DB_HOST: localhost
-          DB_PORT: 5432
-          DB_USER: test_user
-          DB_PASS: test_pass
-          DB_NAME: test_db
+          POSTGRES_HOST: localhost
+          POSTGRES_PORT: 5432
+          POSTGRES_USER: test_user
+          POSTGRES_PASSWORD: test_pass
+          POSTGRES_DB: test_db
+          SECRET_KEY: test_secret_not_real
+          MISTRAL_API_KEY: fake_key_for_tests
+          CORS_ORIGINS: http://localhost:5173
         run: uv run alembic upgrade head
-      
+
       - name: Lancer pytest
         working-directory: ./backend
         env:
-          DB_HOST: localhost
-          DB_PORT: 5432
-          DB_USER: test_user
-          DB_PASS: test_pass
-          DB_NAME: test_db
-          JWT_SECRET_KEY: test_secret_not_real
+          POSTGRES_HOST: localhost
+          POSTGRES_PORT: 5432
+          POSTGRES_USER: test_user
+          POSTGRES_PASSWORD: test_pass
+          POSTGRES_DB: test_db
+          SECRET_KEY: test_secret_not_real
           MISTRAL_API_KEY: fake_key_for_tests
+          CORS_ORIGINS: http://localhost:5173
         run: uv run pytest --tb=short -v

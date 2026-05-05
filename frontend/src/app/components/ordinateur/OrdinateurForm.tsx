@@ -1,10 +1,11 @@
-// components/OrdinateurForm.tsx
 import { useForm } from "react-hook-form";
 import { Button } from "@/app/components/ui/button";
 import { Input } from "@/app/components/ui/input";
 import { Label } from "@/app/components/ui/label";
 import type { Agent } from "@/app/types";
 import type { OrdinateurCreatePayload } from "@/app/services/ordinateur";
+import type { OcrExtractedData } from "@/app/services/document";
+import { OcrImportButton } from "../OcrImportButton";
 
 interface Props {
   agents: Agent[];
@@ -12,6 +13,7 @@ interface Props {
   isPending?: boolean;
   defaultValues?: Partial<OrdinateurCreatePayload>;
   submitLabel?: string;
+  onOcrExtracted?: (data: OcrExtractedData) => void;
 }
 
 export function OrdinateurForm({
@@ -20,10 +22,12 @@ export function OrdinateurForm({
   isPending,
   defaultValues,
   submitLabel = "Créer l'ordinateur",
+  onOcrExtracted,
 }: Props) {
   const {
     register,
     handleSubmit,
+    setValue,
     formState: { errors },
   } = useForm<OrdinateurCreatePayload>({
     defaultValues: {
@@ -39,6 +43,17 @@ export function OrdinateurForm({
 
   return (
     <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
+      <div className="flex justify-end">
+        <OcrImportButton
+          onExtracted={(d) => {
+            if (d.marque) setValue("marque", d.marque);
+            if (d.date_achat) setValue("date_achat", d.date_achat);
+            if (d.tag) setValue("nom_reseau", d.tag);
+            onOcrExtracted?.(d);
+          }}
+        />
+      </div>
+
       <div>
         <Label htmlFor="nom_reseau">Nom réseau *</Label>
         <Input

@@ -1,10 +1,15 @@
 """
-Normalize the wide-format inventory JSON in data/clean_extracts/ into the
-shape expected by the SQLAlchemy models in db/models/ (Ordinateur, Ecran,
-OfficeLicence).
+Read the latest raw inventory dump from data/raw_extracts/ and write
+data/clean_extracts/normalized_<timestamp>.json shaped for the SQLAlchemy
+models in db/models/ (Ordinateur, Ecran, OfficeLicence).
 
-Reads the most recent seed_data_*.json from data/clean_extracts/ and writes
-data/clean_extracts/normalized_<timestamp>.json with three top-level keys:
+Two passes:
+  1. STRUCTURAL — strip the Excel→JSON quirks (auto Unnamed columns,
+     2 header rows, nested under "inventaire").
+  2. SEMANTIC  — coerce types (bool/date/MAC/IP), null placeholders,
+     widen ECRAN N columns into one ecran-per-row, dedupe office licences.
+
+Output keys:
     - ordinateurs : list[dict]
     - ecrans      : list[dict]   (linked to ordinateurs via _ordinateur_tag)
     - office_licences : list[dict] (referenced by ordinateurs._office_key)
@@ -20,9 +25,63 @@ from collections import Counter
 from datetime import datetime
 from pathlib import Path
 
-INPUT_DIR = Path(__file__).resolve().parents[2] / "data" / "clean_extracts"
+DATA_DIR = Path(__file__).resolve().parents[2] / "data"
+RAW_DIR = DATA_DIR / "raw_extracts"
+OUTPUT_DIR = DATA_DIR / "clean_extracts"
 TIMESTAMP = datetime.now().strftime("%Y%m%d_%H%M%S")
-OUTPUT = INPUT_DIR / f"normalized_{TIMESTAMP}.json"
+OUTPUT = OUTPUT_DIR / f"normalized_{TIMESTAMP}.json"
+
+# Column index → human-readable name for the wide Excel sheet.
+# The raw JSON has keys "Unnamed: 0".."Unnamed: 74".
+RAW_COLUMNS: list[str] = [
+    "SERVICE", "EMPLACEMENT", "UTILISATEUR PRINCIPAL", "NOM RESEAU",
+    "N° SERIE PC", "CLEF WIFI", "LECTEUR DVD/CD EXTERNE", "WEBCAM", "CASQUE",
+    "TYPE", "MAC ADRESSE ETHERNET", "MAC ADRESSE WIFI",
+    "DATE FIN GARANTIE PC", "MARQUE PC", "DATE ACHAT PC", "FOURNISSEUR PC",
+    "N° BC PC", "Adresse IP PC", "eligible W10", "OS", "TYPE LICENCE PC",
+    "Clé OS PC", "PROCESSEUR PC", "RAM PC", "ABSOLUTE DELL",
+    "DATE ACHAT OFFICE", "FOURNISSEUR OFFICE", "BC OFFICE", "VERSION OFFICE",
+    "TYPE LICENCE OFFICE", "CLEF ACTIVATION", "DATE ACTIVATION",
+    "Mail ACTIVATION", "CLEF OFFICE", "N° CONTRAT OPEN MICROSOFT",
+    "TYPE ECRAN 1", "MARQUE ECRAN 1", "MODELE ECRAN 1", "N° SERIE ECRAN 1",
+    "FOURNISSEUR ECRAN 1", "N° BC ECRAN 1", "DATE ACHAT ECRAN 1",
+    "DATE FIN GARANTIE ECRAN 1",
+    "TYPE ECRAN 2", "MARQUE ECRAN 2", "MODELE ECRAN 2", "N° SERIE ECRAN 2",
+    "FOURNISSEUR ECRAN 2", "N° BC ECRAN 2", "DATE ACHAT ECRAN 2",
+    "DATE FIN GARANTIE ECRAN 2",
+    "TYPE ECRAN 3", "MARQUE ECRAN 3", "MODELE ECRAN 3", "N° SERIE ECRAN 3",
+    "FOURNISSEUR ECRAN 3", "N° BC ECRAN 3", "DATE ACHAT ECRAN 3",
+    "DATE FIN GARANTIE ECRAN 3",
+    "TYPE ECRAN TELETRAVAIL", "MARQUE ECRAN TELETRAVAIL",
+    "MODELE ECRAN TELETRAVAIL", "N° SERIE ECRAN TELETRAVAIL",
+    "FOURNISSEUR ECRAN TELETRAVAIL", "N° BC ECRAN TELETRAVAIL",
+    "DATE ACHAT ECRAN TELETRAVAIL", "DATE FIN GARANTIE ECRAN TELETRAVAIL",
+    # pandas auto-suffixes on duplicate column names — 5th teletravail group
+    "TYPE ECRAN TELETRAVAIL2", "MARQUE ECRAN TELETRAVAIL3",
+    "MODELE ECRAN TELETRAVAIL4", "N° SERIE ECRAN TELETRAVAIL5",
+    "FOURNISSEUR ECRAN TELETRAVAIL6", "N° BC ECRAN TELETRAVAIL7",
+    "DATE ACHAT ECRAN TELETRAVAIL8", "DATE FIN GARANTIE ECRAN TELETRAVAIL2",
+]
+
+
+def load_raw_records() -> list[dict]:
+    """Read the latest raw seed_data_*.json from raw_extracts/, drop the
+    2 header rows, remap Unnamed:N keys to human-readable names."""
+    files = sorted(RAW_DIR.glob("seed_data_*.json"))
+    if not files:
+        raise SystemExit(f"No seed_data_*.json found in {RAW_DIR}")
+    src = files[-1]
+    print(f"Reading {src.name}")
+    payload = json.loads(src.read_text(encoding="utf-8"))
+    rows = payload["inventaire"][2:]  # drop the 2 title rows
+
+    def _rename(row: dict) -> dict:
+        return {
+            RAW_COLUMNS[i]: row.get(f"Unnamed: {i}")
+            for i in range(len(RAW_COLUMNS))
+        }
+
+    return [_rename(r) for r in rows]
 
 PLACEHOLDER_NULLS = {"", "?????????", "????", "N/A", "NA", "-", "—"}
 
@@ -137,9 +196,6 @@ def build_ordinateur(row: dict) -> dict | None:
     # Skip rows that aren't a PC: no serial AND not labelled as a PC type
     if tag is None and type_eq not in {"PC FIXE", "PC PORTABLE"}:
         return None
-    # Model requires date_achat NOT NULL
-    if date_achat is None:
-        return None
 
     return {
         "tag": tag,
@@ -177,9 +233,6 @@ def build_ecrans(row: dict, ordi_tag: str | None) -> list[dict]:
         # Slot is empty if nothing identifies it
         if not any([type_e, marque, modele, serie, date_achat]):
             continue
-        # Model requires date_achat NOT NULL
-        if date_achat is None:
-            continue
         ecrans.append({
             "tag": serie,
             "slot": slot,
@@ -197,16 +250,18 @@ def build_ecrans(row: dict, ordi_tag: str | None) -> list[dict]:
 
 
 def build_office_licence(row: dict) -> dict | None:
-    """OfficeLicence requires version + date_achat NOT NULL."""
+    """Returns None if the row carries no Office info at all."""
     version = clean_str(row.get("VERSION OFFICE"))
     date_achat = to_date(row.get("DATE ACHAT OFFICE"))
-    if version is None or date_achat is None:
+    type_lic = clean_str(row.get("TYPE LICENCE OFFICE"))
+    fournisseur = clean_str(row.get("FOURNISSEUR OFFICE"))
+    if not any([version, date_achat, type_lic, fournisseur]):
         return None
     return {
-        "type_licence": clean_str(row.get("TYPE LICENCE OFFICE")),
+        "type_licence": type_lic,
         "version": version,
         "date_achat": date_achat,
-        "fournisseur": clean_str(row.get("FOURNISSEUR OFFICE")),
+        "fournisseur": fournisseur,
     }
 
 
@@ -219,13 +274,7 @@ def office_dedupe_key(lic: dict) -> tuple:
 # ──────────────────────────────────────────────────────────────────────────
 
 def main() -> None:
-    files = sorted(INPUT_DIR.glob("seed_data_*.json"))
-    if not files:
-        raise SystemExit(f"No seed_data_*.json found in {INPUT_DIR}")
-    src = files[-1]
-    print(f"Reading {src.name}")
-
-    rows = json.loads(src.read_text(encoding="utf-8"))
+    rows = load_raw_records()
 
     ordinateurs: list[dict] = []
     ecrans: list[dict] = []
@@ -255,11 +304,8 @@ def main() -> None:
                     ordi["_office_key"] = None
 
                 ordinateurs.append(ordi)
-        else:
-            if clean_str(row.get("N° SERIE PC")) and not to_date(row.get("DATE ACHAT PC")):
-                skipped["pc_no_date_achat"] += 1
-            elif clean_str(row.get("TYPE")) and "ECRAN" not in str(row.get("TYPE")).upper():
-                skipped["row_not_a_pc"] += 1
+        elif clean_str(row.get("TYPE")) and "ECRAN" not in str(row.get("TYPE")).upper():
+            skipped["row_not_a_pc"] += 1
 
         ordi_tag = ordi["tag"] if ordi else None
         ecrans.extend(build_ecrans(row, ordi_tag))

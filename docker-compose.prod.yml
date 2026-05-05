@@ -1,35 +1,76 @@
+# Prod overlay: pre-built images, no source mounts, prod env files only.
+# Run with:
+#   docker compose -f docker-compose.yml -f docker-compose.prod.yml up -d
+#
+# Required on the host:
+#   /.env.prod                — POSTGRES_*, GRAFANA_ADMIN_PASSWORD, VITE_API_URL
+#   /backend/.env.prod        — SECRET_KEY, MISTRAL_API_KEY, CORS_ORIGINS, etc.
+
 services:
   frontend:
-    build:
-      context: ./frontend
-      target: prod   # ← On cible le stage "prod"
-      args:
-        VITE_API_URL: ${VITE_API_URL}   # ← Lu depuis .env.prod
+    image: ghcr.io/samyachd/mairie/frontend:latest
+    # Bind 127.0.0.1:80 so the host's reverse proxy (Apache/Caddy) handles TLS
+    # and public exposure. Drop the 127.0.0.1 prefix only if no reverse proxy.
     ports:
-      - "80:80"
+      - "127.0.0.1:80:80"
     depends_on:
-      - backend
+      backend:
+        condition: service_healthy
     restart: unless-stopped
+
   backend:
-    image: ghcr.io/tonpseudo/mairie-backend:latest
-    restart: unless-stopped
+    image: ghcr.io/samyachd/mairie/backend:latest
+    # Override base compose's env_file to use prod-only files
+    env_file:
+      - .env.prod
+      - backend/.env.prod
+    environment:
+      POSTGRES_HOST: db
     command: uvicorn main:app --host 0.0.0.0 --port 8000 --workers 4
-    # pas de volumes bind : code figé dans l'image
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request, sys; sys.exit(0 if urllib.request.urlopen('http://localhost:8000/').status == 200 else 1)"]
+      interval: 15s
+      timeout: 5s
+      retries: 5
+      start_period: 30s
+    depends_on:
+      db:
+        condition: service_healthy
+    restart: unless-stopped
+
   db:
+    env_file:
+      - .env.prod
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U $${POSTGRES_USER} -d $${POSTGRES_DB}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
     restart: unless-stopped
-    # pas de ports exposés : la DB reste interne au réseau Docker
+
   prometheus:
+    volumes:
+      - ./prometheus.prod.yml:/etc/prometheus/prometheus.yml
+      - prometheus_data:/prometheus
     restart: unless-stopped
-    # pas de port exposé : accessible via Apache reverse proxy uniquement
 
   grafana:
+    env_file:
+      - .env.prod
     restart: unless-stopped
-    environment:
-      GF_SECURITY_ADMIN_PASSWORD: ${GRAFANA_ADMIN_PASSWORD}
-    # pas de port exposé
 
   loki:
+    volumes:
+      - loki_data:/loki
     restart: unless-stopped
 
   promtail:
+    volumes:
+      - /var/lib/docker/containers:/var/lib/docker/containers:ro
+      - /var/run/docker.sock:/var/run/docker.sock
+      - ./promtail.prod.yml:/etc/promtail/config.yml
     restart: unless-stopped
+
+volumes:
+  prometheus_data:
+  loki_data:

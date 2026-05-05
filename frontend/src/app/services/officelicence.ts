@@ -3,10 +3,12 @@ import type { OfficeLicence } from "@/app/types";
 
 
 export interface LicenceCreatePayload {
-  version: string;
+  version: string | null;
   type_licence: string | null;
   date_achat: string | null;
   fournisseur: string | null;
+  clef: string | null;
+  mail_activation: string | null;
 }
 
 export type LicenceUpdatePayload = LicenceCreatePayload;

@@ -109,12 +109,14 @@ files_test/
 
 # Variables d'environnement
 .env
-.env.local
-.env.*.local
+.env.*
 *.env
 
-# MAIS garde le template
+# MAIS garde les templates
 !.env.example
+!.env.prod.example
+!.env.development
+!.env.production
 
 # ============================================
 # ÉDITEURS & IDE

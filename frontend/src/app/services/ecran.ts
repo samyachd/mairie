@@ -5,7 +5,7 @@ import type { Ecran } from "@/app/types";
 export interface EcranCreatePayload {
   taille: string | null;
   marque: string | null;
-  date_achat: string;
+  date_achat: string | null;
   proprietaire: string | null;
   service: string | null;
   agent_id: number | null;

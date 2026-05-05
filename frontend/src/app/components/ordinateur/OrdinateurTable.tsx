@@ -18,13 +18,7 @@ import {
 } from "@/app/components/ui/table";
 import { Button } from "@/app/components/ui/button";
 import { Input } from "@/app/components/ui/input";
-import type {
-  Agent,
-  BonDeCommande,
-  Devis,
-  Facture,
-  Ordinateur,
-} from "@/app/types";
+import type { Agent, Document, Ordinateur } from "@/app/types";
 import { useOrdinateurColumns } from "@/app/hooks/useOrdinateurColumns";
 import { OrdinateurCreateDialog } from "./OrdinateurCreateDialog";
 import { OrdinateurEditDialog } from "./OrdinateurEditDialog";
@@ -32,18 +26,10 @@ import { OrdinateurEditDialog } from "./OrdinateurEditDialog";
 interface Props {
   data: Ordinateur[];
   agents: Agent[];
-  devis: Devis[];
-  bonsDeCommande: BonDeCommande[];
-  factures: Facture[];
+  documents: Document[];
 }
 
-export function OrdinateurTable({
-  data,
-  agents,
-  devis,
-  bonsDeCommande,
-  factures,
-}: Props) {
+export function OrdinateurTable({ data, agents, documents }: Props) {
   const [sorting, setSorting] = useState<SortingState>([]);
   const [globalFilter, setGlobalFilter] = useState("");
   const [editingOrdinateur, setEditingOrdinateur] =
@@ -51,9 +37,7 @@ export function OrdinateurTable({
 
   const columns = useOrdinateurColumns({
     onEdit: (ordinateur) => setEditingOrdinateur(ordinateur),
-    devis,
-    bonsDeCommande,
-    factures,
+    documents,
   });
 
   const table = useReactTable({
@@ -82,7 +66,7 @@ export function OrdinateurTable({
           {table.getFilteredRowModel().rows.length} sur {data.length} ordinateurs
         </div>
         <div className="ml-auto">
-          <OrdinateurCreateDialog agents={agents} />
+          <OrdinateurCreateDialog agents={agents} documents={documents} />
         </div>
       </div>
 
@@ -157,6 +141,7 @@ export function OrdinateurTable({
         <OrdinateurEditDialog
           ordinateur={editingOrdinateur}
           agents={agents}
+          documents={documents}
           open={true}
           onOpenChange={(open) => {
             if (!open) setEditingOrdinateur(null);

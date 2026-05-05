@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import {
   SortingState,
   flexRender,
@@ -18,30 +18,49 @@ import {
 } from "@/app/components/ui/table";
 import { Button } from "@/app/components/ui/button";
 import { Input } from "@/app/components/ui/input";
-import type { Document, OfficeLicence } from "@/app/types";
-import { useOfficeLicenceColumns } from "@/app/hooks/useOfficeLicenceColumns";
-import { OfficeLicenceCreateDialog } from "./OfficeLicenceCreateDialog";
-import { OfficeLicenceEditDialog } from "./OfficeLicenceEditDialog";
+import type {
+  Document as DocumentT,
+  DocumentType,
+  Ecran,
+  OfficeLicence,
+  Ordinateur,
+} from "@/app/types";
+import { useDocumentColumns } from "@/app/hooks/useDocumentColumns";
+import { DocumentCreateDialog } from "./DocumentCreateDialog";
+import { DocumentEditDialog } from "./DocumentEditDialog";
 
 interface Props {
-  data: OfficeLicence[];
-  documents: Document[];
+  data: DocumentT[];
+  ordinateurs: Ordinateur[];
+  ecrans: Ecran[];
+  licences: OfficeLicence[];
 }
 
-export function OfficeLicenceTable({ data, documents }: Props) {
+type Filter = "all" | DocumentType;
+
+export function DocumentTable({ data, ordinateurs, ecrans, licences }: Props) {
   const [sorting, setSorting] = useState<SortingState>([]);
   const [globalFilter, setGlobalFilter] = useState("");
-  const [editingLicence, setEditingLicence] = useState<OfficeLicence | null>(
-    null
+  const [typeFilter, setTypeFilter] = useState<Filter>("all");
+  const [editing, setEditing] = useState<DocumentT | null>(null);
+
+  const filteredData = useMemo(
+    () =>
+      typeFilter === "all"
+        ? data
+        : data.filter((d) => d.type === typeFilter),
+    [data, typeFilter]
   );
 
-  const columns = useOfficeLicenceColumns({
-    onEdit: (licence) => setEditingLicence(licence),
-    documents,
+  const columns = useDocumentColumns({
+    onEdit: setEditing,
+    ordinateurs,
+    ecrans,
+    licences,
   });
 
   const table = useReactTable({
-    data,
+    data: filteredData,
     columns,
     getCoreRowModel: getCoreRowModel(),
     getSortedRowModel: getSortedRowModel(),
@@ -62,11 +81,26 @@ export function OfficeLicenceTable({ data, documents }: Props) {
           onChange={(event) => setGlobalFilter(event.target.value)}
           className="max-w-sm"
         />
+        <select
+          className="border rounded-md px-3 py-2 text-sm"
+          value={typeFilter}
+          onChange={(e) => setTypeFilter(e.target.value as Filter)}
+        >
+          <option value="all">Tous les types</option>
+          <option value="devis">Devis</option>
+          <option value="bon_de_commande">Bons de commande</option>
+          <option value="facture">Factures</option>
+        </select>
         <div className="text-sm text-gray-500">
-          {table.getFilteredRowModel().rows.length} sur {data.length} licences
+          {table.getFilteredRowModel().rows.length} sur {filteredData.length}{" "}
+          documents
         </div>
         <div className="ml-auto">
-          <OfficeLicenceCreateDialog documents={documents} />
+          <DocumentCreateDialog
+            ordinateurs={ordinateurs}
+            ecrans={ecrans}
+            licences={licences}
+          />
         </div>
       </div>
 
@@ -136,13 +170,15 @@ export function OfficeLicenceTable({ data, documents }: Props) {
         </div>
       </div>
 
-      {editingLicence && (
-        <OfficeLicenceEditDialog
-          licence={editingLicence}
-          documents={documents}
+      {editing && (
+        <DocumentEditDialog
+          document={editing}
+          ordinateurs={ordinateurs}
+          ecrans={ecrans}
+          licences={licences}
           open={true}
           onOpenChange={(open) => {
-            if (!open) setEditingLicence(null);
+            if (!open) setEditing(null);
           }}
         />
       )}

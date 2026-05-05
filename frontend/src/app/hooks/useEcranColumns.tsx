@@ -3,32 +3,28 @@ import { ColumnDef } from "@tanstack/react-table";
 import { Trash2, Pencil } from "lucide-react";
 import { Button } from "@/app/components/ui/button";
 import { useDeleteEcran } from "./useEcran";
-import type { BonDeCommande, Devis, Ecran, Facture } from "@/app/types";
+import type { Document, DocumentType, Ecran } from "@/app/types";
 import { SortableHeader } from "../components/DataTable/SortableHeader";
 import { DocumentLink } from "../components/DocumentLink";
+import { indexDocsByOwner } from "./useOrdinateurColumns";
 
 interface Options {
   onEdit: (ecran: Ecran) => void;
-  devis: Devis[];
-  bonsDeCommande: BonDeCommande[];
-  factures: Facture[];
-}
-
-function byId<T extends { id: number }>(items: T[]): Map<number, T> {
-  return new Map(items.map((item) => [item.id, item]));
+  documents: Document[];
 }
 
 export function useEcranColumns({
   onEdit,
-  devis,
-  bonsDeCommande,
-  factures,
+  documents,
 }: Options): ColumnDef<Ecran>[] {
   const deleteEcran = useDeleteEcran();
+  const docsByEcran = useMemo(
+    () => indexDocsByOwner(documents, "ecran_id"),
+    [documents]
+  );
 
-  const devisById = useMemo(() => byId(devis), [devis]);
-  const bcById = useMemo(() => byId(bonsDeCommande), [bonsDeCommande]);
-  const factureById = useMemo(() => byId(factures), [factures]);
+  const docFor = (id: number, type: DocumentType) =>
+    docsByEcran.get(id)?.get(type) ?? null;
 
   return [
     {
@@ -54,35 +50,19 @@ export function useEcranColumns({
     {
       id: "devis",
       header: "Devis",
-      cell: ({ row }) => (
-        <DocumentLink
-          doc={row.original.devis_id ? devisById.get(row.original.devis_id) : null}
-        />
-      ),
+      cell: ({ row }) => <DocumentLink doc={docFor(row.original.id, "devis")} />,
     },
     {
       id: "bon_de_commande",
       header: "BC",
       cell: ({ row }) => (
-        <DocumentLink
-          doc={
-            row.original.bon_de_commande_id
-              ? bcById.get(row.original.bon_de_commande_id)
-              : null
-          }
-        />
+        <DocumentLink doc={docFor(row.original.id, "bon_de_commande")} />
       ),
     },
     {
       id: "facture",
       header: "Facture",
-      cell: ({ row }) => (
-        <DocumentLink
-          doc={
-            row.original.facture_id ? factureById.get(row.original.facture_id) : null
-          }
-        />
-      ),
+      cell: ({ row }) => <DocumentLink doc={docFor(row.original.id, "facture")} />,
     },
     {
       id: "actions",

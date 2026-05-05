@@ -1,17 +1,26 @@
-# Environnements virtuels — jamais dans l'image
-venv/
-env/
-.venv/
+# Node — installed inside the image by `npm ci` in the deps stage,
+# never copied from the host (would bloat the image and may contain
+# platform-incompatible native modules).
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+.pnpm-debug.log*
 
-# Cache Python
-__pycache__/
-*.pyc
-*.pyo
+# Build outputs — regenerated inside the builder stage
+dist/
+build/
+.vite/
+*.tsbuildinfo
 
-# Fichier .env — contient tes secrets, JAMAIS dans l'image
+# Local env files — secrets and per-developer overrides.
+# .env.development / .env.production are read by Vite at build time;
+# in this project we pass VITE_API_URL via Docker build ARGs instead.
 .env
 .env.local
-.env.staging
+.env.development.local
+.env.production.local
+.env.development
 .env.production
 
 # Git
@@ -23,18 +32,23 @@ __pycache__/
 .idea/
 *.swp
 
-# Tests — pas besoin dans l'image de production
-tests/
-pytest.ini
-.pytest_cache/
-
 # Logs
 *.log
+logs/
 
-# README et docs — pas nécessaires dans le conteneur
+# Tests / coverage
+coverage/
+.nyc_output/
+
+# Docs
 README.md
 docs/
 
-# OS files
+# Docker (no need to ship these inside the image)
+Dockerfile
+.dockerignore
+docker-compose*.yml
+
+# OS junk
 .DS_Store
 Thumbs.db

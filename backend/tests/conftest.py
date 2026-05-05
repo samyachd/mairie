@@ -27,15 +27,15 @@ load_dotenv()
 def get_test_database_url() -> str:
     """
     Construit l'URL de la DB de test.
-    - En CI (variables DB_HOST etc. fournies) → Postgres
+    - En CI (variables POSTGRES_* fournies) → Postgres
     - En local (pas de variables ou flag explicite) → SQLite in-memory
     """
     if os.getenv("USE_POSTGRES_TESTS") == "true" or os.getenv("CI") == "true":
-        user = os.environ["DB_USER"]
-        password = os.environ["DB_PASS"]
-        host = os.environ["DB_HOST"]
-        port = os.environ.get("DB_PORT", "5432")
-        name = os.environ["DB_NAME"]
+        user = os.environ["POSTGRES_USER"]
+        password = os.environ["POSTGRES_PASSWORD"]
+        host = os.environ["POSTGRES_HOST"]
+        port = os.environ.get("POSTGRES_PORT", "5432")
+        name = os.environ["POSTGRES_DB"]
         return f"postgresql://{user}:{password}@{host}:{port}/{name}"
     return "sqlite:///:memory:"
 

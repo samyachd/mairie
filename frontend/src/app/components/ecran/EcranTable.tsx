@@ -18,13 +18,7 @@ import {
 } from "@/app/components/ui/table";
 import { Button } from "@/app/components/ui/button";
 import { Input } from "@/app/components/ui/input";
-import type {
-  Agent,
-  BonDeCommande,
-  Devis,
-  Ecran,
-  Facture,
-} from "@/app/types";
+import type { Agent, Document, Ecran } from "@/app/types";
 import { useEcranColumns } from "@/app/hooks/useEcranColumns";
 import { EcranCreateDialog } from "./EcranCreateDialog";
 import { EcranEditDialog } from "./EcranEditDialog";
@@ -32,27 +26,17 @@ import { EcranEditDialog } from "./EcranEditDialog";
 interface Props {
   data: Ecran[];
   agents: Agent[];
-  devis: Devis[];
-  bonsDeCommande: BonDeCommande[];
-  factures: Facture[];
+  documents: Document[];
 }
 
-export function EcranTable({
-  data,
-  agents,
-  devis,
-  bonsDeCommande,
-  factures,
-}: Props) {
+export function EcranTable({ data, agents, documents }: Props) {
   const [sorting, setSorting] = useState<SortingState>([]);
   const [globalFilter, setGlobalFilter] = useState("");
   const [editingEcran, setEditingEcran] = useState<Ecran | null>(null);
 
   const columns = useEcranColumns({
     onEdit: (ecran) => setEditingEcran(ecran),
-    devis,
-    bonsDeCommande,
-    factures,
+    documents,
   });
 
   const table = useReactTable({
@@ -81,7 +65,7 @@ export function EcranTable({
           {table.getFilteredRowModel().rows.length} sur {data.length} écrans
         </div>
         <div className="ml-auto">
-          <EcranCreateDialog agents={agents} />
+          <EcranCreateDialog agents={agents} documents={documents} />
         </div>
       </div>
 
@@ -155,6 +139,7 @@ export function EcranTable({
         <EcranEditDialog
           ecran={editingEcran}
           agents={agents}
+          documents={documents}
           open={true}
           onOpenChange={(open) => {
             if (!open) setEditingEcran(null);

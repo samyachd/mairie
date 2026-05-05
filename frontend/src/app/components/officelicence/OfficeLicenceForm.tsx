@@ -3,12 +3,15 @@ import { Button } from "@/app/components/ui/button";
 import { Input } from "@/app/components/ui/input";
 import { Label } from "@/app/components/ui/label";
 import type { LicenceCreatePayload } from "@/app/services/officelicence";
+import type { OcrExtractedData } from "@/app/services/document";
+import { OcrImportButton } from "../OcrImportButton";
 
 interface Props {
   onSubmit: (data: LicenceCreatePayload) => void;
   isPending?: boolean;
   defaultValues?: Partial<LicenceCreatePayload>;
   submitLabel?: string;
+  onOcrExtracted?: (data: OcrExtractedData) => void;
 }
 
 export function OfficeLicenceForm({
@@ -16,10 +19,12 @@ export function OfficeLicenceForm({
   isPending,
   defaultValues,
   submitLabel = "Créer la licence",
+  onOcrExtracted,
 }: Props) {
   const {
     register,
     handleSubmit,
+    setValue,
     formState: { errors },
   } = useForm<LicenceCreatePayload>({
     defaultValues: {
@@ -28,11 +33,23 @@ export function OfficeLicenceForm({
       date_achat:
         defaultValues?.date_achat ?? new Date().toISOString().split("T")[0],
       fournisseur: defaultValues?.fournisseur ?? "",
+      clef: defaultValues?.clef ?? "",
+      mail_activation: defaultValues?.mail_activation ?? "",
     },
   });
 
   return (
     <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
+      <div className="flex justify-end">
+        <OcrImportButton
+          onExtracted={(d) => {
+            if (d.fournisseur) setValue("fournisseur", d.fournisseur);
+            if (d.date_achat) setValue("date_achat", d.date_achat);
+            onOcrExtracted?.(d);
+          }}
+        />
+      </div>
+
       <div>
         <Label htmlFor="version">Version *</Label>
         <Input
@@ -65,6 +82,20 @@ export function OfficeLicenceForm({
           id="fournisseur"
           placeholder="Microsoft Direct"
           {...register("fournisseur")}
+        />
+      </div>
+
+      <div>
+        <Label htmlFor="clef">Clé d'activation</Label>
+        <Input id="clef" {...register("clef")} />
+      </div>
+
+      <div>
+        <Label htmlFor="mail_activation">Email d'activation</Label>
+        <Input
+          id="mail_activation"
+          type="email"
+          {...register("mail_activation")}
         />
       </div>
 

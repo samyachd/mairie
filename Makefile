@@ -50,7 +50,7 @@ db-reset:  ## ⚠️  Efface la DB, recrée le schéma et re-seed
 	@echo "Attente du démarrage de Postgres..."
 	@sleep 5
 	docker compose exec backend uv run alembic upgrade head
-	docker compose exec backend uv run python -m utils.seed_example
+	docker compose exec backend uv run python -m db.seed
 
 db-shell:  ## Ouvre un shell psql dans la DB
 	docker compose exec db sh -c 'psql -U $$POSTGRES_USER -d $$POSTGRES_DB'

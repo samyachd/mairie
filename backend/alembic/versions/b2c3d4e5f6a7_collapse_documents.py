@@ -12,7 +12,7 @@ from typing import Sequence, Union
 
 from alembic import op
 import sqlalchemy as sa
-
+from sqlalchemy.dialects import postgresql
 
 revision: str = "b2c3d4e5f6a7"
 down_revision: Union[str, None] = "a1b2c3d4e5f6"
@@ -60,15 +60,31 @@ def upgrade() -> None:
     op.drop_table("facture")
 
     # ── Create the new unified document table ─────────────────────────────
-    doc_type = sa.Enum(*DOC_TYPE_VALUES, name=DOC_TYPE_ENUM)
-    doc_type.create(bind, checkfirst=True)
+
+    # 3. Create the Enum Type in Postgres
+    values_str = ", ".join([f"'{v}'" for v in DOC_TYPE_VALUES])
+    op.execute(f"""
+        DO $$ 
+        BEGIN 
+            IF NOT EXISTS (SELECT 1 FROM pg_type WHERE typname = '{DOC_TYPE_ENUM}') THEN
+                CREATE TYPE {DOC_TYPE_ENUM} AS ENUM ({values_str});
+            END IF;
+        END $$;
+    """)
+    
+    # 4. Define the SQLAlchemy Type object
+    # We use create_type=False because we handled creation via the DO block above
+
+    sa_doc_type = postgresql.ENUM(*DOC_TYPE_VALUES, name=DOC_TYPE_ENUM, create_type=False)
+
+    # 5. Create the unified table
 
     op.create_table(
         "document",
         sa.Column("id", sa.Integer(), nullable=False),
         sa.Column("updated_at", sa.DateTime(timezone=True), server_default=sa.text("now()"), nullable=False),
         sa.Column("created_at", sa.DateTime(timezone=True), server_default=sa.text("now()"), nullable=False),
-        sa.Column("type", doc_type, nullable=False),
+        sa.Column("type", sa_doc_type,nullable=False),
         sa.Column("nom", sa.String(255), nullable=False),
         sa.Column("numero", sa.String(50), nullable=False),
         sa.Column("path", sa.String(255), nullable=False),
@@ -93,11 +109,18 @@ def upgrade() -> None:
             name="ck_document_montant_only_facture",
         ),
     )
-    op.create_index("ix_document_type", "document", ["type"])
-    op.create_index("ix_document_numero", "document", ["numero"])
-    op.create_index("ix_document_ordinateur_id", "document", ["ordinateur_id"])
-    op.create_index("ix_document_ecran_id", "document", ["ecran_id"])
-    op.create_index("ix_document_office_licence_id", "document", ["office_licence_id"])
+    
+# ── Create Indexes Safely ─────────────────────────────────────────────
+    indexes = [
+        ("ix_document_type", "document", "type"),
+        ("ix_document_numero", "document", "numero"),
+        ("ix_document_ordinateur_id", "document", "ordinateur_id"),
+        ("ix_document_ecran_id", "document", "ecran_id"),
+        ("ix_document_office_licence_id", "document", "office_licence_id"),
+    ]
+
+    for name, table, col in indexes:
+        op.execute(f"CREATE INDEX IF NOT EXISTS {name} ON {table} ({col})")
 
 
 def downgrade() -> None:

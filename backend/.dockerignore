@@ -46,3 +46,12 @@ Thumbs.db
 # Coverage
 .coverage
 htmlcov/
+
+# Tests — kept out of prod images (run them in CI, not at runtime)
+tests/
+test_*.py
+*_test.py
+
+# Notebooks
+*.ipynb
+.ipynb_checkpoints/
