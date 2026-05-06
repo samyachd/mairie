@@ -2,7 +2,10 @@ server:
   http_listen_port: 9080
 
 clients:
-  - url: http://loki:3100/loki/api/v1/push
+  # Push through the basic-auth nginx in front of Loki.
+  # ${LOKI_BASIC_AUTH} is a "user:password" pair injected from /.env.prod;
+  # promtail must run with -config.expand-env=true (set in compose).
+  - url: http://${LOKI_BASIC_AUTH}@loki-proxy:3100/loki/api/v1/push
 
 scrape_configs:
   # Tails every container's stdout/stderr from the Docker daemon.

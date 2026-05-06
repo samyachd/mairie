@@ -23,7 +23,22 @@ from db.models.user import User, RoleEnum
 from core.security import hacher_mot_de_passe
 
 
-CLEAN_DIR = Path(__file__).resolve().parents[2] / "data" / "clean_extracts"
+# Resolution rules:
+#   1. CLEAN_EXTRACTS_DIR env var wins (set this in containers).
+#   2. Else /data/clean_extracts if it exists (the in-container mount path).
+#   3. Else <repo>/data/clean_extracts (host-side dev, when seed.py lives at
+#      <repo>/backend/db/seed.py — i.e. parents[2] is the repo root).
+def _resolve_clean_dir() -> Path:
+    env = os.getenv("CLEAN_EXTRACTS_DIR")
+    if env:
+        return Path(env)
+    container_default = Path("/data/clean_extracts")
+    if container_default.exists():
+        return container_default
+    return Path(__file__).resolve().parents[2] / "data" / "clean_extracts"
+
+
+CLEAN_DIR = _resolve_clean_dir()
 
 ADMIN_EMAIL = "admin@mairie.fr"
 ADMIN_PASSWORD = "Admin1234!"
@@ -113,16 +128,28 @@ def seed_ordinateurs(
     by_tag: dict[str, Ordinateur] = {}
     created = 0
     skipped_dup = 0
+    seen_in_json = set()
+
     for raw in items:
         tag = raw.get("tag")
         if tag:
-            existing = (
-                db.query(Ordinateur).filter(Ordinateur.tag == tag).first()
-            )
+            # 2. Vérifie d'abord si on l'a déjà croisé dans CE fichier
+            if tag in seen_in_json:
+                skipped_dup += 1
+                continue
+                
+            # 3. Ensuite, vérifie si la base de données le connaît (ton code actuel)
+            existing = db.query(Ordinateur).filter(Ordinateur.tag == tag).first()
             if existing:
                 by_tag[tag] = existing
                 skipped_dup += 1
+                # On l'ajoute aussi au set par sécurité
+                seen_in_json.add(tag)
                 continue
+                
+            # Si on arrive ici, c'est un nouveau tag !
+            # On l'ajoute au set pour ne pas le recréer plus loin dans le JSON
+            seen_in_json.add(tag)
 
         office_key = raw.get("_office_key")
         office_id = (

@@ -12,6 +12,11 @@ services:
     volumes:
       - ./backend:/app
       - /app/.venv
+      # Expose raw + cleaned dumps to the seed script and clean_to_models util.
+      # Auto-detected by db.seed; explicit env below makes it greppable.
+      - ./data:/data
+    environment:
+      CLEAN_EXTRACTS_DIR: /data/clean_extracts
     command: uvicorn main:app --host 0.0.0.0 --port 8000 --reload
 
   frontend:

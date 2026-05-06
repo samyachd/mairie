@@ -20,14 +20,27 @@ Usage (from backend/):
 from __future__ import annotations
 
 import json
+import os
 import re
 from collections import Counter
 from datetime import datetime
 from pathlib import Path
 
-DATA_DIR = Path(__file__).resolve().parents[2] / "data"
-RAW_DIR = DATA_DIR / "raw_extracts"
-OUTPUT_DIR = DATA_DIR / "clean_extracts"
+def _data_dir() -> Path:
+    """Resolve the data directory the same way db.seed does:
+    DATA_DIR env wins, else /data if mounted, else <repo>/data on the host."""
+    env = os.getenv("DATA_DIR")
+    if env:
+        return Path(env)
+    container_default = Path("/data")
+    if container_default.exists():
+        return container_default
+    return Path(__file__).resolve().parents[2] / "data"
+
+
+DATA_DIR = _data_dir()
+RAW_DIR = Path(os.getenv("RAW_EXTRACTS_DIR", str(DATA_DIR / "raw_extracts")))
+OUTPUT_DIR = Path(os.getenv("CLEAN_EXTRACTS_DIR", str(DATA_DIR / "clean_extracts")))
 TIMESTAMP = datetime.now().strftime("%Y%m%d_%H%M%S")
 OUTPUT = OUTPUT_DIR / f"normalized_{TIMESTAMP}.json"
 
@@ -128,14 +141,53 @@ def to_date(v) -> str | None:
     return None  # silently drop unparseable dates
 
 
+seen_macs = set()
+
+# Six 1-or-2 hex segments separated by : or -. Captures each segment so
+# we can left-pad the single-hex ones (e.g. "4:54:e8:..." → "04:54:e8:...").
+_MAC_RE = re.compile(
+    r"([0-9a-fA-F]{1,2})[:\-]([0-9a-fA-F]{1,2})[:\-]([0-9a-fA-F]{1,2})"
+    r"[:\-]([0-9a-fA-F]{1,2})[:\-]([0-9a-fA-F]{1,2})[:\-]([0-9a-fA-F]{1,2})"
+)
+
+
 def to_mac(v) -> str | None:
-    s = clean_str(v)
-    if s is None:
+    if not v:
         return None
-    s = s.lower().replace("-", ":")
-    if not re.fullmatch(r"[0-9a-f:]{11,23}", s):
+    # Find the first plausible MAC anywhere in the string. Handles trailing
+    # junk like "C8:4B:D6:74:C3:24\n WIFI " and missing leading zeros.
+    m = _MAC_RE.search(str(v))
+    if not m:
         return None
-    return s
+    formatted = ":".join(g.lower().zfill(2) for g in m.groups())
+    if formatted in seen_macs:
+        return None
+    seen_macs.add(formatted)
+    return formatted
+
+GENERIC_NAMES = {"linux", "localhost", "ubuntu", "desktop", "workgroup",
+                 "alprdf1", "pmdp13", "public_europe2", "com3", "accueil2"}
+
+# "ECRAN KIASMA", "ECRAN CSU", etc. — descriptive labels, not hostnames.
+GENERIC_PREFIXES = ("ecran ", "imprimante ", "pc ")
+
+
+def _is_generic_hostname(name: str) -> bool:
+    s = name.strip().lower()
+    if s in GENERIC_NAMES:
+        return True
+    return any(s.startswith(p) for p in GENERIC_PREFIXES)
+
+
+def to_hostname(name, mac, tag):
+    if name and not _is_generic_hostname(name):
+        return name
+    elif mac:
+        short_mac = mac.replace(":", "")[-6:]
+        return f"linux-{short_mac}"
+    elif tag:
+        return f"pc-{tag}"
+    return name
 
 
 def to_ip(v) -> str | None:
@@ -145,6 +197,22 @@ def to_ip(v) -> str | None:
     if not re.fullmatch(r"\d{1,3}(\.\d{1,3}){3}", s):
         return None
     return s
+
+def to_size(value):
+    if not value:
+        return None
+    
+    # 1. On remplace la virgule par un point au cas où
+    value = str(value).replace(',', '.')
+    
+    # 2. Regex : on garde les chiffres ET le point décimal
+    # On cherche le premier nombre (entier ou décimal) dans la chaîne
+    match = re.search(r"(\d+(?:\.\d+)?)", value)
+    
+    if match:
+        return float(match.group(1))
+    
+    return None
 
 
 # ──────────────────────────────────────────────────────────────────────────
@@ -209,7 +277,7 @@ def build_ordinateur(row: dict) -> dict | None:
         "fin_garantie": to_date(row.get("DATE FIN GARANTIE PC")),
         "ram": clean_str(row.get("RAM PC")),
         "os": clean_str(row.get("OS")),
-        "nom_reseau": clean_str(row.get("NOM RESEAU")),
+        "nom_reseau": to_hostname(row.get("NOM RESEAU"), to_mac(row.get("MAC ADRESSE ETHERNET")), tag),
         "ip_address": to_ip(row.get("Adresse IP PC")),
         "mac_ethernet": to_mac(row.get("MAC ADRESSE ETHERNET")),
         "mac_wifi": to_mac(row.get("MAC ADRESSE WIFI")),
@@ -220,7 +288,7 @@ def build_ordinateur(row: dict) -> dict | None:
     }
 
 
-def build_ecrans(row: dict, ordi_tag: str | None) -> list[dict]:
+def build_ecrans(row: dict, ordi_tag: str | None) -> list[dict]:    
     ecrans = []
     service = clean_str(row.get("SERVICE"))
     batiment = clean_str(row.get("EMPLACEMENT"))
@@ -230,13 +298,18 @@ def build_ecrans(row: dict, ordi_tag: str | None) -> list[dict]:
         modele = clean_str(row.get(k_modele))
         serie = clean_str(row.get(k_serie))
         date_achat = to_date(row.get(k_achat))
+        # Some rows have N° SERIE ECRAN N filled with the brand again (e.g.
+        # both columns say "DELL"). Treat that as missing serial — otherwise
+        # 16 ecrans end up with the same tag and trip the unique constraint.
+        if serie and marque and serie.lower() == marque.lower():
+            serie = None
         # Slot is empty if nothing identifies it
         if not any([type_e, marque, modele, serie, date_achat]):
             continue
         ecrans.append({
             "tag": serie,
             "slot": slot,
-            "taille": type_e,                    # values like 'LCD 22"' fit BaseEquipement.taille semantics
+            "taille": to_size(type_e),           # values like 'LCD 22"' fit BaseEquipement.taille semantics
             "marque": " ".join(filter(None, [marque, modele])) or None,
             "type_equipement": "ECRAN",
             "service": service,

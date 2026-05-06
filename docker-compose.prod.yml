@@ -1,15 +1,25 @@
 # Prod overlay: pre-built images, no source mounts, prod env files only.
 # Run with:
-#   docker compose -f docker-compose.yml -f docker-compose.prod.yml up -d
+#   docker compose --env-file .env.prod \
+#     -f docker-compose.yml -f docker-compose.prod.yml up -d
+#
+# The --env-file flag is required so that ${BACKUP_TARGET} and
+# ${LOKI_BASIC_AUTH} are resolved at compose-parse time (the env_file:
+# directive below only injects vars *into* the container, not into the
+# compose file's own variable substitution).
 #
 # Required on the host:
-#   /.env.prod                — POSTGRES_*, GRAFANA_ADMIN_PASSWORD, VITE_API_URL
-#   /backend/.env.prod        — SECRET_KEY, MISTRAL_API_KEY, CORS_ORIGINS, etc.
+#   /.env.prod                 — POSTGRES_*, GRAFANA_ADMIN_PASSWORD, VITE_API_URL,
+#                                BACKUP_TARGET, LOKI_BASIC_AUTH
+#   /backend/.env.prod         — SECRET_KEY, MISTRAL_API_KEY, CORS_ORIGINS, etc.
+#   ${BACKUP_TARGET}           — host mount of the NAS backup share (see fstab)
+#   /loki-proxy/htpasswd       — bcrypt entry for the Loki basic-auth user
+#                                (generate with: htpasswd -nbB user password)
 
 services:
   frontend:
     image: ghcr.io/samyachd/mairie/frontend:latest
-    # Bind 127.0.0.1:80 so the host's reverse proxy (Apache/Caddy) handles TLS
+    # Bind 127.0.0.1:80 so the host's reverse proxy (Apache) handles TLS
     # and public exposure. Drop the 127.0.0.1 prefix only if no reverse proxy.
     ports:
       - "127.0.0.1:80:80"
@@ -20,7 +30,6 @@ services:
 
   backend:
     image: ghcr.io/samyachd/mairie/backend:latest
-    # Override base compose's env_file to use prod-only files
     env_file:
       - .env.prod
       - backend/.env.prod
@@ -48,6 +57,32 @@ services:
       retries: 5
     restart: unless-stopped
 
+  # ─────────────────────────────────────────────────────────────────
+  # Postgres backups → NAS share (mount it on the host first).
+  # /etc/fstab example for an SMB NAS:
+  #   //nas.mairie.local/sauvegardes/mairie  /mnt/mairie-backups  cifs
+  #     credentials=/etc/cifs-mairie,vers=3.0,iocharset=utf8,uid=0,gid=0  0 0
+  # Then set BACKUP_TARGET=/mnt/mairie-backups in /.env.prod.
+  # ─────────────────────────────────────────────────────────────────
+  db-backup:
+    image: prodrigestivill/postgres-backup-local:15
+    restart: unless-stopped
+    env_file:
+      - .env.prod
+    environment:
+      POSTGRES_HOST: db
+      SCHEDULE: "@daily"
+      BACKUP_KEEP_DAYS: 7
+      BACKUP_KEEP_WEEKS: 4
+      BACKUP_KEEP_MONTHS: 12
+      # -Z9 = max gzip; --clean lets restore drop existing objects first.
+      POSTGRES_EXTRA_OPTS: "-Z9 --clean --if-exists"
+    volumes:
+      - ${BACKUP_TARGET}:/backups
+    depends_on:
+      db:
+        condition: service_healthy
+
   prometheus:
     volumes:
       - ./prometheus.prod.yml:/etc/prometheus/prometheus.yml
@@ -64,11 +99,30 @@ services:
       - loki_data:/loki
     restart: unless-stopped
 
+  # ─────────────────────────────────────────────────────────────────
+  # Basic-auth in front of Loki. Promtail and Grafana point at this
+  # service ("loki-proxy:3100"), not the raw loki container, so there
+  # is no unauthenticated path to the log store on the docker network.
+  # ─────────────────────────────────────────────────────────────────
+  loki-proxy:
+    image: nginx:alpine
+    volumes:
+      - ./loki-proxy/nginx.conf:/etc/nginx/conf.d/default.conf:ro
+      - ./loki-proxy/htpasswd:/etc/nginx/htpasswd:ro
+    depends_on:
+      - loki
+    restart: unless-stopped
+
   promtail:
     volumes:
       - /var/lib/docker/containers:/var/lib/docker/containers:ro
       - /var/run/docker.sock:/var/run/docker.sock
       - ./promtail.prod.yml:/etc/promtail/config.yml
+    environment:
+      LOKI_BASIC_AUTH: ${LOKI_BASIC_AUTH}
+    command: ["-config.file=/etc/promtail/config.yml", "-config.expand-env=true"]
+    depends_on:
+      - loki-proxy
     restart: unless-stopped
 
 volumes:

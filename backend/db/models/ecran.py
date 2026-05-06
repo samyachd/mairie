@@ -1,5 +1,5 @@
 from __future__ import annotations
-from sqlalchemy import String, Integer, ForeignKey, UniqueConstraint, CheckConstraint
+from sqlalchemy import Float, String, Integer, ForeignKey, UniqueConstraint, CheckConstraint
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 from db.models.base import BaseEquipement
 from typing import TYPE_CHECKING, Optional
@@ -17,7 +17,7 @@ class Ecran(BaseEquipement):
     ordinateur_id: Mapped[int | None] = mapped_column(ForeignKey("ordinateur.id", ondelete="SET NULL"), nullable=True, index=True)
     agent_id: Mapped[int | None] = mapped_column(ForeignKey("agent.id", ondelete="SET NULL"), nullable=True, index=True)
 
-    taille: Mapped[str | None] = mapped_column(String(255), nullable=True, index=True)
+    taille: Mapped[float | None] = mapped_column(Float, nullable=True, index=True)
     slot: Mapped[int | None] = mapped_column(Integer, nullable=True)
 
     agent: Mapped[Optional["Agent"]] = relationship(back_populates="ecran", passive_deletes=True)

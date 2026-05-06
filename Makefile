@@ -62,7 +62,10 @@ backend-shell:  ## Ouvre un shell bash dans le conteneur backend
 	docker compose exec backend bash
 
 convert:  ## Convertit Excel en JSON (utilitaire)
-	docker compose exec backend uv run python -m utils.convert_excel
+	docker compose exec -u root backend uv run python -m utils.convert_excel
+
+clean:
+	docker compose exec -u root backend uv run python -m utils.clean_to_models
 
 build-frontend:  ## Build le frontend pour la prod (local, sans Docker)
 	cd frontend && npm run build

@@ -34,7 +34,13 @@ class BaseEquipement(BaseEntry):
     service: Mapped[str | None] = mapped_column(String(255), nullable=True, index=True)
     batiment: Mapped[str | None] = mapped_column(String(255), nullable=True, index=True)
     type_equipement: Mapped[TypeEquipementEnum | None] = mapped_column(
-        Enum(TypeEquipementEnum, name="type_equipement_enum"),
+        Enum(
+            TypeEquipementEnum,
+            name="type_equipement_enum",
+            # Send the .value ("PC FIXE") to PG, not the .name ("pc_fixe").
+            # The PG enum was created with the values, so .name doesn't match.
+            values_callable=lambda obj: [e.value for e in obj],
+        ),
         nullable=True,
         index=True,
     )
