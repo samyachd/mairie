@@ -1,13 +1,26 @@
 import api from "./api";
 import type { Ordinateur } from "@/app/types";
 
-
 export interface OrdinateurCreatePayload {
+  tag: string | null;
   nom_reseau: string | null;
   marque: string | null;
-  date_achat: string | null;
-  proprietaire: string | null;
+  type_equipement: string | null;
+  os: string | null;
+  ram: string | null;
   service: string | null;
+  batiment: string | null;
+  fournisseur: string | null;
+  date_achat: string | null;
+  fin_garantie: string | null;
+  ip_address: string | null;
+  mac_ethernet: string | null;
+  mac_wifi: string | null;
+  clef_wifi: boolean | null;
+  lecteur_cd: boolean | null;
+  casque: boolean | null;
+  absolute_dell: boolean | null;
+  watt: number | null;
   agent_id: number | null;
 }
 
@@ -31,4 +44,3 @@ export async function updateOrdinateur(
   const response = await api.put<Ordinateur>(`/ordinateurs/${id}/`, data);
   return response.data;
 }
-

@@ -1,8 +1,5 @@
 import { useMemo } from "react";
 import { ColumnDef } from "@tanstack/react-table";
-import { Trash2, Pencil } from "lucide-react";
-import { Button } from "@/app/components/ui/button";
-import { useDeleteDocument } from "./useDocument";
 import type {
   Document,
   DocumentType,
@@ -14,7 +11,6 @@ import { SortableHeader } from "../components/DataTable/SortableHeader";
 import { DocumentLink } from "../components/DocumentLink";
 
 interface Options {
-  onEdit: (doc: Document) => void;
   ordinateurs: Ordinateur[];
   ecrans: Ecran[];
   licences: OfficeLicence[];
@@ -30,14 +26,16 @@ function byId<T extends { id: number }>(items: T[]): Map<number, T> {
   return new Map(items.map((item) => [item.id, item]));
 }
 
+const fmt = {
+  date: (v: string | null | undefined) =>
+    v ? new Date(v).toLocaleDateString("fr-FR") : "—",
+};
+
 export function useDocumentColumns({
-  onEdit,
   ordinateurs,
   ecrans,
   licences,
 }: Options): ColumnDef<Document>[] {
-  const deleteDoc = useDeleteDocument();
-
   const ordiById = useMemo(() => byId(ordinateurs), [ordinateurs]);
   const ecranById = useMemo(() => byId(ecrans), [ecrans]);
   const licenceById = useMemo(() => byId(licences), [licences]);
@@ -66,7 +64,9 @@ export function useDocumentColumns({
     },
     {
       accessorKey: "numero",
-      header: ({ column }) => <SortableHeader column={column} label="Numéro" />,
+      header: ({ column }) => (
+        <SortableHeader column={column} label="Numéro" />
+      ),
       cell: ({ row }) => <DocumentLink doc={row.original} />,
     },
     {
@@ -76,15 +76,22 @@ export function useDocumentColumns({
     {
       accessorKey: "date_document",
       header: ({ column }) => <SortableHeader column={column} label="Date" />,
-      cell: ({ row }) =>
-        row.original.date_document
-          ? new Date(row.original.date_document).toLocaleDateString("fr-FR")
-          : "—",
+      cell: ({ row }) => fmt.date(row.original.date_document),
     },
     {
       id: "owner",
       header: "Lié à",
       cell: ({ row }) => ownerLabel(row.original),
+    },
+    {
+      accessorKey: "montant_ht",
+      header: ({ column }) => (
+        <SortableHeader column={column} label="Montant HT" />
+      ),
+      cell: ({ row }) =>
+        row.original.montant_ht != null
+          ? `${row.original.montant_ht.toFixed(2)} €`
+          : "—",
     },
     {
       accessorKey: "montant_ttc",
@@ -95,33 +102,6 @@ export function useDocumentColumns({
         row.original.montant_ttc != null
           ? `${row.original.montant_ttc.toFixed(2)} €`
           : "—",
-    },
-    {
-      id: "actions",
-      header: "",
-      cell: ({ row }) => (
-        <div className="flex items-center gap-1">
-          <Button
-            variant="ghost"
-            size="sm"
-            onClick={() => onEdit(row.original)}
-          >
-            <Pencil className="h-4 w-4" />
-          </Button>
-          <Button
-            variant="ghost"
-            size="sm"
-            onClick={() => {
-              if (confirm(`Supprimer le document ${row.original.numero} ?`)) {
-                deleteDoc.mutate(row.original.id);
-              }
-            }}
-            disabled={deleteDoc.isPending}
-          >
-            <Trash2 className="h-4 w-4 text-red-600" />
-          </Button>
-        </div>
-      ),
     },
   ];
 }

@@ -1,23 +1,37 @@
 import { useMemo } from "react";
 import { ColumnDef } from "@tanstack/react-table";
-import { Trash2, Pencil } from "lucide-react";
-import { Button } from "@/app/components/ui/button";
-import { useDeleteEcran } from "./useEcran";
-import type { Document, DocumentType, Ecran } from "@/app/types";
+import type { Agent, Document, DocumentType, Ecran, Ordinateur } from "@/app/types";
 import { SortableHeader } from "../components/DataTable/SortableHeader";
 import { DocumentLink } from "../components/DocumentLink";
 import { indexDocsByOwner } from "./useOrdinateurColumns";
 
 interface Options {
-  onEdit: (ecran: Ecran) => void;
+  agents: Agent[];
+  ordinateurs: Ordinateur[];
   documents: Document[];
 }
 
+const fmt = {
+  date: (v: string | null | undefined) =>
+    v ? new Date(v).toLocaleDateString("fr-FR") : "—",
+  str: (v: string | null | undefined) => v ?? "—",
+  num: (v: number | null | undefined) => (v != null ? String(v) : "—"),
+};
+
 export function useEcranColumns({
-  onEdit,
+  agents,
+  ordinateurs,
   documents,
 }: Options): ColumnDef<Ecran>[] {
-  const deleteEcran = useDeleteEcran();
+  const agentById = useMemo(
+    () => new Map(agents.map((a) => [a.id, a])),
+    [agents]
+  );
+  const ordiById = useMemo(
+    () => new Map(ordinateurs.map((o) => [o.id, o])),
+    [ordinateurs]
+  );
+
   const docsByEcran = useMemo(
     () => indexDocsByOwner(documents, "ecran_id"),
     [documents]
@@ -28,29 +42,95 @@ export function useEcranColumns({
 
   return [
     {
-      accessorKey: "taille",
-      header: ({ column }) => <SortableHeader column={column} label="Taille" />,
+      accessorKey: "tag",
+      header: ({ column }) => <SortableHeader column={column} label="Tag" />,
+      cell: ({ row }) => fmt.str(row.original.tag),
     },
     {
       accessorKey: "marque",
       header: ({ column }) => <SortableHeader column={column} label="Marque" />,
+      cell: ({ row }) => fmt.str(row.original.marque),
+    },
+    {
+      accessorKey: "taille",
+      header: ({ column }) => (
+        <SortableHeader column={column} label='Taille (")' />
+      ),
+      cell: ({ row }) => fmt.num(row.original.taille),
     },
     {
       accessorKey: "slot",
       header: ({ column }) => <SortableHeader column={column} label="Slot" />,
-      cell: ({ row }) => row.original.slot ?? "—",
+      cell: ({ row }) => fmt.num(row.original.slot),
+    },
+    {
+      id: "ordinateur",
+      header: "PC lié",
+      cell: ({ row }) => {
+        const o = row.original.ordinateur_id
+          ? ordiById.get(row.original.ordinateur_id)
+          : null;
+        return o ? (o.nom_reseau ?? o.tag ?? `#${o.id}`) : "—";
+      },
+    },
+    {
+      accessorKey: "service",
+      header: ({ column }) => (
+        <SortableHeader column={column} label="Service" />
+      ),
+      cell: ({ row }) => fmt.str(row.original.service),
+    },
+    {
+      accessorKey: "batiment",
+      header: ({ column }) => (
+        <SortableHeader column={column} label="Bâtiment" />
+      ),
+      cell: ({ row }) => fmt.str(row.original.batiment),
     },
     {
       accessorKey: "proprietaire",
       header: ({ column }) => (
         <SortableHeader column={column} label="Propriétaire" />
       ),
-      cell: ({ row }) => row.original.proprietaire ?? "—",
+      cell: ({ row }) => fmt.str(row.original.proprietaire),
+    },
+    {
+      id: "agent",
+      header: "Agent/Classe",
+      cell: ({ row }) => {
+        const a = row.original.agent_id
+          ? agentById.get(row.original.agent_id)
+          : null;
+        return a ? a.nom : "—";
+      },
+    },
+    {
+      accessorKey: "fournisseur",
+      header: ({ column }) => (
+        <SortableHeader column={column} label="Fournisseur" />
+      ),
+      cell: ({ row }) => fmt.str(row.original.fournisseur),
+    },
+    {
+      accessorKey: "date_achat",
+      header: ({ column }) => (
+        <SortableHeader column={column} label="Date achat" />
+      ),
+      cell: ({ row }) => fmt.date(row.original.date_achat),
+    },
+    {
+      accessorKey: "fin_garantie",
+      header: ({ column }) => (
+        <SortableHeader column={column} label="Fin garantie" />
+      ),
+      cell: ({ row }) => fmt.date(row.original.fin_garantie),
     },
     {
       id: "devis",
       header: "Devis",
-      cell: ({ row }) => <DocumentLink doc={docFor(row.original.id, "devis")} />,
+      cell: ({ row }) => (
+        <DocumentLink doc={docFor(row.original.id, "devis")} />
+      ),
     },
     {
       id: "bon_de_commande",
@@ -62,33 +142,8 @@ export function useEcranColumns({
     {
       id: "facture",
       header: "Facture",
-      cell: ({ row }) => <DocumentLink doc={docFor(row.original.id, "facture")} />,
-    },
-    {
-      id: "actions",
-      header: "",
       cell: ({ row }) => (
-        <div className="flex items-center gap-1">
-          <Button
-            variant="ghost"
-            size="sm"
-            onClick={() => onEdit(row.original)}
-          >
-            <Pencil className="h-4 w-4" />
-          </Button>
-          <Button
-            variant="ghost"
-            size="sm"
-            onClick={() => {
-              if (confirm(`Supprimer l'écran ${row.original.tag ?? row.original.id} ?`)) {
-                deleteEcran.mutate(row.original.id);
-              }
-            }}
-            disabled={deleteEcran.isPending}
-          >
-            <Trash2 className="h-4 w-4 text-red-600" />
-          </Button>
-        </div>
+        <DocumentLink doc={docFor(row.original.id, "facture")} />
       ),
     },
   ];

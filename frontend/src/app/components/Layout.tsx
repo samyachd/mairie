@@ -1,5 +1,5 @@
 import { Outlet, Link, useLocation } from "react-router";
-import {LayoutDashboard,Package,SquareChartGantt,Menu,X,} from "lucide-react";
+import { Package, SquareChartGantt, Menu, X } from "lucide-react";
 import { useState } from "react";
 
 export function Layout() {
@@ -7,8 +7,7 @@ export function Layout() {
   const [sidebarOpen, setSidebarOpen] = useState(true);
 
   const navigation = [
-    { name: "Page d'accueil", href: "/", icon: LayoutDashboard },
-    { name: "Inventaire", href: "/inventaire", icon: Package },
+    { name: "Inventaire", href: "/", icon: Package },
     { name: "Gestion", href: "/gestion", icon: SquareChartGantt },
     { name: "Administration", href: "/administration", icon: SquareChartGantt },
     { name: "Paramètres", href: "/parametres", icon: SquareChartGantt },

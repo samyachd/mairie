@@ -14,7 +14,7 @@ class Ordinateur(BaseEquipement):
     __tablename__ = "ordinateur"
 
     office_licence_id: Mapped[int | None] = mapped_column(ForeignKey("office_licence.id", ondelete="SET NULL"), nullable=True)
-    agent_id: Mapped[int | None] = mapped_column(ForeignKey("agent.id", ondelete="SET NULL"), nullable=True, unique=True)
+    agent_id: Mapped[int | None] = mapped_column(ForeignKey("agent.id", ondelete="SET NULL"), nullable=True)
 
     ram: Mapped[str | None] = mapped_column(String(50), nullable=True)
     os: Mapped[str | None] = mapped_column(String(100), nullable=True)

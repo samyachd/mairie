@@ -121,8 +121,37 @@ def seed_office_licences(db, items: list[dict]) -> dict[tuple, OfficeLicence]:
     return by_key
 
 
+def seed_agents(db, items: list[dict]) -> dict[str, Agent]:
+    """Insert agents and return { _agent_key → Agent }."""
+    by_key: dict[str, Agent] = {}
+    created = 0
+    skipped = 0
+
+    for raw in items:
+        key = raw.get("_agent_key")
+        nom = raw.get("nom")
+        if not key or not nom:
+            continue
+        existing = db.query(Agent).filter(Agent.nom == nom).first()
+        if existing:
+            by_key[key] = existing
+            skipped += 1
+            continue
+        agent = Agent(nom=nom)
+        db.add(agent)
+        db.flush()
+        by_key[key] = agent
+        created += 1
+
+    print(f"  ✓ agents         : {created}/{len(items)} created (skipped {skipped} existing)")
+    return by_key
+
+
 def seed_ordinateurs(
-    db, items: list[dict], licences_by_key: dict[tuple, OfficeLicence]
+    db,
+    items: list[dict],
+    licences_by_key: dict[tuple, OfficeLicence],
+    agents_by_key: dict[str, Agent],
 ) -> dict[str, Ordinateur]:
     """Insert ordinateurs. Returns { tag → Ordinateur } so écrans can link."""
     by_tag: dict[str, Ordinateur] = {}
@@ -143,8 +172,12 @@ def seed_ordinateurs(
             if existing:
                 by_tag[tag] = existing
                 skipped_dup += 1
-                # On l'ajoute aussi au set par sécurité
                 seen_in_json.add(tag)
+                # Back-fill agent_id for ordinateurs seeded before agent support.
+                if existing.agent_id is None:
+                    agent_key = raw.get("_agent_key")
+                    if agent_key and agent_key in agents_by_key:
+                        existing.agent_id = agents_by_key[agent_key].id
                 continue
                 
             # Si on arrive ici, c'est un nouveau tag !
@@ -155,6 +188,12 @@ def seed_ordinateurs(
         office_id = (
             licences_by_key[tuple(office_key)].id
             if office_key and tuple(office_key) in licences_by_key
+            else None
+        )
+        agent_key = raw.get("_agent_key")
+        agent_id = (
+            agents_by_key[agent_key].id
+            if agent_key and agent_key in agents_by_key
             else None
         )
 
@@ -179,6 +218,7 @@ def seed_ordinateurs(
             casque=raw.get("casque"),
             absolute_dell=raw.get("absolute_dell"),
             office_licence_id=office_id,
+            agent_id=agent_id,
         )
         db.add(ordi)
         db.flush()
@@ -198,13 +238,18 @@ def seed_ecrans(
     created = 0
     skipped_dup = 0
     skipped_slot = 0
+    seen_tags: set[str] = set()
     for raw in items:
         tag = raw.get("tag")
         if tag:
+            if tag in seen_tags:
+                skipped_dup += 1
+                continue
             existing = db.query(Ecran).filter(Ecran.tag == tag).first()
             if existing:
                 skipped_dup += 1
                 continue
+            seen_tags.add(tag)
 
         owner_tag = raw.get("_ordinateur_tag")
         ordi = ordis_by_tag.get(owner_tag) if owner_tag else None
@@ -258,11 +303,16 @@ def seed() -> None:
         print("\n👤 Admin")
         seed_admin(db)
 
+        print("\n👥 Agents")
+        agents_by_key = seed_agents(db, data.get("agents", []))
+
         print("\n📀 Office licences")
         licences_by_key = seed_office_licences(db, data.get("office_licences", []))
 
         print("\n💻 Ordinateurs")
-        ordis_by_tag = seed_ordinateurs(db, data.get("ordinateurs", []), licences_by_key)
+        ordis_by_tag = seed_ordinateurs(
+            db, data.get("ordinateurs", []), licences_by_key, agents_by_key
+        )
 
         print("\n🖥️  Écrans")
         seed_ecrans(db, data.get("ecrans", []), ordis_by_tag)

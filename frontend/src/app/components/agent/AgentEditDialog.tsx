@@ -23,7 +23,7 @@ export function AgentEditDialog({ agent, open, onOpenChange }: Props) {
       <DialogContent>
         <DialogHeader>
           <DialogTitle>
-            Modifier {agent.prenom} {agent.nom}
+            Modifier {agent.nom}
           </DialogTitle>
           <DialogDescription>
             Modifiez les informations de l'agent.
@@ -34,8 +34,6 @@ export function AgentEditDialog({ agent, open, onOpenChange }: Props) {
           submitLabel="Enregistrer les modifications"
           defaultValues={{
             nom: agent.nom,
-            prenom: agent.prenom,
-            service: agent.service,
             email: agent.email,
             telephone: agent.telephone,
           }}

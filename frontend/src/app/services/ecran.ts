@@ -1,21 +1,23 @@
 import api from "./api";
 import type { Ecran } from "@/app/types";
 
-
 export interface EcranCreatePayload {
-  taille: string | null;
+  tag: string | null;
   marque: string | null;
-  date_achat: string | null;
-  proprietaire: string | null;
+  taille: number | null;
+  slot: number | null;
+  ordinateur_id: number | null;
   service: string | null;
+  batiment: string | null;
+  fournisseur: string | null;
+  date_achat: string | null;
+  fin_garantie: string | null;
   agent_id: number | null;
 }
 
 export type EcranUpdatePayload = EcranCreatePayload;
 
-export async function createEcran(
-  data: EcranCreatePayload
-): Promise<Ecran> {
+export async function createEcran(data: EcranCreatePayload): Promise<Ecran> {
   const response = await api.post<Ecran>("/ecrans/", data);
   return response.data;
 }

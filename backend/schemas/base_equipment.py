@@ -44,6 +44,6 @@ class BaseEquipmentRead(BaseModel):
     tag: str | None = None
     marque: str | None = None
     fin_garantie: date | None = None
-    date_achat: date
+    date_achat: date | None = None
     created_at: datetime
     updated_at: datetime | None = None

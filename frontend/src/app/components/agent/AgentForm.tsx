@@ -24,8 +24,6 @@ export function AgentForm({
   } = useForm<AgentPayload>({
     defaultValues: {
       nom: defaultValues?.nom ?? "",
-      prenom: defaultValues?.prenom ?? "",
-      service: defaultValues?.service ?? "",
       email: defaultValues?.email ?? "",
       telephone: defaultValues?.telephone ?? "",
     },
@@ -33,39 +31,16 @@ export function AgentForm({
 
   return (
     <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
-      <div className="grid grid-cols-2 gap-4">
-        <div>
-          <Label htmlFor="prenom">Prénom *</Label>
-          <Input
-            id="prenom"
-            placeholder="Jean"
-            {...register("prenom", { required: "Le prénom est obligatoire" })}
-          />
-          {errors.prenom && (
-            <p className="text-sm text-red-600 mt-1">{errors.prenom.message}</p>
-          )}
-        </div>
-
-        <div>
-          <Label htmlFor="nom">Nom *</Label>
-          <Input
-            id="nom"
-            placeholder="Dupont"
-            {...register("nom", { required: "Le nom est obligatoire" })}
-          />
-          {errors.nom && (
-            <p className="text-sm text-red-600 mt-1">{errors.nom.message}</p>
-          )}
-        </div>
-      </div>
-
       <div>
-        <Label htmlFor="service">Service</Label>
+        <Label htmlFor="nom">Nom *</Label>
         <Input
-          id="service"
-          placeholder="État Civil"
-          {...register("service")}
+          id="nom"
+          placeholder="Jean Dupont"
+          {...register("nom", { required: "Le nom est obligatoire" })}
         />
+        {errors.nom && (
+          <p className="text-sm text-red-600 mt-1">{errors.nom.message}</p>
+        )}
       </div>
 
       <div>

@@ -9,7 +9,7 @@ from schemas.base_equipment import (
 class EcranCreate(BaseEquipmentCreate):
     """Créer un écran."""
     
-    taille: str | None = Field(None, max_length=255)
+    taille: float | None = None
     slot: int | None = Field(None, ge=1, le=5)
     
     ordinateur_id: int | None = None
@@ -26,7 +26,7 @@ class EcranCreate(BaseEquipmentCreate):
 class EcranUpdate(BaseEquipmentUpdate):
     """Mettre à jour un écran (tous champs optionnels)."""
     
-    taille: str | None = Field(None, max_length=255)
+    taille: float | None = None
     slot: int | None = Field(None, ge=1, le=5)
     
     ordinateur_id: int | None = None
@@ -42,8 +42,8 @@ class EcranUpdate(BaseEquipmentUpdate):
 
 class EcranRead(BaseEquipmentRead):
     """Écran retourné par l'API."""
-    
-    taille: str | None = None
+
+    taille: float | None = None
     slot: int | None = None
     
     ordinateur_id: int | None = None

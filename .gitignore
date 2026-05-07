@@ -198,3 +198,4 @@ debug_*
 .gitignore
 
 loki-proxy/htpasswd
+.tsbuild

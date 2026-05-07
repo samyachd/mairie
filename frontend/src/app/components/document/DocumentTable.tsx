@@ -1,23 +1,4 @@
 import { useState, useMemo } from "react";
-import {
-  SortingState,
-  flexRender,
-  getCoreRowModel,
-  getFilteredRowModel,
-  getPaginationRowModel,
-  getSortedRowModel,
-  useReactTable,
-} from "@tanstack/react-table";
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "@/app/components/ui/table";
-import { Button } from "@/app/components/ui/button";
-import { Input } from "@/app/components/ui/input";
 import type {
   Document as DocumentT,
   DocumentType,
@@ -26,8 +7,10 @@ import type {
   Ordinateur,
 } from "@/app/types";
 import { useDocumentColumns } from "@/app/hooks/useDocumentColumns";
+import { useDeleteDocument } from "@/app/hooks/useDocument";
 import { DocumentCreateDialog } from "./DocumentCreateDialog";
 import { DocumentEditDialog } from "./DocumentEditDialog";
+import { DataTable } from "../DataTable/DataTable";
 
 interface Props {
   data: DocumentT[];
@@ -38,138 +21,61 @@ interface Props {
 
 type Filter = "all" | DocumentType;
 
+const TYPE_OPTIONS: { value: Filter; label: string }[] = [
+  { value: "all", label: "Tous les types" },
+  { value: "devis", label: "Devis" },
+  { value: "bon_de_commande", label: "Bons de commande" },
+  { value: "facture", label: "Factures" },
+];
+
 export function DocumentTable({ data, ordinateurs, ecrans, licences }: Props) {
-  const [sorting, setSorting] = useState<SortingState>([]);
-  const [globalFilter, setGlobalFilter] = useState("");
-  const [typeFilter, setTypeFilter] = useState<Filter>("all");
   const [editing, setEditing] = useState<DocumentT | null>(null);
+  const [typeFilter, setTypeFilter] = useState<Filter>("all");
+  const deleteDoc = useDeleteDocument();
 
   const filteredData = useMemo(
-    () =>
-      typeFilter === "all"
-        ? data
-        : data.filter((d) => d.type === typeFilter),
+    () => (typeFilter === "all" ? data : data.filter((d) => d.type === typeFilter)),
     [data, typeFilter]
   );
 
-  const columns = useDocumentColumns({
-    onEdit: setEditing,
-    ordinateurs,
-    ecrans,
-    licences,
-  });
-
-  const table = useReactTable({
-    data: filteredData,
-    columns,
-    getCoreRowModel: getCoreRowModel(),
-    getSortedRowModel: getSortedRowModel(),
-    getFilteredRowModel: getFilteredRowModel(),
-    getPaginationRowModel: getPaginationRowModel(),
-    onSortingChange: setSorting,
-    onGlobalFilterChange: setGlobalFilter,
-    state: { sorting, globalFilter },
-    initialState: { pagination: { pageSize: 10 } },
-  });
+  const columns = useDocumentColumns({ ordinateurs, ecrans, licences });
 
   return (
-    <div className="space-y-4">
-      <div className="flex items-center gap-4">
-        <Input
-          placeholder="Rechercher..."
-          value={globalFilter}
-          onChange={(event) => setGlobalFilter(event.target.value)}
-          className="max-w-sm"
-        />
-        <select
-          className="border rounded-md px-3 py-2 text-sm"
-          value={typeFilter}
-          onChange={(e) => setTypeFilter(e.target.value as Filter)}
-        >
-          <option value="all">Tous les types</option>
-          <option value="devis">Devis</option>
-          <option value="bon_de_commande">Bons de commande</option>
-          <option value="facture">Factures</option>
-        </select>
-        <div className="text-sm text-gray-500">
-          {table.getFilteredRowModel().rows.length} sur {filteredData.length}{" "}
-          documents
-        </div>
-        <div className="ml-auto">
+    <>
+      <DataTable
+        data={filteredData}
+        columns={columns}
+        searchPlaceholder="Rechercher un document..."
+        itemLabel="documents"
+        onEdit={setEditing}
+        onDelete={(rows) => {
+          const msg =
+            rows.length === 1
+              ? `Supprimer le document ${rows[0].numero} ?`
+              : `Supprimer ${rows.length} documents ?`;
+          if (confirm(msg)) rows.forEach((r) => deleteDoc.mutate(r.id));
+        }}
+        toolbarLeft={
+          <select
+            className="border rounded-md px-3 py-2 text-sm"
+            value={typeFilter}
+            onChange={(e) => setTypeFilter(e.target.value as Filter)}
+          >
+            {TYPE_OPTIONS.map((o) => (
+              <option key={o.value} value={o.value}>
+                {o.label}
+              </option>
+            ))}
+          </select>
+        }
+        toolbarRight={
           <DocumentCreateDialog
             ordinateurs={ordinateurs}
             ecrans={ecrans}
             licences={licences}
           />
-        </div>
-      </div>
-
-      <div className="rounded-md border">
-        <Table>
-          <TableHeader>
-            {table.getHeaderGroups().map((headerGroup) => (
-              <TableRow key={headerGroup.id}>
-                {headerGroup.headers.map((header) => (
-                  <TableHead key={header.id}>
-                    {flexRender(
-                      header.column.columnDef.header,
-                      header.getContext()
-                    )}
-                  </TableHead>
-                ))}
-              </TableRow>
-            ))}
-          </TableHeader>
-          <TableBody>
-            {table.getRowModel().rows.length > 0 ? (
-              table.getRowModel().rows.map((row) => (
-                <TableRow key={row.id}>
-                  {row.getVisibleCells().map((cell) => (
-                    <TableCell key={cell.id}>
-                      {flexRender(cell.column.columnDef.cell, cell.getContext())}
-                    </TableCell>
-                  ))}
-                </TableRow>
-              ))
-            ) : (
-              <TableRow>
-                <TableCell
-                  colSpan={columns.length}
-                  className="h-24 text-center text-gray-500"
-                >
-                  Aucun résultat.
-                </TableCell>
-              </TableRow>
-            )}
-          </TableBody>
-        </Table>
-
-        <div className="flex items-center justify-between py-4">
-          <div className="text-sm text-gray-500">
-            Page {table.getState().pagination.pageIndex + 1} sur{" "}
-            {table.getPageCount()}
-          </div>
-          <div className="flex items-center gap-2">
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={() => table.previousPage()}
-              disabled={!table.getCanPreviousPage()}
-            >
-              Précédent
-            </Button>
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={() => table.nextPage()}
-              disabled={!table.getCanNextPage()}
-            >
-              Suivant
-            </Button>
-          </div>
-        </div>
-      </div>
-
+        }
+      />
       {editing && (
         <DocumentEditDialog
           document={editing}
@@ -182,6 +88,6 @@ export function DocumentTable({ data, ordinateurs, ecrans, licences }: Props) {
           }}
         />
       )}
-    </div>
+    </>
   );
 }

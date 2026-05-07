@@ -55,7 +55,7 @@ export interface Ordinateur extends BaseEquipment {
 // ────────── Ecran ──────────
 
 export interface Ecran extends BaseEquipment {
-  taille: string | null;
+  taille: number | null;
   slot: number | null;
 
   ordinateur_id: number | null;
@@ -82,8 +82,6 @@ export interface OfficeLicence {
 export interface Agent {
   id: number;
   nom: string;
-  prenom: string;
-  service: string | null;
   email: string | null;
   telephone: string | null;
   created_at: string;

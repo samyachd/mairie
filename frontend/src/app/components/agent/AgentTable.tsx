@@ -1,138 +1,38 @@
 import { useState } from "react";
-import {
-  SortingState,
-  flexRender,
-  getCoreRowModel,
-  getFilteredRowModel,
-  getPaginationRowModel,
-  getSortedRowModel,
-  useReactTable,
-} from "@tanstack/react-table";
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "@/app/components/ui/table";
-import { Button } from "@/app/components/ui/button";
-import { Input } from "@/app/components/ui/input";
 import type { Agent } from "@/app/types";
 import { useAgentColumns } from "@/app/hooks/useAgentColumns";
+import { useDeleteAgent } from "@/app/hooks/useAgent";
 import { AgentCreateDialog } from "./AgentCreateDialog";
 import { AgentEditDialog } from "./AgentEditDialog";
+import { DataTable } from "../DataTable/DataTable";
 
 interface Props {
   data: Agent[];
 }
 
 export function AgentTable({ data }: Props) {
-  const [sorting, setSorting] = useState<SortingState>([]);
-  const [globalFilter, setGlobalFilter] = useState("");
   const [editingAgent, setEditingAgent] = useState<Agent | null>(null);
+  const deleteAgent = useDeleteAgent();
 
-  const columns = useAgentColumns({
-    onEdit: (agent) => setEditingAgent(agent),
-  });
-
-  const table = useReactTable({
-    data,
-    columns,
-    getCoreRowModel: getCoreRowModel(),
-    getSortedRowModel: getSortedRowModel(),
-    getFilteredRowModel: getFilteredRowModel(),
-    getPaginationRowModel: getPaginationRowModel(),
-    onSortingChange: setSorting,
-    onGlobalFilterChange: setGlobalFilter,
-    state: { sorting, globalFilter },
-    initialState: { pagination: { pageSize: 10 } },
-  });
+  const columns = useAgentColumns();
 
   return (
-    <div className="space-y-4">
-      <div className="flex items-center gap-4">
-        <Input
-          placeholder="Rechercher..."
-          value={globalFilter}
-          onChange={(event) => setGlobalFilter(event.target.value)}
-          className="max-w-sm"
-        />
-        <div className="text-sm text-gray-500">
-          {table.getFilteredRowModel().rows.length} sur {data.length} agents
-        </div>
-        <div className="ml-auto">
-          <AgentCreateDialog />
-        </div>
-      </div>
-
-      <div className="rounded-md border">
-        <Table>
-          <TableHeader>
-            {table.getHeaderGroups().map((headerGroup) => (
-              <TableRow key={headerGroup.id}>
-                {headerGroup.headers.map((header) => (
-                  <TableHead key={header.id}>
-                    {flexRender(
-                      header.column.columnDef.header,
-                      header.getContext()
-                    )}
-                  </TableHead>
-                ))}
-              </TableRow>
-            ))}
-          </TableHeader>
-          <TableBody>
-            {table.getRowModel().rows.length > 0 ? (
-              table.getRowModel().rows.map((row) => (
-                <TableRow key={row.id}>
-                  {row.getVisibleCells().map((cell) => (
-                    <TableCell key={cell.id}>
-                      {flexRender(cell.column.columnDef.cell, cell.getContext())}
-                    </TableCell>
-                  ))}
-                </TableRow>
-              ))
-            ) : (
-              <TableRow>
-                <TableCell
-                  colSpan={columns.length}
-                  className="h-24 text-center text-gray-500"
-                >
-                  Aucun résultat.
-                </TableCell>
-              </TableRow>
-            )}
-          </TableBody>
-        </Table>
-
-        <div className="flex items-center justify-between py-4">
-          <div className="text-sm text-gray-500">
-            Page {table.getState().pagination.pageIndex + 1} sur{" "}
-            {table.getPageCount()}
-          </div>
-          <div className="flex items-center gap-2">
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={() => table.previousPage()}
-              disabled={!table.getCanPreviousPage()}
-            >
-              Précédent
-            </Button>
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={() => table.nextPage()}
-              disabled={!table.getCanNextPage()}
-            >
-              Suivant
-            </Button>
-          </div>
-        </div>
-      </div>
-
-      
+    <>
+      <DataTable
+        data={data}
+        columns={columns}
+        searchPlaceholder="Rechercher un agent..."
+        itemLabel="agents"
+        onEdit={setEditingAgent}
+        onDelete={(rows) => {
+          const msg =
+            rows.length === 1
+              ? `Supprimer l'agent ${rows[0].nom} ?`
+              : `Supprimer ${rows.length} agents ?`;
+          if (confirm(msg)) rows.forEach((r) => deleteAgent.mutate(r.id));
+        }}
+        toolbarRight={<AgentCreateDialog />}
+      />
       {editingAgent && (
         <AgentEditDialog
           agent={editingAgent}
@@ -142,6 +42,6 @@ export function AgentTable({ data }: Props) {
           }}
         />
       )}
-    </div>
+    </>
   );
 }

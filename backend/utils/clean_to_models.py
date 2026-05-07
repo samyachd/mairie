@@ -102,6 +102,13 @@ PC_FIXE_KEYWORDS = ("FIXE", "OPTIPLEX", "MICRO PC", "AIO", "ECOLES", "TOUT EN UN
 PC_PORT_KEYWORDS = ("PORTABLE", "LATITUDE", "PRECISION", "SURFACE", "TABLETTE", "XPS")
 ECRAN_KEYWORDS = ("ECRAN",)
 
+# Serie values that are just a brand name (e.g. new DELL monitors entered with
+# brand in the serial column). They produce 21 identical tag='DELL' rows which
+# trips the unique constraint — nullify them so tag stays None.
+_KNOWN_BRANDS = {
+    "DELL", "HP", "LENOVO", "ASUS", "ACER", "SAMSUNG", "LG",
+    "PHILIPS", "AOC", "IIYAMA", "BENQ", "VIEWSONIC", "MSI", "APPLE", "HUAWEI",
+}
 
 # ──────────────────────────────────────────────────────────────────────────
 # Value coercion helpers
@@ -198,6 +205,42 @@ def to_ip(v) -> str | None:
         return None
     return s
 
+# OS canonical names — ordered most-specific first.
+_OS_MAP: list[tuple[re.Pattern, str]] = [
+    (re.compile(r"win.*?11.*?educ", re.I), "Windows 11 Education"),
+    (re.compile(r"win.*?11", re.I), "Windows 11 Pro"),
+    (re.compile(r"(win|w).*?10.*?educ", re.I), "Windows 10 Pro Education"),
+    (re.compile(r"(win|w).*?10", re.I), "Windows 10 Pro"),
+    (re.compile(r"^10\s*pro", re.I), "Windows 10 Pro"),
+    (re.compile(r"^7\s*pro", re.I), "Windows 7 Pro"),
+    (re.compile(r"linux.*?mint", re.I), "Linux Mint"),
+    (re.compile(r"\blinux\b", re.I), "Linux"),
+]
+
+
+def normalize_os(v) -> str | None:
+    s = clean_str(v)
+    if s is None:
+        return None
+    for pattern, canonical in _OS_MAP:
+        if pattern.search(s):
+            return canonical
+    return s
+
+
+_RAM_RE = re.compile(r"(\d+)\s*(?:go|gb|g)\b", re.I)
+
+
+def normalize_ram(v) -> str | None:
+    s = clean_str(v)
+    if s is None:
+        return None
+    m = _RAM_RE.search(s)
+    if m:
+        return f"{m.group(1)} Go"
+    return s
+
+
 def to_size(value):
     if not value:
         return None
@@ -260,27 +303,42 @@ def build_ordinateur(row: dict) -> dict | None:
     tag = clean_str(row.get("N° SERIE PC"))
     date_achat = to_date(row.get("DATE ACHAT PC"))
     type_eq = bucket_type(row.get("TYPE"))
+    marque = clean_str(row.get("MARQUE PC"))
 
-    # Skip rows that aren't a PC: no serial AND not labelled as a PC type
+    # Infer equipment type from brand when TYPE column is blank (42 such rows).
+    if type_eq is None and marque:
+        upper = marque.upper()
+        if any(k in upper for k in PC_PORT_KEYWORDS):
+            type_eq = "PC PORTABLE"
+        else:
+            type_eq = "PC FIXE"
+
+    # Skip rows that aren't a PC: no serial AND not labelled as a PC type.
     if tag is None and type_eq not in {"PC FIXE", "PC PORTABLE"}:
         return None
+
+    # Compute MACs once — to_mac() registers each in seen_macs, so calling
+    # it twice for the same field would return None the second time.
+    mac_eth = to_mac(row.get("MAC ADRESSE ETHERNET"))
+    mac_wifi = to_mac(row.get("MAC ADRESSE WIFI"))
 
     return {
         "tag": tag,
         "type_equipement": type_eq,
         "service": clean_str(row.get("SERVICE")),
         "batiment": clean_str(row.get("EMPLACEMENT")),
-        "proprietaire": clean_str(row.get("UTILISATEUR PRINCIPAL")),
-        "marque": clean_str(row.get("MARQUE PC")),
+        "proprietaire": None,
+        "_agent_key": clean_str(row.get("UTILISATEUR PRINCIPAL")),
+        "marque": marque,
         "fournisseur": clean_str(row.get("FOURNISSEUR PC")),
         "date_achat": date_achat,
         "fin_garantie": to_date(row.get("DATE FIN GARANTIE PC")),
-        "ram": clean_str(row.get("RAM PC")),
-        "os": clean_str(row.get("OS")),
-        "nom_reseau": to_hostname(row.get("NOM RESEAU"), to_mac(row.get("MAC ADRESSE ETHERNET")), tag),
+        "ram": normalize_ram(row.get("RAM PC")),
+        "os": normalize_os(row.get("OS")),
+        "nom_reseau": to_hostname(row.get("NOM RESEAU"), mac_eth, tag),
         "ip_address": to_ip(row.get("Adresse IP PC")),
-        "mac_ethernet": to_mac(row.get("MAC ADRESSE ETHERNET")),
-        "mac_wifi": to_mac(row.get("MAC ADRESSE WIFI")),
+        "mac_ethernet": mac_eth,
+        "mac_wifi": mac_wifi,
         "clef_wifi": to_bool(row.get("CLEF WIFI")),
         "lecteur_cd": to_bool(row.get("LECTEUR DVD/CD EXTERNE")),
         "casque": to_bool(row.get("CASQUE")),
@@ -298,10 +356,11 @@ def build_ecrans(row: dict, ordi_tag: str | None) -> list[dict]:
         modele = clean_str(row.get(k_modele))
         serie = clean_str(row.get(k_serie))
         date_achat = to_date(row.get(k_achat))
-        # Some rows have N° SERIE ECRAN N filled with the brand again (e.g.
-        # both columns say "DELL"). Treat that as missing serial — otherwise
-        # 16 ecrans end up with the same tag and trip the unique constraint.
-        if serie and marque and serie.lower() == marque.lower():
+        # Nullify serie when it's just a brand name ("DELL" entered 21 times
+        # for new DELL monitors) or when serie == marque exactly.
+        if serie and serie.strip().upper() in _KNOWN_BRANDS:
+            serie = None
+        elif serie and marque and serie.lower() == marque.lower():
             serie = None
         # Slot is empty if nothing identifies it
         if not any([type_e, marque, modele, serie, date_achat]):
@@ -352,6 +411,7 @@ def main() -> None:
     ordinateurs: list[dict] = []
     ecrans: list[dict] = []
     licences: dict[tuple, dict] = {}
+    agents: dict[str, dict] = {}   # _agent_key → agent dict (deduped)
     seen_pc_tags: set[str] = set()
     skipped = Counter()
 
@@ -383,16 +443,24 @@ def main() -> None:
         ordi_tag = ordi["tag"] if ordi else None
         ecrans.extend(build_ecrans(row, ordi_tag))
 
+    for ordi in ordinateurs:
+        key = ordi.get("_agent_key")
+        if key and key not in agents:
+            agents[key] = {"_agent_key": key, "nom": key}
+
     output = {
         "ordinateurs": ordinateurs,
         "ecrans": ecrans,
         "office_licences": list(licences.values()),
+        "agents": list(agents.values()),
     }
 
     OUTPUT.write_text(json.dumps(output, ensure_ascii=False, indent=2), encoding="utf-8")
 
     print(f"Wrote {OUTPUT.name}")
+    print(f"  agents         : {len(agents)}")
     print(f"  ordinateurs    : {len(ordinateurs)}")
+    print(f"    with agent   : {sum(1 for o in ordinateurs if o.get('_agent_key'))}")
     print(f"    with office  : {sum(1 for o in ordinateurs if o.get('_office_key'))}")
     print(f"    with tag     : {sum(1 for o in ordinateurs if o.get('tag'))}")
     print(f"  ecrans         : {len(ecrans)}")

@@ -11,6 +11,7 @@
     "noUnusedParameters": true,
     "noFallthroughCasesInSwitch": true,
     "composite": true,
+    "outDir": ".tsbuild",
     "paths": {
       "@/*": ["./src/*"]
     }

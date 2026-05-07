@@ -83,11 +83,25 @@ export function OrdinateurEditDialog({
             submitLabel="Enregistrer les modifications"
             onOcrExtracted={setPendingOcr}
             defaultValues={{
+              tag: ordinateur.tag,
               nom_reseau: ordinateur.nom_reseau,
               marque: ordinateur.marque,
-              date_achat: ordinateur.date_achat,
-              proprietaire: ordinateur.proprietaire,
+              type_equipement: ordinateur.type_equipement,
+              os: ordinateur.os,
+              ram: ordinateur.ram,
               service: ordinateur.service,
+              batiment: ordinateur.batiment,
+              fournisseur: ordinateur.fournisseur,
+              date_achat: ordinateur.date_achat,
+              fin_garantie: ordinateur.fin_garantie,
+              ip_address: ordinateur.ip_address,
+              mac_ethernet: ordinateur.mac_ethernet,
+              mac_wifi: ordinateur.mac_wifi,
+              clef_wifi: ordinateur.clef_wifi,
+              lecteur_cd: ordinateur.lecteur_cd,
+              casque: ordinateur.casque,
+              absolute_dell: ordinateur.absolute_dell,
+              watt: ordinateur.watt,
               agent_id: ordinateur.agent_id,
             }}
             onSubmit={(data) => {

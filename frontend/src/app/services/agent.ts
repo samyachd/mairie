@@ -5,8 +5,6 @@ import type { Agent } from "@/app/types";
 
 export interface AgentPayload {
   nom: string;
-  prenom: string;
-  service: string | null;
   email: string | null;
   telephone: string | null;
 }

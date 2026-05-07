@@ -15,10 +15,8 @@ class Agent(BaseEntry):
     __tablename__ = "agent"
 
     nom: Mapped[str] = mapped_column(String(255), nullable=False, index=True)
-    prenom: Mapped[str] = mapped_column(String(255), nullable=False, index=True)
-    service: Mapped[str | None] = mapped_column(String(255), nullable=True, index=True)
     email: Mapped[str | None] = mapped_column(String(255), nullable=True, unique=True, index=True)
     telephone: Mapped[str | None] = mapped_column(String(20), nullable=True)
 
-    ordinateur: Mapped[Optional["Ordinateur"]] = relationship(back_populates="agent", passive_deletes=True)
+    ordinateur: Mapped[list["Ordinateur"]] = relationship(back_populates="agent", passive_deletes=True)
     ecran: Mapped[list["Ecran"]] = relationship(back_populates="agent", passive_deletes=True)
