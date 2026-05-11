@@ -15,16 +15,17 @@ import type { Agent } from "@/app/types";
 
 interface Props {
   agents: Agent[];
+  disabled?: boolean;
 }
 
-export function OrdinateurCreateDialog({ agents }: Props) {
+export function OrdinateurCreateDialog({ agents, disabled }: Props) {
   const [open, setOpen] = useState(false);
   const createOrdi = useCreateOrdinateur();
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
-        <Button>
+        <Button disabled={disabled}>
           <Plus className="h-4 w-4 mr-2" />
           Nouveau
         </Button>

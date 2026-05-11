@@ -22,9 +22,10 @@ import {
 
 interface Props {
   documents: DocumentT[];
+  disabled?: boolean;
 }
 
-export function OfficeLicenceCreateDialog({ documents }: Props) {
+export function OfficeLicenceCreateDialog({ documents, disabled }: Props) {
   const [open, setOpen] = useState(false);
   const [pendingOcr, setPendingOcr] = useState<OcrExtractedData | null>(null);
   const [createdLicenceId, setCreatedLicenceId] = useState<number | null>(null);
@@ -50,7 +51,7 @@ export function OfficeLicenceCreateDialog({ documents }: Props) {
       }}
     >
       <DialogTrigger asChild>
-        <Button>
+        <Button disabled={disabled}>
           <Plus className="h-4 w-4 mr-2" />
           Nouvelle
         </Button>

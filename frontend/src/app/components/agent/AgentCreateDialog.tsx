@@ -12,14 +12,14 @@ import { Button } from "@/app/components/ui/button";
 import { AgentForm } from "./AgentForm";
 import { useCreateAgent } from "@/app/hooks/useAgent";
 
-export function AgentCreateDialog() {
+export function AgentCreateDialog({ disabled }: { disabled?: boolean }) {
   const [open, setOpen] = useState(false);
   const createMutation = useCreateAgent();
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
-        <Button>
+        <Button disabled={disabled}>
           <Plus className="h-4 w-4 mr-2" />
           Nouveau
         </Button>

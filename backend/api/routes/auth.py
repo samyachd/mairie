@@ -45,11 +45,14 @@ def logout(
     db: Session = Depends(get_db)
 ):
     token = credentials.credentials
-    
+
     payload = jwt.decode(token, settings.SECRET_KEY, algorithms=[settings.ALGORITHM])
     expire_at = datetime.fromtimestamp(payload["exp"], tz=timezone.utc)
-    
+
+    # Purge already-expired entries to keep the table small
+    db.query(TokenBlacklist).filter(TokenBlacklist.expire_at <= datetime.now(timezone.utc)).delete()
+
     db.add(TokenBlacklist(token=token, expire_at=expire_at))
     db.commit()
-    logger.info(f"Déconnexion : {current_user.username}")
+    logger.info(f"Déconnexion : {current_user.email}")
     return {"message": "Déconnecté"}

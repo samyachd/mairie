@@ -3,6 +3,7 @@ import { ColumnDef } from "@tanstack/react-table";
 import type { Agent, Document, DocumentType, Ordinateur } from "@/app/types";
 import { SortableHeader } from "../components/DataTable/SortableHeader";
 import { DocumentLink } from "../components/DocumentLink";
+import { QrDownloadButton } from "../components/QrDownloadButton";
 
 interface Options {
   agents: Agent[];
@@ -209,6 +210,16 @@ export function useOrdinateurColumns({
       header: "Facture",
       cell: ({ row }) => (
         <DocumentLink doc={docFor(row.original.id, "facture")} />
+      ),
+    },
+    {
+      id: "qrcode",
+      header: "QR",
+      cell: ({ row }) => (
+        <QrDownloadButton
+          endpoint={`/qrcode/ordinateur/${row.original.id}`}
+          filename={`qr-ord-${row.original.tag ?? row.original.id}.png`}
+        />
       ),
     },
   ];

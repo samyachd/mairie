@@ -11,8 +11,8 @@ COPY pyproject.toml uv.lock ./
 
 ARG DEV=false
 RUN if [ "$DEV" = "true" ]; \
-    then uv sync; \
-    else uv sync --no-dev; \
+    then uv sync --frozen; \
+    else uv sync --frozen --no-dev; \
     fi
 
 COPY . .

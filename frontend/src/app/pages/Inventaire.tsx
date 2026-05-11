@@ -1,3 +1,4 @@
+import { useState } from "react";
 import { useInventaire } from "@/app/hooks/useInventaire";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/app/components/ui/tabs";
 import { OrdinateurTable } from "@/app/components/ordinateur/OrdinateurTable";
@@ -8,6 +9,7 @@ import { DocumentTable } from "../components/document/DocumentTable";
 
 export function Inventaire() {
   const { data, isLoading, isError, error } = useInventaire();
+  const [tab, setTab] = useState("ordinateurs");
 
   if (isLoading) return <div className="p-6">Chargement...</div>;
   if (isError) {
@@ -23,7 +25,7 @@ export function Inventaire() {
     <div className="p-6">
       <h1 className="text-2xl font-semibold mb-6">Inventaire</h1>
 
-      <Tabs defaultValue="ordinateurs">
+      <Tabs value={tab} onValueChange={setTab}>
         <TabsList>
           <TabsTrigger value="ordinateurs">
             Ordinateurs ({data.ordinateurs.length})
@@ -43,36 +45,44 @@ export function Inventaire() {
         </TabsList>
 
         <TabsContent value="ordinateurs" className="mt-6">
-          <OrdinateurTable
-            data={data.ordinateurs}
-            agents={data.agents}
-            documents={data.documents}
-          />
+          {tab === "ordinateurs" && (
+            <OrdinateurTable
+              data={data.ordinateurs}
+              agents={data.agents}
+              documents={data.documents}
+            />
+          )}
         </TabsContent>
         <TabsContent value="ecrans" className="mt-6">
-          <EcranTable
-            data={data.ecrans}
-            agents={data.agents}
-            ordinateurs={data.ordinateurs}
-            documents={data.documents}
-          />
+          {tab === "ecrans" && (
+            <EcranTable
+              data={data.ecrans}
+              agents={data.agents}
+              ordinateurs={data.ordinateurs}
+              documents={data.documents}
+            />
+          )}
         </TabsContent>
         <TabsContent value="licences" className="mt-6">
-          <OfficeLicenceTable
-            data={data.licences}
-            documents={data.documents}
-          />
+          {tab === "licences" && (
+            <OfficeLicenceTable
+              data={data.licences}
+              documents={data.documents}
+            />
+          )}
         </TabsContent>
         <TabsContent value="documents" className="mt-6">
-          <DocumentTable
-            data={data.documents}
-            ordinateurs={data.ordinateurs}
-            ecrans={data.ecrans}
-            licences={data.licences}
-          />
+          {tab === "documents" && (
+            <DocumentTable
+              data={data.documents}
+              ordinateurs={data.ordinateurs}
+              ecrans={data.ecrans}
+              licences={data.licences}
+            />
+          )}
         </TabsContent>
         <TabsContent value="agents" className="mt-6">
-          <AgentTable data={data.agents} />
+          {tab === "agents" && <AgentTable data={data.agents} />}
         </TabsContent>
       </Tabs>
     </div>

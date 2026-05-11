@@ -46,6 +46,8 @@ from schemas.auth import Token
 
 from schemas.inventaire import InventaireRead
 
+from schemas.logs import LogRead, OcrStatRead
+
 __all__ = [
     "OrdinateurCreate",
     "OrdinateurUpdate",
@@ -67,4 +69,6 @@ __all__ = [
     "UserUpdate",
     "Token",
     "InventaireRead",
+    "LogRead",
+    "OcrStatRead",
 ]

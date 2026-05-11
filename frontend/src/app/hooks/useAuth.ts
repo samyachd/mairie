@@ -6,9 +6,18 @@ import api from "@/app/services/api";
 
 interface AuthState {
   token: string | null;
+  role: string | null;
   isAuthenticated: boolean;
   login: (credentials: Credentials) => Promise<void>;
   logout: () => void;
+}
+
+function parseJwtRole(token: string): string | null {
+  try {
+    return (JSON.parse(atob(token.split(".")[1])) as { role?: string }).role ?? null;
+  } catch {
+    return null;
+  }
 }
 
 function applyAuthHeader(token: string | null) {
@@ -23,17 +32,18 @@ export const useAuth = create<AuthState>()(
   persist(
     (set) => ({
       token: null,
+      role: null,
       isAuthenticated: false,
 
       login: async (credentials) => {
         const data = await loginService(credentials);
         applyAuthHeader(data.access_token);
-        set({ token: data.access_token, isAuthenticated: true });
+        set({ token: data.access_token, role: parseJwtRole(data.access_token), isAuthenticated: true });
       },
 
       logout: () => {
         applyAuthHeader(null);
-        set({ token: null, isAuthenticated: false });
+        set({ token: null, role: null, isAuthenticated: false });
       },
     }),
     {
@@ -43,6 +53,7 @@ export const useAuth = create<AuthState>()(
         if (state?.token) {
           applyAuthHeader(state.token);
           state.isAuthenticated = true;
+          state.role = parseJwtRole(state.token);
         }
       },
     }

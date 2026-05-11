@@ -17,16 +17,17 @@ interface Props {
   ordinateurs: Ordinateur[];
   ecrans: Ecran[];
   licences: OfficeLicence[];
+  disabled?: boolean;
 }
 
-export function DocumentCreateDialog({ ordinateurs, ecrans, licences }: Props) {
+export function DocumentCreateDialog({ ordinateurs, ecrans, licences, disabled }: Props) {
   const [open, setOpen] = useState(false);
   const createMutation = useCreateDocument();
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
-        <Button>
+        <Button disabled={disabled}>
           <Plus className="h-4 w-4 mr-2" />
           Nouveau document
         </Button>

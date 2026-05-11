@@ -53,7 +53,7 @@ export interface OcrExtractedData {
 }
 
 export interface OcrResponse {
-  donnees: OcrExtractedData;
+  donnees: OcrExtractedData[];  // one item per equipment found in the document
   metriques: Record<string, unknown>;
 }
 

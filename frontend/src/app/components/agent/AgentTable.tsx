@@ -5,6 +5,7 @@ import { useDeleteAgent } from "@/app/hooks/useAgent";
 import { AgentCreateDialog } from "./AgentCreateDialog";
 import { AgentEditDialog } from "./AgentEditDialog";
 import { DataTable } from "../DataTable/DataTable";
+import { useAuth } from "@/app/hooks/useAuth";
 
 interface Props {
   data: Agent[];
@@ -13,6 +14,7 @@ interface Props {
 export function AgentTable({ data }: Props) {
   const [editingAgent, setEditingAgent] = useState<Agent | null>(null);
   const deleteAgent = useDeleteAgent();
+  const canWrite = useAuth((s) => s.role) !== "read";
 
   const columns = useAgentColumns();
 
@@ -31,7 +33,7 @@ export function AgentTable({ data }: Props) {
               : `Supprimer ${rows.length} agents ?`;
           if (confirm(msg)) rows.forEach((r) => deleteAgent.mutate(r.id));
         }}
-        toolbarRight={<AgentCreateDialog />}
+        toolbarRight={<AgentCreateDialog disabled={!canWrite} />}
       />
       {editingAgent && (
         <AgentEditDialog

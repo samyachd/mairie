@@ -3,9 +3,10 @@ import type { Agent, Document, Ecran, Ordinateur } from "@/app/types";
 import { useEcranColumns } from "@/app/hooks/useEcranColumns";
 import { useDeleteEcran } from "@/app/hooks/useEcran";
 import { EcranCreateDialog } from "./EcranCreateDialog";
-import { EcranOcrDialog } from "./EcranOcrDialog";
 import { EcranEditDialog } from "./EcranEditDialog";
 import { DataTable } from "../DataTable/DataTable";
+import { QrDownloadButton } from "../QrDownloadButton";
+import { useAuth } from "@/app/hooks/useAuth";
 
 interface Props {
   data: Ecran[];
@@ -17,6 +18,7 @@ interface Props {
 export function EcranTable({ data, agents, ordinateurs, documents }: Props) {
   const [editingEcran, setEditingEcran] = useState<Ecran | null>(null);
   const deleteEcran = useDeleteEcran();
+  const canWrite = useAuth((s) => s.role) !== "read";
 
   const columns = useEcranColumns({ agents, ordinateurs, documents });
 
@@ -36,9 +38,13 @@ export function EcranTable({ data, agents, ordinateurs, documents }: Props) {
           if (confirm(msg)) rows.forEach((r) => deleteEcran.mutate(r.id));
         }}
         toolbarRight={
-          <div className="flex gap-2">
-            <EcranOcrDialog agents={agents} ordinateurs={ordinateurs} documents={documents} />
-            <EcranCreateDialog agents={agents} ordinateurs={ordinateurs} />
+          <div className="flex items-center gap-2">
+            <QrDownloadButton
+              endpoint="/qrcode/ecran/all"
+              filename="qrcodes-ecrans.zip"
+              label="Télécharger tous les QR"
+            />
+            <EcranCreateDialog agents={agents} ordinateurs={ordinateurs} disabled={!canWrite} />
           </div>
         }
       />

@@ -11,6 +11,7 @@ import { useDeleteDocument } from "@/app/hooks/useDocument";
 import { DocumentCreateDialog } from "./DocumentCreateDialog";
 import { DocumentEditDialog } from "./DocumentEditDialog";
 import { DataTable } from "../DataTable/DataTable";
+import { useAuth } from "@/app/hooks/useAuth";
 
 interface Props {
   data: DocumentT[];
@@ -32,6 +33,7 @@ export function DocumentTable({ data, ordinateurs, ecrans, licences }: Props) {
   const [editing, setEditing] = useState<DocumentT | null>(null);
   const [typeFilter, setTypeFilter] = useState<Filter>("all");
   const deleteDoc = useDeleteDocument();
+  const canWrite = useAuth((s) => s.role) !== "read";
 
   const filteredData = useMemo(
     () => (typeFilter === "all" ? data : data.filter((d) => d.type === typeFilter)),
@@ -73,6 +75,7 @@ export function DocumentTable({ data, ordinateurs, ecrans, licences }: Props) {
             ordinateurs={ordinateurs}
             ecrans={ecrans}
             licences={licences}
+            disabled={!canWrite}
           />
         }
       />

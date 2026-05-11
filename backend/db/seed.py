@@ -43,6 +43,12 @@ CLEAN_DIR = _resolve_clean_dir()
 ADMIN_EMAIL = "admin@mairie.fr"
 ADMIN_PASSWORD = "Admin1234!"
 
+USER_EMAIL = "user@mairie.fr"
+USER_PASSWORD = "User1234!"
+
+READER_EMAIL = "reader@mairie.fr"
+READER_PASSWORD = "Reader1234!"
+
 
 # ──────────────────────────────────────────────────────────────────────
 # Helpers
@@ -76,8 +82,21 @@ def seed_admin(db) -> None:
             email=ADMIN_EMAIL,
             mot_de_passe_hash=hacher_mot_de_passe(ADMIN_PASSWORD),
             role=RoleEnum.admin,
-        )
-    )
+    ))
+    db.add(
+        User(
+            nom="User",
+            email=USER_EMAIL,
+            mot_de_passe_hash=hacher_mot_de_passe(USER_PASSWORD),
+            role=RoleEnum.user,
+        ))
+    db.add(    
+        User(
+            nom="Reader",
+            email=READER_EMAIL,
+            mot_de_passe_hash=hacher_mot_de_passe(READER_PASSWORD),
+            role=RoleEnum.read,
+        ))
     db.commit()
     print(f"  ✓ admin created ({ADMIN_EMAIL} / {ADMIN_PASSWORD})")
 

@@ -34,13 +34,15 @@ async def extract_document(
         logger.error(f"Erreur OCR : {e}")
         raise HTTPException(status_code=500, detail="Erreur lors de l'extraction OCR")
 
-    donnees = result["donnees"]
+    donnees = result["donnees"]   # list of items
     metriques = result["metriques"]
     duree_ms = int((time() - debut_total) * 1000)
 
+    type_document = metriques.pop("_type_document", "inconnu") or "inconnu"
+
     stat = OcrStat(
         user_id=current_user.id,
-        type_document=donnees.get("type_document") or "inconnu",
+        type_document=type_document,
         nom_fichier=file.filename,
         type_mime=file.content_type,
         taille_fichier=len(contenu),
@@ -51,5 +53,5 @@ async def extract_document(
     db.add(stat)
     db.commit()
 
-    logger.info(f"OCR réussi pour {file.filename}")
+    logger.info(f"OCR réussi pour {file.filename} — {len(donnees)} équipement(s)")
     return {"donnees": donnees, "metriques": metriques}

@@ -1,4 +1,5 @@
 import { useState, ReactNode } from "react";
+import { useAuth } from "@/app/hooks/useAuth";
 import {
   ColumnDef,
   Row,
@@ -44,6 +45,9 @@ export function DataTable<T>({
   onEdit,
   onDelete,
 }: Props<T>) {
+  const role = useAuth((s) => s.role);
+  const canWrite = role !== "read";
+
   const [sorting, setSorting] = useState<SortingState>([]);
   const [globalFilter, setGlobalFilter] = useState("");
   const [rowSelection, setRowSelection] = useState<RowSelectionState>({});
@@ -159,7 +163,7 @@ export function DataTable<T>({
               variant="outline"
               size="sm"
               onClick={handleEdit}
-              disabled={selectedCount !== 1}
+              disabled={selectedCount !== 1 || !canWrite}
             >
               <Pencil className="h-4 w-4 mr-1" />
               Modifier
@@ -170,7 +174,7 @@ export function DataTable<T>({
               variant="outline"
               size="sm"
               onClick={handleDelete}
-              disabled={selectedCount === 0}
+              disabled={selectedCount === 0 || !canWrite}
             >
               <Trash2 className="h-4 w-4 mr-1 text-red-500" />
               Supprimer

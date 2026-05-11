@@ -3,9 +3,10 @@ import type { Agent, Document, Ordinateur } from "@/app/types";
 import { useOrdinateurColumns } from "@/app/hooks/useOrdinateurColumns";
 import { useDeleteOrdinateur } from "@/app/hooks/useOrdinateur";
 import { OrdinateurCreateDialog } from "./OrdinateurCreateDialog";
-import { OrdinateurOcrDialog } from "./OrdinateurOcrDialog";
 import { OrdinateurEditDialog } from "./OrdinateurEditDialog";
 import { DataTable } from "../DataTable/DataTable";
+import { QrDownloadButton } from "../QrDownloadButton";
+import { useAuth } from "@/app/hooks/useAuth";
 
 interface Props {
   data: Ordinateur[];
@@ -16,6 +17,7 @@ interface Props {
 export function OrdinateurTable({ data, agents, documents }: Props) {
   const [editingOrdinateur, setEditingOrdinateur] = useState<Ordinateur | null>(null);
   const deleteOrdinateur = useDeleteOrdinateur();
+  const canWrite = useAuth((s) => s.role) !== "read";
 
   const columns = useOrdinateurColumns({ agents, documents });
 
@@ -35,9 +37,13 @@ export function OrdinateurTable({ data, agents, documents }: Props) {
           if (confirm(msg)) rows.forEach((r) => deleteOrdinateur.mutate(r.id));
         }}
         toolbarRight={
-          <div className="flex gap-2">
-            <OrdinateurOcrDialog agents={agents} documents={documents} />
-            <OrdinateurCreateDialog agents={agents} />
+          <div className="flex items-center gap-2">
+            <QrDownloadButton
+              endpoint="/qrcode/ordinateur/all"
+              filename="qrcodes-ordinateurs.zip"
+              label="Télécharger tous les QR"
+            />
+            <OrdinateurCreateDialog agents={agents} disabled={!canWrite} />
           </div>
         }
       />

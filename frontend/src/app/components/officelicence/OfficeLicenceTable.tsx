@@ -5,6 +5,7 @@ import { useDeleteOfficeLicence } from "@/app/hooks/useOfficeLicence";
 import { OfficeLicenceCreateDialog } from "./OfficeLicenceCreateDialog";
 import { OfficeLicenceEditDialog } from "./OfficeLicenceEditDialog";
 import { DataTable } from "../DataTable/DataTable";
+import { useAuth } from "@/app/hooks/useAuth";
 
 interface Props {
   data: OfficeLicence[];
@@ -14,6 +15,7 @@ interface Props {
 export function OfficeLicenceTable({ data, documents }: Props) {
   const [editingLicence, setEditingLicence] = useState<OfficeLicence | null>(null);
   const deleteLicence = useDeleteOfficeLicence();
+  const canWrite = useAuth((s) => s.role) !== "read";
 
   const columns = useOfficeLicenceColumns({ documents });
 
@@ -32,7 +34,7 @@ export function OfficeLicenceTable({ data, documents }: Props) {
               : `Supprimer ${rows.length} licences ?`;
           if (confirm(msg)) rows.forEach((r) => deleteLicence.mutate(r.id));
         }}
-        toolbarRight={<OfficeLicenceCreateDialog documents={documents} />}
+        toolbarRight={<OfficeLicenceCreateDialog documents={documents} disabled={!canWrite} />}
       />
       {editingLicence && (
         <OfficeLicenceEditDialog
