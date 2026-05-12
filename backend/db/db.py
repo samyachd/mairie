@@ -2,12 +2,9 @@ from sqlalchemy import create_engine
 from sqlalchemy.orm import DeclarativeBase
 from core.settings import settings
 
-DATABASE_URL = settings.DATABASE_URL
-# Pour SQLite: "sqlite:///./app.db" (et ajouter connect_args plus bas)
-
 engine = create_engine(
-    DATABASE_URL,
-    echo=False,          # True pour debug SQL
+    settings.DATABASE_URL,
+    echo=settings.DEBUG,          # True pour debug SQL
     pool_pre_ping=True,  # évite les connexions mortes
 )
 

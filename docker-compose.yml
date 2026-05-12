@@ -1,0 +1,53 @@
+services:
+  db:
+    image: postgres:15
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB}
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+
+  backend:
+    build:
+      context: ./backend
+    # Order matters: later files override earlier.
+    # /.env  → POSTGRES_*, ports
+    # backend/.env → SECRET_KEY, MISTRAL_*, CORS_ORIGINS
+    env_file:
+      - .env
+      - backend/.env
+    environment:
+      POSTGRES_HOST: db
+    depends_on:
+      - db
+
+  frontend:
+    build:
+      context: ./frontend
+    depends_on:
+      - backend
+
+  prometheus:
+    image: prom/prometheus
+    volumes:
+      - ./prometheus.yml:/etc/prometheus/prometheus.yml
+
+  grafana:
+    image: grafana/grafana
+    depends_on:
+      - prometheus
+    volumes:
+      - grafana_data:/var/lib/grafana
+
+  loki:
+    image: grafana/loki:latest
+
+  promtail:
+    image: grafana/promtail:latest
+    volumes:
+      - ./promtail.yml:/etc/promtail/config.yml
+
+volumes:
+  postgres_data:
+  grafana_data:

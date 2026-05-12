@@ -1,21 +1,32 @@
-import { Outlet, Link, useLocation } from "react-router";
-import {
-  LayoutDashboard,
-  Package,
-  PlusCircle,
-  Menu,
-  X,
-} from "lucide-react";
+import { Outlet, Link, useLocation, useNavigate } from "react-router";
+import { Package, SquareChartGantt, ScanLine, Menu, X, ShieldCheck, LogOut } from "lucide-react";
 import { useState } from "react";
+import { useAuth } from "@/app/hooks/useAuth";
+import api from "@/app/services/api";
 
 export function Layout() {
   const location = useLocation();
+  const navigate = useNavigate();
   const [sidebarOpen, setSidebarOpen] = useState(true);
+  const role = useAuth((s) => s.role);
+  const logout = useAuth((s) => s.logout);
+
+  const handleLogout = async () => {
+    try {
+      await api.delete("/auth/logout");
+    } catch {
+      // ignore — token may already be invalid
+    } finally {
+      logout();
+      navigate("/login", { replace: true });
+    }
+  };
 
   const navigation = [
-    { name: "Dashboard", href: "/", icon: LayoutDashboard },
-    { name: "Products", href: "/products", icon: Package },
-    { name: "Add Product", href: "/products/add", icon: PlusCircle },
+    { name: "Inventaire", href: "/", icon: Package },
+    ...(role === "admin" ? [{ name: "Gestion", href: "/gestion", icon: SquareChartGantt }] : []),
+    ...(role === "admin" ? [{ name: "Administration", href: "/administration", icon: ShieldCheck }] : []),
+    ...(role !== "read" ? [{ name: "OCR", href: "/ocr", icon: ScanLine }] : []),
   ];
 
   const isActive = (path: string) => {
@@ -33,10 +44,10 @@ export function Layout() {
           sidebarOpen ? "translate-x-0" : "-translate-x-full"
         } bg-white border-r border-gray-200 w-64`}
       >
-        <div className="h-full px-3 py-4 overflow-y-auto">
+        <div className="h-full px-3 py-4 flex flex-col">
           <div className="flex items-center justify-between mb-8 px-3">
             <h2 className="text-xl font-bold text-gray-800">
-              Inventory Pro
+              Inventaire
             </h2>
             <button
               onClick={() => setSidebarOpen(false)}
@@ -45,7 +56,7 @@ export function Layout() {
               <X className="w-6 h-6" />
             </button>
           </div>
-          <ul className="space-y-2">
+          <ul className="space-y-2 flex-1">
             {navigation.map((item) => {
               const Icon = item.icon;
               return (
@@ -65,6 +76,13 @@ export function Layout() {
               );
             })}
           </ul>
+          <button
+            onClick={handleLogout}
+            className="flex items-center p-3 rounded-lg text-gray-700 hover:bg-red-50 hover:text-red-600 transition-colors w-full"
+          >
+            <LogOut className="w-5 h-5 mr-3" />
+            <span>Déconnexion</span>
+          </button>
         </div>
       </aside>
 
@@ -81,7 +99,7 @@ export function Layout() {
                 <Menu className="w-6 h-6" />
               </button>
               <h1 className="text-xl font-semibold text-gray-900">
-                Inventory Management System
+                Système de gestion d'inventaire
               </h1>
             </div>
           </div>

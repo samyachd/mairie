@@ -1,0 +1,44 @@
+services:
+  db:
+    ports:
+      - "${POSTGRES_PORT}"   # accessible depuis DBeaver/pgAdmin
+
+  backend:
+    build:
+      args:
+        DEV: "true"
+    ports:
+      - "${BACKEND_PORT}:8000"
+    volumes:
+      - ./backend:/app
+      - /app/.venv
+      # Expose raw + cleaned dumps to the seed script and clean_to_models util.
+      # Auto-detected by db.seed; explicit env below makes it greppable.
+      - ./data:/data
+    environment:
+      CLEAN_EXTRACTS_DIR: /data/clean_extracts
+    command: uvicorn main:app --host 0.0.0.0 --port 8000 --reload
+
+  frontend:
+    build:
+      context: ./frontend
+      target: dev   # ← On cible le stage "dev"
+    ports:
+      - "${FRONTEND_PORT}:5173"
+    volumes:
+      - ./frontend:/app
+      - /app/node_modules
+    depends_on:
+      - backend
+      
+  prometheus:
+    ports:
+      - "9090:9090"
+
+  grafana:
+    ports:
+      - "3001:3000"
+
+  loki:
+    ports:
+      - "3100:3100"

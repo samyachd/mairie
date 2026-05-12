@@ -1,31 +1,50 @@
+import os
 from fastapi import FastAPI
-from core.settings import settings
-from api.routes import ecrans_routes, licenses_routes, ordinateurs_routes, users_routes
+from prometheus_fastapi_instrumentator import Instrumentator
+from core import settings
+from api.routes import ordinateur, user, auth, agent, ecran, licence, document, inventaire, model, log, schema_router, qrcode_router
 from fastapi.middleware.cors import CORSMiddleware
+from core.logger import setup_logger, logger
+
+setup_logger()
 
 app = FastAPI(
     title=settings.APP_NAME,
     version=settings.VERSION,
     debug=settings.DEBUG,
 )
+Instrumentator().instrument(app).expose(app)
+logger.info(f"Démarrage de l'application {settings.APP_NAME} version {settings.VERSION}")
 
-origins = [
-    "https://castelnau-le-lez-inventaire.com",  # Ton site en production
-    "http://localhost:3000",  # Pour le développement local
-]
+CORS_ORIGINS = os.getenv("CORS_ORIGINS", "http://localhost:5173").split(",")
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=origins,  # Domaines autorisés
-    allow_credentials=True,  # Permet les cookies
-    allow_methods=["GET", "POST", "PUT", "DELETE"],  # Méthodes HTTP autorisées
-    allow_headers=["*"],  # Headers autorisés
+    allow_origins=CORS_ORIGINS,
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
 )
+
 @app.get("/")
 def root():
     return {"status": "ok", "message": "API Inventaire"}
 
-app.include_router(users_routes.router, prefix="/users", tags=["users"])
-app.include_router(ordinateurs_routes.router, prefix="/ordinateurs", tags=["ordinateurs"])
-app.include_router(licenses_routes.router, prefix="/licenses", tags=["licenses"])
-app.include_router(ecrans_routes.router, prefix="/ecrans", tags=["ecrans"])
+app.include_router(user, prefix="/users", tags=["users"])
+app.include_router(ordinateur, prefix="/ordinateurs", tags=["ordinateurs"])
+app.include_router(licence, prefix="/licenses", tags=["licenses"])
+app.include_router(ecran, prefix="/ecrans", tags=["ecrans"])
+app.include_router(auth, prefix="/auth", tags=["auth"])
+app.include_router(inventaire, prefix="/inventaire", tags=["inventaire"])
+app.include_router(agent, prefix="/agents", tags=["agents"])
+app.include_router(document, prefix="/documents", tags=["documents"])
+app.include_router(model, prefix="/models", tags=["models"])
+app.include_router(log, prefix="/logs", tags=["logs"])
+app.include_router(schema_router, prefix="/schema", tags=["schema"])
+app.include_router(qrcode_router, prefix="/qrcode", tags=["qrcode"])
+
+# @app.lifespan("startup")
+# async def startup():
+#     from db.seed import seed
+#     seed()
+#     logger.info(f"{settings.APP_NAME} démarré")

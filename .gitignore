@@ -2,12 +2,17 @@
 # PYTHON
 # ============================================
 
+# Notebooks
+
 # Environnements virtuels
 .venv/
 venv/
 ENV/
 env/
 .virtualenv/
+.env
+.env.local
+/.env/
 
 # Bytecode Python
 __pycache__/
@@ -52,7 +57,6 @@ coverage.xml
 
 # Jupyter Notebook
 .ipynb_checkpoints
-*.ipynb
 
 # MyPy
 .mypy_cache/
@@ -105,12 +109,14 @@ files_test/
 
 # Variables d'environnement
 .env
-.env.local
-.env.*.local
+.env.*
 *.env
 
-# MAIS garde le template
+# MAIS garde les templates
 !.env.example
+!.env.prod.example
+!.env.development
+!.env.production
 
 # ============================================
 # ÉDITEURS & IDE
@@ -189,5 +195,7 @@ _build/
 test_*.txt
 debug_*
 
-# Lock files uv (optionnel - certains préfèrent le garder)
-# uv.lock
+.gitignore
+
+loki-proxy/htpasswd
+.tsbuild
