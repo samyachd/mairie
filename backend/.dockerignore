@@ -16,7 +16,7 @@ __pycache__/
 .env
 .env.local
 .env.staging
-.env.production
+.env.prod
 
 # Git
 .git/
