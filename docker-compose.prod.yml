@@ -33,8 +33,6 @@ services:
     env_file:
       - .env.prod
       - backend/.env.prod
-    environment:
-      POSTGRES_HOST: db
     command: uvicorn main:app --host 0.0.0.0 --port 8000 --workers 4
     healthcheck:
       test: ["CMD", "python", "-c", "import urllib.request, sys; sys.exit(0 if urllib.request.urlopen('http://localhost:8000/').status == 200 else 1)"]
@@ -42,19 +40,6 @@ services:
       timeout: 5s
       retries: 5
       start_period: 30s
-    depends_on:
-      db:
-        condition: service_healthy
-    restart: unless-stopped
-
-  db:
-    env_file:
-      - .env.prod
-    healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U $${POSTGRES_USER} -d $${POSTGRES_DB}"]
-      interval: 10s
-      timeout: 5s
-      retries: 5
     restart: unless-stopped
 
   # ─────────────────────────────────────────────────────────────────
@@ -70,7 +55,6 @@ services:
     env_file:
       - .env.prod
     environment:
-      POSTGRES_HOST: db
       SCHEDULE: "@daily"
       BACKUP_KEEP_DAYS: 7
       BACKUP_KEEP_WEEKS: 4
@@ -79,9 +63,6 @@ services:
       POSTGRES_EXTRA_OPTS: "-Z9 --clean --if-exists"
     volumes:
       - ${BACKUP_TARGET}:/backups
-    depends_on:
-      db:
-        condition: service_healthy
 
   prometheus:
     volumes:
