@@ -39,7 +39,7 @@ export function OrdinateurForm({
   submitLabel = "Créer l'ordinateur",
   onOcrExtracted,
 }: Props) {
-  const { register, handleSubmit, setValue } = useForm<FormValues>({
+  const { register, handleSubmit, setValue, formState: { errors } } = useForm<FormValues>({
     defaultValues: {
       tag: defaultValues?.tag ?? "",
       nom_reseau: defaultValues?.nom_reseau ?? "",
@@ -67,7 +67,6 @@ export function OrdinateurForm({
   const submit = (values: FormValues) => {
     onSubmit({
       ...values,
-      tag: values.tag || null,
       nom_reseau: values.nom_reseau || null,
       marque: values.marque || null,
       type_equipement: values.type_equipement || null,
@@ -106,8 +105,9 @@ export function OrdinateurForm({
       <div className="overflow-y-auto max-h-[60vh] space-y-3 pr-1">
         <div className="grid grid-cols-2 gap-3">
           <div>
-            <Label htmlFor="tag">Tag</Label>
-            <Input id="tag" placeholder="SN1234" {...register("tag")} />
+            <Label htmlFor="tag">Tag *</Label>
+            <Input id="tag" placeholder="SN1234" {...register("tag", { required: "Le tag est obligatoire" })} />
+            {errors.tag && <p className="text-sm text-red-600 mt-1">{errors.tag.message}</p>}
           </div>
           <div>
             <Label htmlFor="nom_reseau">Nom réseau</Label>

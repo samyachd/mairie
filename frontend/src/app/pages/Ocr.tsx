@@ -146,7 +146,7 @@ function OrdTable({
         <table className="text-xs w-full">
           <thead className="bg-gray-50 text-muted-foreground">
             <tr>
-              {["Tag", "Marque", "Type", "OS", "RAM", "IP", "Fournisseur", "Date achat *", "Fin garantie", "Service", "Bâtiment", "Agent", ""].map((h) => (
+              {["Tag", "Marque", "Type", "OS", "RAM", "IP", "Fournisseur", "Date achat", "Fin garantie", "Service", "Bâtiment", "Agent", ""].map((h) => (
                 <th key={h} className="px-2 py-2 text-left font-medium whitespace-nowrap">{h}</th>
               ))}
             </tr>
@@ -165,7 +165,7 @@ function OrdTable({
                 <TCell><TInput value={r.ram} onChange={(v) => onChange(r._id, "ram", v)} placeholder="8 Go" /></TCell>
                 <TCell><TInput value={r.ip_address} onChange={(v) => onChange(r._id, "ip_address", v)} placeholder="192.168.1.1" /></TCell>
                 <TCell><TInput value={r.fournisseur} onChange={(v) => onChange(r._id, "fournisseur", v)} placeholder="Fournisseur" /></TCell>
-                <TCell><TInput type="date" value={r.date_achat} onChange={(v) => onChange(r._id, "date_achat", v)} required /></TCell>
+                <TCell><TInput type="date" value={r.date_achat} onChange={(v) => onChange(r._id, "date_achat", v)} /></TCell>
                 <TCell><TInput type="date" value={r.fin_garantie} onChange={(v) => onChange(r._id, "fin_garantie", v)} /></TCell>
                 <TCell><TInput value={r.service} onChange={(v) => onChange(r._id, "service", v)} placeholder="Service" /></TCell>
                 <TCell><TInput value={r.batiment} onChange={(v) => onChange(r._id, "batiment", v)} placeholder="Bâtiment" /></TCell>
@@ -210,7 +210,7 @@ function EcrTable({
         <table className="text-xs w-full">
           <thead className="bg-gray-50 text-muted-foreground">
             <tr>
-              {["Tag", "Marque", "Taille (po)", "Fournisseur", "Date achat *", "Fin garantie", "Service", "Bâtiment", "Agent", "PC lié", ""].map((h) => (
+              {["Tag", "Marque", "Taille (po)", "Fournisseur", "Date achat", "Fin garantie", "Service", "Bâtiment", "Agent", "PC lié", ""].map((h) => (
                 <th key={h} className="px-2 py-2 text-left font-medium whitespace-nowrap">{h}</th>
               ))}
             </tr>
@@ -222,7 +222,7 @@ function EcrTable({
                 <TCell><TInput value={r.marque} onChange={(v) => onChange(r._id, "marque", v)} placeholder="LG" /></TCell>
                 <TCell><TInput type="number" value={r.taille} onChange={(v) => onChange(r._id, "taille", v)} placeholder="24" /></TCell>
                 <TCell><TInput value={r.fournisseur} onChange={(v) => onChange(r._id, "fournisseur", v)} placeholder="Fournisseur" /></TCell>
-                <TCell><TInput type="date" value={r.date_achat} onChange={(v) => onChange(r._id, "date_achat", v)} required /></TCell>
+                <TCell><TInput type="date" value={r.date_achat} onChange={(v) => onChange(r._id, "date_achat", v)} /></TCell>
                 <TCell><TInput type="date" value={r.fin_garantie} onChange={(v) => onChange(r._id, "fin_garantie", v)} /></TCell>
                 <TCell><TInput value={r.service} onChange={(v) => onChange(r._id, "service", v)} placeholder="Service" /></TCell>
                 <TCell><TInput value={r.batiment} onChange={(v) => onChange(r._id, "batiment", v)} placeholder="Bâtiment" /></TCell>
@@ -305,13 +305,7 @@ export function Ocr() {
   const changeEcr = (id: string, field: keyof EcrDraft, val: string) =>
     setEcrs((prev) => prev.map((r) => r._id === id ? { ...r, [field]: val } : r));
 
-  const missingDate = ords.some((r) => !r.date_achat) || ecrs.some((r) => !r.date_achat);
-
   const handleConfirm = async () => {
-    if (missingDate) {
-      toast.error("Date d'achat obligatoire pour toutes les lignes");
-      return;
-    }
     setSubmitting(true);
     let errors = 0;
 
@@ -324,7 +318,7 @@ export function Ocr() {
           os: r.os || null,
           ram: r.ram || null,
           fournisseur: r.fournisseur || null,
-          date_achat: r.date_achat,
+          date_achat: r.date_achat || null,
           fin_garantie: r.fin_garantie || null,
           service: r.service || null,
           batiment: r.batiment || null,
@@ -352,7 +346,7 @@ export function Ocr() {
           taille: r.taille ? Number(r.taille) : null,
           slot: null,
           fournisseur: r.fournisseur || null,
-          date_achat: r.date_achat,
+          date_achat: r.date_achat || null,
           fin_garantie: r.fin_garantie || null,
           service: r.service || null,
           batiment: r.batiment || null,
@@ -370,12 +364,14 @@ export function Ocr() {
     if (errors === 0) {
       toast.success(`${total} équipement${total > 1 ? "s" : ""} créé${total > 1 ? "s" : ""}`);
       queryClient.invalidateQueries({ queryKey: ["inventaire"] });
+      queryClient.invalidateQueries({ queryKey: ["logs"] });
       setOrds([]);
       setEcrs([]);
       setPhase("upload");
     } else {
       toast.error(`${errors} erreur${errors > 1 ? "s" : ""} sur ${total} lignes`);
       queryClient.invalidateQueries({ queryKey: ["inventaire"] });
+      queryClient.invalidateQueries({ queryKey: ["logs"] });
     }
   };
 
@@ -447,9 +443,6 @@ export function Ocr() {
           <h1 className="text-2xl font-bold">Vérification des données</h1>
           <p className="text-sm text-muted-foreground mt-0.5">
             Vérifiez et complétez les informations extraites avant de confirmer.
-            {missingDate && (
-              <span className="text-red-500 ml-2">Les champs marqués * sont obligatoires.</span>
-            )}
           </p>
         </div>
         <div className="flex gap-2">

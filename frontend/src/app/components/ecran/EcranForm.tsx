@@ -28,7 +28,7 @@ export function EcranForm({
   submitLabel = "Créer l'écran",
   onOcrExtracted,
 }: Props) {
-  const { register, handleSubmit, setValue } = useForm<EcranCreatePayload>({
+  const { register, handleSubmit, setValue, formState: { errors } } = useForm<EcranCreatePayload>({
     defaultValues: {
       tag: defaultValues?.tag ?? "",
       marque: defaultValues?.marque ?? "",
@@ -47,7 +47,6 @@ export function EcranForm({
   const submit = (values: EcranCreatePayload) => {
     onSubmit({
       ...values,
-      tag: values.tag || null,
       marque: values.marque || null,
       service: (values.service as string) || null,
       batiment: (values.batiment as string) || null,
@@ -74,8 +73,9 @@ export function EcranForm({
       <div className="overflow-y-auto max-h-[60vh] space-y-3 pr-1">
         <div className="grid grid-cols-2 gap-3">
           <div>
-            <Label htmlFor="tag">Tag</Label>
-            <Input id="tag" placeholder="SN5678" {...register("tag")} />
+            <Label htmlFor="tag">Tag *</Label>
+            <Input id="tag" placeholder="SN5678" {...register("tag", { required: "Le tag est obligatoire" })} />
+            {errors.tag && <p className="text-sm text-red-600 mt-1">{errors.tag.message}</p>}
           </div>
           <div>
             <Label htmlFor="marque">Marque</Label>

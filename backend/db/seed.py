@@ -10,6 +10,7 @@ Usage (from backend/):
 from __future__ import annotations
 
 import datetime as dt
+import hashlib
 import json
 import sys
 import os
@@ -56,6 +57,20 @@ READER_PASSWORD = "Reader1234!"
 
 def _parse_date(s: str | None) -> dt.date | None:
     return dt.date.fromisoformat(s) if s else None
+
+
+def _fallback_tag(prefix: str, raw: dict) -> str:
+    """Deterministic tag for equipment missing one in source data.
+    Stable across re-runs so idempotency checks still work."""
+    stable = {k: v for k, v in raw.items() if not k.startswith("_") and v is not None}
+    digest = hashlib.sha1(json.dumps(stable, sort_keys=True).encode()).hexdigest()[:10]
+    return f"{prefix}-AUTO-{digest}"
+
+
+def _make_clef(key: tuple) -> str:
+    """Deterministic licence key when none is present in source data."""
+    seed_str = "|".join(str(k) for k in key if k is not None)
+    return "LIC-AUTO-" + hashlib.sha1(seed_str.encode()).hexdigest()[:12]
 
 
 def _latest_normalized_file() -> Path:
@@ -131,6 +146,7 @@ def seed_office_licences(db, items: list[dict]) -> dict[tuple, OfficeLicence]:
             type_licence=raw.get("type_licence"),
             date_achat=_parse_date(raw.get("date_achat")),
             fournisseur=raw.get("fournisseur"),
+            clef=raw.get("clef") or _make_clef(key),
         )
         db.add(lic)
         db.flush()
@@ -179,29 +195,25 @@ def seed_ordinateurs(
     seen_in_json = set()
 
     for raw in items:
-        tag = raw.get("tag")
-        if tag:
-            # 2. Vérifie d'abord si on l'a déjà croisé dans CE fichier
-            if tag in seen_in_json:
-                skipped_dup += 1
-                continue
-                
-            # 3. Ensuite, vérifie si la base de données le connaît (ton code actuel)
-            existing = db.query(Ordinateur).filter(Ordinateur.tag == tag).first()
-            if existing:
-                by_tag[tag] = existing
-                skipped_dup += 1
-                seen_in_json.add(tag)
-                # Back-fill agent_id for ordinateurs seeded before agent support.
-                if existing.agent_id is None:
-                    agent_key = raw.get("_agent_key")
-                    if agent_key and agent_key in agents_by_key:
-                        existing.agent_id = agents_by_key[agent_key].id
-                continue
-                
-            # Si on arrive ici, c'est un nouveau tag !
-            # On l'ajoute au set pour ne pas le recréer plus loin dans le JSON
+        tag = raw.get("tag") or _fallback_tag("PC", raw)
+
+        if tag in seen_in_json:
+            skipped_dup += 1
+            continue
+
+        existing = db.query(Ordinateur).filter(Ordinateur.tag == tag).first()
+        if existing:
+            by_tag[tag] = existing
+            skipped_dup += 1
             seen_in_json.add(tag)
+            # Back-fill agent_id for ordinateurs seeded before agent support.
+            if existing.agent_id is None:
+                agent_key = raw.get("_agent_key")
+                if agent_key and agent_key in agents_by_key:
+                    existing.agent_id = agents_by_key[agent_key].id
+            continue
+
+        seen_in_json.add(tag)
 
         office_key = raw.get("_office_key")
         office_id = (
@@ -241,8 +253,7 @@ def seed_ordinateurs(
         )
         db.add(ordi)
         db.flush()
-        if tag:
-            by_tag[tag] = ordi
+        by_tag[tag] = ordi
         created += 1
     print(
         f"  ✓ ordinateurs    : {created}/{len(items)} created"
@@ -259,21 +270,27 @@ def seed_ecrans(
     skipped_slot = 0
     seen_tags: set[str] = set()
     for raw in items:
-        tag = raw.get("tag")
-        if tag:
-            if tag in seen_tags:
-                skipped_dup += 1
-                continue
-            existing = db.query(Ecran).filter(Ecran.tag == tag).first()
-            if existing:
-                skipped_dup += 1
-                continue
-            seen_tags.add(tag)
-
         owner_tag = raw.get("_ordinateur_tag")
         ordi = ordis_by_tag.get(owner_tag) if owner_tag else None
         ordi_id = ordi.id if ordi else None
         slot = raw.get("slot") if ordi_id is not None else None
+
+        tag = raw.get("tag")
+        if not tag:
+            if owner_tag and slot is not None:
+                tag = f"ECR-{owner_tag}-S{slot}"
+            else:
+                tag = _fallback_tag("ECR", raw)
+
+        if tag in seen_tags:
+            skipped_dup += 1
+            continue
+        existing = db.query(Ecran).filter(Ecran.tag == tag).first()
+        if existing:
+            skipped_dup += 1
+            seen_tags.add(tag)
+            continue
+        seen_tags.add(tag)
 
         # Slot is unique per ordinateur; skip if already taken
         if ordi_id is not None and slot is not None:
