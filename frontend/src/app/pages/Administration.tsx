@@ -35,11 +35,12 @@ const ACTION_STYLE: Record<string, string> = {
 };
 
 const TABLE_LABELS: Record<string, string> = {
-  ordinateurs: "Ordinateurs",
-  ecrans:      "Écrans",
-  agents:      "Agents",
-  licences:    "Licences",
-  documents:   "Documents",
+  ordinateurs:  "Ordinateurs",
+  ecrans:       "Écrans",
+  agents:       "Agents",
+  licences:     "Licences",
+  documents:    "Documents",
+  utilisateurs: "Utilisateurs",
 };
 
 // ─── OCR columns (static — no actions needed) ────────────────────────────────

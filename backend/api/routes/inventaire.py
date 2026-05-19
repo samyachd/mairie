@@ -1,5 +1,5 @@
 import json
-from fastapi import APIRouter, Depends, HTTPException, status
+from fastapi import APIRouter, Depends, HTTPException, Query, status
 from sqlalchemy.orm import Session
 from core.dependencies import require_role
 from core.logging_db import log_action
@@ -32,13 +32,17 @@ document = APIRouter(dependencies=[Depends(require_role("user", "admin"))])
 # Inventaire — single fetch for the whole inventory page
 
 @inventaire.get("/", response_model=InventaireRead)
-def read_inventaire(db: Session = Depends(get_db)):
+def read_inventaire(
+    db: Session = Depends(get_db),
+    limit: int = Query(500, ge=1, le=5000),
+    offset: int = Query(0, ge=0),
+):
     return InventaireRead(
-        agents=db.query(Agent).all(),
-        ordinateurs=db.query(Ordinateur).all(),
-        ecrans=db.query(Ecran).all(),
-        licences=db.query(OfficeLicence).all(),
-        documents=db.query(Document).all(),
+        agents=db.query(Agent).offset(offset).limit(limit).all(),
+        ordinateurs=db.query(Ordinateur).offset(offset).limit(limit).all(),
+        ecrans=db.query(Ecran).offset(offset).limit(limit).all(),
+        licences=db.query(OfficeLicence).offset(offset).limit(limit).all(),
+        documents=db.query(Document).offset(offset).limit(limit).all(),
     )
 
 
